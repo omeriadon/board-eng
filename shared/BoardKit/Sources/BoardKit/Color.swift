@@ -26,6 +26,8 @@ public struct RGB: Hashable, Sendable {
 		RGB(r + (other.r - r) * t, g + (other.g - g) * t, b + (other.b - b) * t)
 	}
 
+	public var clamped: RGB { RGB(limit(r, 0, 0, 1), limit(g, 0, 0, 1), limit(b, 0, 0, 1)) }
+
 	public func scaled(_ k: Float) -> RGB { RGB(r * k, g * k, b * k) }
 
 	/// Perceived brightness, 0...1.

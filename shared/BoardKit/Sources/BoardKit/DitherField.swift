@@ -1,21 +1,28 @@
-/// One rendered frame: a colour per LED (row-major) and a height level per tile (row-major).
+/// One rendered frame: a colour per LED (row-major) and a height per tile (row-major).
 public struct BoardFrame: Hashable, Sendable {
 	public var geometry: BoardGeometry
 	public var pixels: [Pixel]
-	/// 0 ..< geometry.heightLevels for each tile.
+	/// 0 ..< geometry.heightLevels for each tile: what the firmware drives the motors to.
 	public var heights: [UInt8]
+	/// The same heights as smooth positions, 0...1, for drawing.
+	public var lift: [Float]
+	/// Mean brightness of each tile's LEDs, 0...1.
+	public var tileLevels: [Float]
 
 	public init(geometry: BoardGeometry) {
 		self.geometry = geometry
 		pixels = Array(repeating: .off, count: geometry.pixelCount)
 		heights = Array(repeating: 0, count: geometry.tileCount)
+		lift = Array(repeating: 0, count: geometry.tileCount)
+		tileLevels = Array(repeating: 0, count: geometry.tileCount)
 	}
 
 	public func pixel(column: Int, row: Int) -> Pixel { pixels[row * geometry.pixelsPerSide + column] }
 	public func height(tileColumn: Int, tileRow: Int) -> UInt8 { heights[tileRow * geometry.tilesPerSide + tileColumn] }
+	public func lift(tileColumn: Int, tileRow: Int) -> Float { lift[tileRow * geometry.tilesPerSide + tileColumn] }
 }
 
-/// Renders the animated dither field. Pure Swift with no Foundation, SIMD or libm, so the exact same
+/// Renders the animated light field. Pure Swift with no Foundation, SIMD or libm, so the exact same
 /// code runs on the Pico W (Embedded Swift), in the server, and in the apps' live preview.
 public struct DitherField: Sendable {
 	private let permutation: [Int]
@@ -36,66 +43,94 @@ public struct DitherField: Sendable {
 		gradients = grad
 	}
 
-	/// Renders the field at `offset`, the wave travel integrated by the caller (see `advance`).
+	/// Renders the lights at `offset`, the wave travel integrated by the caller (see `advance`).
+	/// Heights are left at rest: `BoardRenderer` fills them in.
 	public func render(_ s: DitherSettings, geometry g: BoardGeometry, offset: (x: Float, y: Float), brightness: Float = 1) -> BoardFrame {
 		var frame = BoardFrame(geometry: g)
 		let side = g.pixelsPerSide
+		let cell = max(1, min(s.cellSize, side))
+		let cells = (side + cell - 1) / cell
 		let inv = 1 / Float(side)
 		let inverseScale = 1 / max(s.scale, 0.05)
 		let levels = max(s.colorLevels, 1.01) - 1
 		let usesThreshold = s.ditherStrength != 0 && s.pattern != .none
-		let palette = s.palette.isEmpty ? [RGB.white] : s.palette
-		var tileSum = [Float](repeating: 0, count: g.tileCount)
+		let plan = ColorPlan(s)
 
-		for row in 0 ..< side {
-			for column in 0 ..< side {
-				let u = (Float(column) + 0.5) * inv, v = (Float(row) + 0.5) * inv
+		var colors = [RGB](repeating: .black, count: side * side)
+		var alphas = [Float](repeating: 0, count: side * side)
+
+		for cellRow in 0 ..< cells {
+			for cellColumn in 0 ..< cells {
+				// The cell samples the field at its centre, so a 2 × 2 or 4 × 4 block shows one value.
+				let cx = Float(cellColumn * cell) + Float(cell) * 0.5, cy = Float(cellRow * cell) + Float(cell) * 0.5
+				let u = cx * inv, v = cy * inv
 				var value = pattern(u * inverseScale - offset.x, v * inverseScale - offset.y, s)
 				value = clamp((value - 0.5) * s.contrast + 0.5 + s.brightness, 0, 1)
 
-				let t = usesThreshold ? (threshold(column, row, s.pattern) - 0.25) * s.ditherStrength : 0
+				let t = usesThreshold ? (threshold(cellColumn, cellRow, s.pattern) - 0.25) * s.ditherStrength : 0
 				var opacity = value + t / levels
 				opacity = clamp(opacity - 0.2 * (1 - smoothstep(0.45, 0.8, opacity)), 0, 1)
 				let alpha = (opacity * levels + 0.5).rounded(.down) / levels
 
-				let foreground: RGB
-				if palette.count > 1 {
-					let count = Float(palette.count)
-					var pv = value + t / (count - 1)
-					pv = clamp(pv - 0.2 * (1 - smoothstep(0.45, 0.8, pv)), 0, 1)
-					foreground = palette[min(palette.count - 1, Int((pv * (count - 1) + 0.5).rounded(.down)))]
-				} else {
-					foreground = palette[0]
+				let color = plan.color(value: value, t: t, alpha: alpha, u: u, v: v)
+				for dy in 0 ..< cell {
+					for dx in 0 ..< cell {
+						let column = cellColumn * cell + dx, row = cellRow * cell + dy
+						guard column < side, row < side else { continue }
+						colors[row * side + column] = color
+						alphas[row * side + column] = alpha
+					}
 				}
-				let color = s.backgroundColor.mixed(foreground, alpha).scaled(brightness)
-				frame.pixels[row * side + column] = color.pixel
+			}
+		}
 
+		if s.blur > 0 { colors = Self.blurred(colors, side: side, amount: s.blur) }
+
+		var tileSum = [Float](repeating: 0, count: g.tileCount)
+		for row in 0 ..< side {
+			for column in 0 ..< side {
+				frame.pixels[row * side + column] = colors[row * side + column].scaled(brightness).pixel
 				let tile = g.tile(forPixelColumn: column, row: row)
-				tileSum[tile.row * g.tilesPerSide + tile.column] += alpha
+				tileSum[tile.row * g.tilesPerSide + tile.column] += alphas[row * side + column]
 			}
 		}
-
 		let perTile = Float(g.ledsPerTileSide * g.ledsPerTileSide)
-		let top = Float(g.heightLevels - 1)
-		for i in 0 ..< g.tileCount {
-			let mean = tileSum[i] / perTile
-			let h: Float = switch s.heightMode {
-				case .brightness: mean
-				case .inverted: 1 - mean
-				case .flat: 0
-			}
-			frame.heights[i] = UInt8(clamp((h * clamp(s.motionAmount, 0, 1) * top + 0.5).rounded(.down), 0, top))
-		}
+		for i in 0 ..< g.tileCount { frame.tileLevels[i] = tileSum[i] / perTile }
 		return frame
 	}
 
-	/// Advances the wave offset by `seconds` along the configured direction. Uses a small
-	/// polynomial sine so it needs no libm (Embedded Swift on the Pico has none by default).
-	public static func advance(_ offset: (x: Float, y: Float), seconds: Float, settings s: DitherSettings) -> (x: Float, y: Float) {
-		let radians = s.waveDirection * Float.pi / 180
-		let speed = clamp(s.waveSpeed, 0, DitherSettings.maxWaveSpeed) * 4
+	/// Mixes every LED with the average of its eight neighbours.
+	static func blurred(_ colors: [RGB], side: Int, amount: Float) -> [RGB] {
+		var out = colors
+		for row in 0 ..< side {
+			for column in 0 ..< side {
+				var r: Float = 0, g: Float = 0, b: Float = 0, n: Float = 0
+				for dy in -1 ... 1 {
+					for dx in -1 ... 1 {
+						let x = column + dx, y = row + dy
+						guard x >= 0, y >= 0, x < side, y < side else { continue }
+						let c = colors[y * side + x]
+						r += c.r; g += c.g; b += c.b; n += 1
+					}
+				}
+				out[row * side + column] = colors[row * side + column].mixed(RGB(r / n, g / n, b / n), amount)
+			}
+		}
+		return out
+	}
+
+	/// Advances a wave offset by `seconds` along `degrees`. Uses a small polynomial sine so it needs no libm.
+	public static func travel(_ offset: (x: Float, y: Float), degrees: Float, speed: Float, seconds: Float) -> (x: Float, y: Float) {
+		let radians = degrees * Float.pi / 180
 		return (offset.x + cosine(radians) * speed * seconds, offset.y + sine(radians) * speed * seconds)
 	}
+
+	public static func advance(_ offset: (x: Float, y: Float), seconds: Float, settings s: DitherSettings) -> (x: Float, y: Float) {
+		travel(offset, degrees: s.waveDirection, speed: clamp(s.waveSpeed, 0, DitherSettings.maxWaveSpeed) * 4, seconds: seconds)
+	}
+
+	/// Smooth 2-D noise for the motion field, roughly -1...1.
+	func noise(_ x: Float, _ y: Float) -> Float { perlin(x, y) }
 
 	// MARK: Field
 
@@ -191,3 +226,74 @@ public struct DitherField: Sendable {
 }
 
 @inline(__always) func cosine(_ x: Float) -> Float { sine(x + Float.pi / 2) }
+
+// MARK: - Colour plan
+
+/// Stipple's `ColorPlan`: how a cell's brightness becomes a colour, for every background / placement / palette mode.
+struct ColorPlan {
+	let levels: Float
+	let background: RGB
+	let wave: RGB
+	let placementBackground: Bool
+	let colorField: Bool
+	let palette: [RGB]
+	let source: [RGB]
+
+	init(_ s: DitherSettings) {
+		levels = max(s.colorLevels, 1.01) - 1
+		placementBackground = s.colorPlacement == .background
+		let effective: RGB = switch s.backgroundStyle {
+			case .black: .black
+			case .white: .white
+			case .dim: s.waveColor.scaled(0.2)
+			case .custom: s.backgroundColor
+		}
+		wave = placementBackground ? (s.squareStyle == .black ? .black : .white) : s.waveColor
+		background = placementBackground ? s.waveColor : effective
+		source = s.palette
+		palette = placementBackground ? [] : s.palette
+		colorField = s.colorField && !s.palette.isEmpty
+	}
+
+	/// The palette blended across the board: each colour sits on a ring and a point takes a distance-weighted mix.
+	func tint(u: Float, v: Float) -> RGB {
+		let n = source.count
+		var r: Float = 0, g: Float = 0, b: Float = 0, total: Float = 0
+		for index in 0 ..< n {
+			var px: Float = 0.5, py: Float = 0.5
+			if n > 1 {
+				let angle = Float(index) / Float(n) * 2 * Float.pi - Float.pi / 2
+				px = 0.5 + cosine(angle) * 0.38
+				py = 0.5 + sine(angle) * 0.38
+			}
+			let dx = u - px, dy = v - py
+			let w = 1 / (dx * dx + dy * dy + 0.015)
+			r += source[index].r * w; g += source[index].g * w; b += source[index].b * w
+			total += w
+		}
+		total = max(total, 0.0001)
+		var c = RGB(r / total, g / total, b / total)
+		let peak = max(c.r, max(c.g, c.b))
+		let gain = 2.85 + (1.2 - 2.85) * smoothstep(0.12, 0.85, peak)
+		c = RGB(clamp(c.r * gain + 0.24, 0, 1), clamp(c.g * gain + 0.24, 0, 1), clamp(c.b * gain + 0.24, 0, 1))
+		return c
+	}
+
+	func color(value: Float, t: Float, alpha: Float, u: Float, v: Float) -> RGB {
+		var back = background
+		let foreground: RGB
+		if colorField {
+			let tint = tint(u: u, v: v)
+			back = placementBackground ? tint : background
+			foreground = placementBackground ? wave : tint
+		} else if palette.count > 1 {
+			let count = Float(palette.count)
+			var pv = value + t / (count - 1)
+			pv = clamp(pv - 0.2 * (1 - smoothstep(0.45, 0.8, pv)), 0, 1)
+			foreground = palette[min(palette.count - 1, Int((pv * (count - 1) + 0.5).rounded(.down)))]
+		} else {
+			foreground = wave
+		}
+		return back.mixed(foreground, alpha)
+	}
+}
