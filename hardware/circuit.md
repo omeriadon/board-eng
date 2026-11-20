@@ -205,6 +205,7 @@ What to do depends on the supply the school gives you:
 |---|---|
 | **5 V, ≥ 10 A** | Circuit above. No 7805. Hard to find as a safe plug-in brick. |
 | **9–12 V, a few amps** | Add a 5 V buck module (e.g. LM2596-type for 3 A, or an 8 A one) for the LED/motor rails, and optionally the 7805 for the logic rail only (replacing F7 + D1). |
+| **Old laptop charger** (typically 19–20 V, 3.4–4.7 A = 65–90 W; never 5 V 10 A) | Plenty of watts (we need about 45–60 W) but the wrong voltage. Use buck modules: 19 V → 5 V for the motors, logic and (WS2812B design) LEDs, or 19 V → 12 V for WS2815 LEDs plus 19 V → 5 V for the rest. Check the label for output V/A, plug polarity (usually centre positive) and size; a USB-C one needs a PD trigger board. Don't use one with a damaged cable. |
 | **5 V, 2–3 A** (phone-charger sized) | LED cap drops to ~1 A, i.e. dim; fine for a desk piece but not 600 LEDs bright. |
 
 The builder has decided the supply will be **bought**, since the school's is unknown and the constraint is heavy. The choice is between a 5 V brick (§3.1) and the 12 V option (§3.3). It changes §3 only, not the pin map.
