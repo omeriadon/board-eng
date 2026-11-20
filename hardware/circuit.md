@@ -77,119 +77,46 @@ Notes:
 
 ---
 
-## 3. Power
+## 3. Power (FINAL plan: three chargers)
 
-### 3.1 Distribution (one 5 V brick, fused branches)
+The earlier single-brick options are dropped. Decided with the builder (rev 14): **A = 12 V 4 A**, **B = 16 V 3.75 A**, **C = 20 V 3.33 A** (all spare chargers from home). Hard facts: volts × amps = watts, so a higher voltage only lowers the current; the real limit is each brick's watts and what the wires and fuses carry.
 
 ```
- 5 V brick (≥10 A, enclosed plug-in) ──► DC-022D jack (10 A) ──► rocker switch ──► F0 10 A fuse
-                                                                                       │
-                          ┌── 18 AWG ─────────────────────────────────────────────────┘
-                          ▼
-              ╔═══════════ 5 V BUS + GND BUS (terminal blocks / Wago / bus wire) ═══════════╗
-              ║   2200 µF across the bus                                                    ║
-              ╚══╤═══════╤═══════╤═══════╤═══════╤════════════╤══════════════╤═════════════╝
-                 │F1     │F2     │F3     │F4     │F5          │F6            │F7
-                 │3 A    │3 A    │3 A    │3 A    │2 A         │3 A           │1 A
-                 ▼       ▼       ▼       ▼       ▼            ▼              ▼
-              LED row 0 row 1  row 2   row 3   status bar   MOTOR rail     LOGIC rail
-              (144 LEDs each, 5 V + GND run along the tile row)   (all driver VS+5V pins)   │
-                                                                                      D1 1N5819
-                                                                                      │
-                                                                       Pico VSYS, 74HCT245 VCC
-                                                                       (100 µF at the Pico)
+ CHARGER A 12 V 4 A ──F1 4 A──► 12 V BUS A ──F2 2 A──► LED row 0
+ (48 W)                         1000 µF 25 V└─F3 2 A──► LED row 1
+
+ CHARGER C 20 V 3.33 A ─F4 3 A─► BUCK 1 (set 12.0 V, ≥5 A, heatsink) ─► 12 V BUS C ──F5 2 A──► LED row 2
+ (66 W)                                                       1000 µF 25 V ├─F6 2 A──► LED row 3
+                                                                           └─F7 1 A──► status bar
+
+ CHARGER B 16 V 3.75 A ─F8 2 A─► BUCK 2 (set 5.0 V, ≥5 A, heatsink) ─► 5 V BUS ──F9 3 A──► MOTOR RAIL
+ (60 W)                                                    470 µF 10 V        │            (all driver VS/VCC)
+                                                                              └─F10 1 A──► LOGIC RAIL
+                                                                                           ├─ D1 1N5819 ─► Pico VSYS (+100 µF)
+                                                                                           └─ 74HCT245 VCC
+
+ ALL NEGATIVES (A, B, C, both bucks) JOIN AT ONE STAR POINT. NEVER JOIN POSITIVES.
+ All three plugs go into one power board with one switch.
 ```
 
-- F1–F7 are resettable PTC fuses (or small blade fuses): hold current as shown. F0 protects the wiring from the brick.
-- **Power injection (your question):** yes, every tile row gets its own feed straight from the bus. A heavy 20 AWG pair runs along each tile row behind the motor plate, and each tile taps 5 V and GND from it with its own thin silicone wire. Nothing is fed through a tile into the next one, so there is no voltage droop along a row and a broken tile wire only loses that tile's power. **Data is the only thing that daisy-chains**: row DIN → tile 0 → tile 1 → tile 2 → tile 3, each tile passing DOUT to the next DIN.
-- Run every return (GND) back to the bus GND. Tie the logic ground to the same bus at one point (star ground), so the data lines share the LED ground.
-- 100 µF + 100 nF close to each row of motor drivers; 100 nF at every LED (already in the design).
-- Moving tiles use 26–28 AWG silicone with a service loop. One tile at the firmware cap is under 1 A, which these wires carry.
-
-### 3.2 Budget (the supply decides the LED cap)
-
-| Load | Worst case |
-|---|---|
-| LEDs: 600 × 60 mA at full white | 36 A (nowhere near possible) |
-| Motors: 4 moving at once (`maxMovingTiles` = 4) × 2 coils × ~0.15–0.3 A | 1.2–2.4 A |
-| Pico W (Wi-Fi), 74HCT245, 16 driver logic currents | ~0.4–0.9 A |
-| **Left for LEDs on a 10 A brick** (15 % margin: 8.5 A) | **~5–6 A ≈ 15–16 % of full white** |
-
-So the firmware should limit **LED current**, not just brightness: add up the red, green and blue values of the frame (about 20 mA per channel at full) and scale the whole frame down if the total passes the budget (about 5.5 A for a 10 A brick). Dither art averages far below full white, so you will rarely feel the limit. The old "25 % ≈ 9 A" figure would overload a 10 A brick once the motors and logic run.
-
-### 3.3 Fewer amps with a higher voltage (12 V option)
-
-Yes, but note what it does: **volts × amps = watts stays the same, so a higher voltage lowers the current, not the power.** What it buys is thinner wire, smaller fuses, less voltage drop, and an easy supply to buy (a 12 V 5 A plug-in brick is a standard item; a 5 V 10 A enclosed one is not).
-
-| | 5 V design (above) | 12 V design |
-|---|---|---|
-| LED budget (same light) | ~27 W = 5.5 A | 27 W = **2.3 A** |
-| Motors + logic (still need 5 V) | ~15 W = 3 A | 12 V → **5 V buck module** (~90 % efficient), ~1.7 A from 12 V |
-| Total from the supply | ~8.5 A | **~3.7 A**, so a 12 V 5 A brick (60 W) |
-| Per tile-row feed at the cap | ~1.3 A | ~0.55 A (fuses ~1 A hold, main fuse 5 A) |
-
-What changes in the circuit:
-
-- **LEDs:** 12 V WS2815 (6-pin 5050: VDD, DI, DO, GND, plus a backup data pair BI/BO) instead of WS2812B. Per the datasheets each channel is about 10–12 mA, so a pixel can draw ~0.36–0.43 W (a bit more than a WS2812B's 0.3 W). That is why the firmware cap should be in watts, not a percentage.
-- **Motors, 74HCT245 and the Pico** run from a 12 V → 5 V **buck module** (an LM2596-type 3 A one is enough). Not the 7805: from 12 V it would turn 58 % of the power into heat.
-- Everything in §4 stays the same, but the logic rail and motor rail come from the buck, and the LED rows come straight from the 12 V bus.
-- **Unverified, check before ordering:** that bare WS2815 5050 chips are sold in small quantities at a sensible price, what voltage their data input needs (the 74HCT245 outputs 5 V, which should be fine), and how to wire BI/BO (tie BI to the data line, or follow the datasheet). Order ~20 as a test tile first.
-
-**Cost reality:** a new 12 V 5 A brick is about **AU$46** (e.g. Mean Well GST60A12 at Core Electronics, Australian-approved), plus ~AU$5 for the buck. A smaller 12 V 3 A plug-pack costs less and works if the LED cap is lowered to ~15 W. This is on top of the ~AU$93 total, which assumed a free supply.
-
-### 3.4 Chosen supply: the 12 V 4 A charger (48 W)
-
-Candidates found at home: 12 V 4 A (48 W), 16 V 3.75 A (60 W), 20 V 3.33 A (66 W). **The 12 V one is the pick:** the WS2815 LEDs run straight from it, so only one buck module is needed (12 → 5 V for motors, logic and the level shifter). The other two need two bucks and 12 V WS2815 LEDs would still need a buck down to 12 V.
-
-| | Budget |
-|---|---|
-| Supply (keep 15 % margin) | 48 W → 41 W usable |
-| Motors (up to 4 moving), Pico W, 74HCT245, drivers: ~3 A at 5 V | ~15 W |
-| Buck loss (~90 %) | ~2 W |
-| **LEDs** | **~23–24 W ≈ 1.9–2 A at 12 V** (about 9 % of the 258 W full-white maximum) |
-
-- The firmware caps LED **power** at ~23 W. Real dither pictures average far below full white, so the limit is rarely reached. Lowering `maxMovingTiles` from 4 to 2 frees ~5 W for the LEDs.
-- Fuses for this supply: main 5 A; LED rows 2 A each; bar 1 A; the 5 V motor rail 3 A (after the buck); logic 1 A.
-- Buck module: 12 → 5 V, rated **5 A** (XL4015/XL4016 type, ~AU$4–8), set to 5.0 V with a multimeter **before** connecting anything. Do not use a 3 A LM2596 at its limit.
-- **Check the charger first:** measure the no-load output with a multimeter (should be about 12–12.6 V; an old unregulated transformer type can read 15 V+ and would damage the LEDs), confirm the polarity from the label, and don't use a damaged cable. A switch-mode "laptop-style" brick is regulated; a heavy transformer plug-pack is not.
-- **Still to verify before relying on this:** that bare 12 V WS2815 5050 LEDs can be bought in small quantity. If not, WS2812B at 5 V would need a ≥ 8 A buck, which a 48 W supply can only just feed.
-
-### 3.5 Two chargers: one for the LEDs, one for everything else
-
-Works, and is better than one charger. Example: the **12 V 4 A** feeds only the LEDs (WS2815, straight from it), and the **16 V 3.75 A or 20 V 3.33 A** feeds one 5 A buck module (→ 5 V) for the motors, Pico, 74HCT245 and drivers (~15 W, 1 A or less drawn from the charger). A spare 5 V phone charger (2.4 A or more) could replace the second charger and the buck, with `maxMovingTiles` at 2.
-
-- **LED budget rises** to ~41 W (48 W minus 15 % margin) ≈ 3.4 A at 12 V, about 16 % of full white, instead of ~23 W. Motor surges can no longer dim the LEDs or reset the Pico.
-- **Join the two negatives (GND) at one point** (the star point). Without it the LED data line has no reference and the LEDs flicker. Do not join the positives.
-- **One mains switch for both**: plug both into a power board (or switch both DC outputs with one DPST switch), because a half-powered board misbehaves: LEDs on with the level shifter off leaves the data lines floating (random flicker), and the level shifter on with LEDs off can push a little current into the unpowered LEDs through the data line. Add a 10 kΩ pull-down from each LED data line to GND at the level shifter output as well.
-- Fuses: 5 A on the 12 V charger output, 2 A per LED row (F1–F4), 1 A for the bar (F5); 3 A on the 5 V motor rail (F6), 1 A for logic (F7).
-- Two mains cords and plugs are an enclosure/tidiness cost, and each charger must be undamaged and double-insulated (no exposed mains).
-
-### 3.6 All three chargers (upgrade path)
-
-| Charger | Job | Conversion | Usable (15 % margin) |
+| Group | Supply | Usable power (15 % margin) | Firmware cap |
 |---|---|---|---|
-| 12 V 4 A (48 W) | LED rows 0 and 1 (288 LEDs) | none, WS2815 runs straight from it | ~41 W |
-| 20 V 3.33 A (66 W) | LED rows 2 and 3 + status bar (312 LEDs) | one 12 V buck rated 5 A+ (XL4016 type, heatsink), ~88 % efficient | ~49 W |
-| 16 V 3.75 A (60 W) | Motors, Pico, level shifter, drivers (~15 W) | one 5 V buck rated 5 A | far more than needed |
+| LED rows 0–1 (288 LEDs) | A direct | ~41 W | 41 W |
+| LED rows 2–3 + bar (312 LEDs) | C through buck 1 (~88 %) | ~49 W | 49 W |
+| Motors + Pico + level shifter + drivers | B through buck 2 | ~15 W needed of ~45 W | 6 tiles moving at once |
 
-- LED budget goes from ~41 W (two chargers) to **~90 W ≈ 35 % of full white**, about twice the light. That matters because the smoked diffuser acrylic absorbs a lot of it.
-- The rows already have separate fused branches, so this only changes which charger each branch is wired to. **Start with two chargers (§3.5), test the brightness through the acrylic, and add the third only if it's too dim.**
-- The power limiter must work **per supply group** (rows 0–1, rows 2–3 + bar), not just globally, or a bright half overloads its own charger.
-- All three negatives join at the one star point; one switch (power board) for all three plugs; pull-downs on every data line; check each charger's no-load voltage first; buck inputs are rated well above 20 V.
-- Cost: one more buck (AU$8) and more wiring. Every extra charger and buck is another thing that can fail.
+- F1–F10 are resettable PTC (or blade) fuses. A tile row at the cap draws ~0.6 A at 12 V; the 2 A fuse trips on a short before a wire gets hot.
+- **The power limiter must work per group** (rows 0–1, and rows 2–3 + bar), because each group has its own brick. Not built yet.
+- Set both bucks to their exact voltage with a multimeter **before** connecting any load. Buck input ratings are well above 20 V.
+- Measure each charger's no-load voltage first: a regulated switch-mode brick reads close to its label; an old transformer type can read much higher.
+- Pull-downs: 10 kΩ from each LED data line to GND at the level shifter output, so the lines stay quiet if one supply is on before the others.
+- Heatsinks on both bucks (the builder will make aluminium ones): insulate from other metal, because the tab can be live, and keep them away from the Pico's antenna end.
+- Chargers must be undamaged, regulated and double-insulated. No mains inside the board.
+- Part (not decided yet): the LED model. 12 V WS2815 is assumed here; WS2815 SMD 5050 supply in small quantities is unverified.
+- The firmware never lets the LED groups or the motors exceed the table. Layers: firmware cap → fuses → the charger's own overcurrent protection.
 
-### 3.7 Joining chargers, and the motor limit
-
-- **Joining the chargers is not worth it.** Different voltages (12, 16, 20 V) cannot go in parallel: the highest one would push into the others. Same-voltage chargers in parallel don't share current evenly. In series the voltages add (28 V, 48 V) and the current is limited by the weakest one, which then needs bigger bucks, runs near the 50 V line (the project is meant to stay 5 V / 12 V), and one charger tripping drags the rest down. Keeping the chargers **separate, one per group** (§3.6) already adds their watts, with no joining.
-- The LEDs are the power problem, not the motors. The motors sit on their own supply, so raising `maxMovingTiles` costs nothing from the LED budget.
-- **The motor limit is set by the 5 V buck, not the charger.** One moving motor (both coils on) draws ~0.3–0.6 A at 5 V (about 0.15–0.3 A per coil). With ~0.5 A for the Pico and logic:
-
-| 5 V buck | Moving at once (worst case 0.6 A each) | At 0.3 A each |
-|---|---|---|
-| 5 A | **6–7** | ~14 |
-| 8 A | ~12 | all 16 |
-
-  Raise `maxMovingTiles` from 4 to **6** with a 5 A buck; 12 needs an 8 A buck. Measure the real coil current on the first motor before trusting these numbers. More tiles moving together is also louder; quiet mode already halves the limit.
+### Why this assignment
+The LEDs need the most power, so they take A and C; B has far more than the 15 W the motors and logic need. A runs the LEDs straight (12 V already, no buck, no conversion loss). Swapping to give the LEDs B and C would add ~7 W for a third buck: not worth it.
 
 ---
 
@@ -246,6 +173,8 @@ Optional 5 V monitor on GP28: 5 V rail → 10 kΩ → GP28 → 10 kΩ → GND. I
 
 ## 5. The teacher's 7805
 
+**Final plan: not used.** Every rail comes from a buck module or a charger directly. The notes below explain why it can't replace them.
+
 A 7805 is a good regulator for the **logic only**, and only if the supply is **9–12 V**. It is the wrong part for the LEDs and motors, and it is not needed if the supply is already 5 V.
 
 - **Current:** about 1 A at most (1.5 A peak). The LEDs need ~5–9 A and the motors 1–2 A on their own rails.
@@ -273,3 +202,40 @@ The builder has decided the supply will be **bought**, since the school's is unk
 3. One L298N/MX1508 + one motor (from the motor rail, with F6 in place).
 4. One tile of LEDs with the 74HCT245 and its 330 Ω, at low brightness.
 5. Then add rows one at a time, measuring the supply current at each step.
+
+---
+
+## 7. Schematic sheets (wiring detail)
+
+**Sheet 1, power:** §3 above.
+
+**Sheet 2, main board** (Pico, level shifter, shift-register chain start, sensors): §2 pin map and §4.1–4.4.
+
+**Sheet 3, row board (4 identical, one per tile row r = 0…3).** Each holds two 74HC595 (chips 2r and 2r+1) and four motor drivers (one per tile).
+
+| Tile (row r, column c) | 595 chip | 595 outputs | Driver pin |
+|---|---|---|---|
+| c = 0 | 2r | QA, QB, QC, QD | IN1, IN2, IN3, IN4 |
+| c = 1 | 2r | QE, QF, QG, QH | IN1, IN2, IN3, IN4 |
+| c = 2 | 2r + 1 | QA, QB, QC, QD | IN1, IN2, IN3, IN4 |
+| c = 3 | 2r + 1 | QE, QF, QG, QH | IN1, IN2, IN3, IN4 |
+
+- **Chain:** Pico SER → chip 0 SER; each chip's QH' (pin 9) → next chip's SER; chips 0…7 in order (row 0 first). To load the chain the firmware shifts 64 bits, tile 15's bits first. SRCLK, RCLK and OE go to all chips in parallel. 3V3 power, 100 nF per chip.
+- **Driver wiring:** VS and the logic 5 V pin → motor rail; GND → star; IN1–IN4 as above; OUT1/OUT2 = coil A, OUT3/OUT4 = coil B. School L298N modules: remove the 5 V-EN jumper and feed 5 V into the 5 V pin (§4.2). 100 µF + 100 nF per row of drivers across the motor rail.
+- Each row board also has the row's LED feed (12 V bus, GND) running along behind the tiles, plus the row's LED data line from the main board.
+
+**Sheet 4, tile cables** (what moves with the tile, with a service loop):
+
+| Cable | Conductors | Pins |
+|---|---|---|
+| Motor, JST-XH 4-pin | 4 | A+, A−, B+, B−. **Find the two coils with a multimeter** (the pairs with ~15–40 Ω between them); wire colours vary by maker. |
+| LEDs, JST-XH 4-pin | 4 | 12 V, GND, DIN, DOUT. **WS2815 also has backup-data pins (BI/BO); how they are wired, and whether a 5- or 6-pin connector is needed, depends on the final LED part and is not decided.** |
+
+- Per tile: 36 LEDs with a 100 nF each, wired as one chain tile-by-tile (row DIN → tile 0 → tile 1 → tile 2 → tile 3).
+- Status bar: 24 LEDs on a straight strip under the grid, DIN on the left, own line (GP6), fed from F7.
+- Each moving tile has 8 wires in two cables; the motor's thrust is only about 30 gf, so the service loop must not pull on the tile. Test on the first tile.
+
+### Not done yet (and why)
+- **Final LED part**, and so the tile connectors, BI/BO wiring and data input level.
+- **Final motor, driver (L298N vs MX1508/DRV8833) and buck module models**, to confirm every number above.
+- A drawn schematic (this is text/ASCII). A PDF drawing can come later from a KiCad-style tool or by hand once the parts are final.
