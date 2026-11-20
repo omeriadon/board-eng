@@ -1,5 +1,5 @@
 // Generates dither-board-schematics.pdf (A4 landscape pages) and, with a second argument, dither-board-poster.pdf (all pages on one big sheet).
-// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf dither-board-poster.pdf
+// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift Blueprint.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf dither-board-poster.pdf dither-board-blueprint.pdf   (use - to skip the poster)
 import CoreGraphics
 import Foundation
 
@@ -126,7 +126,11 @@ struct Main {
 		allPages()
 		ctx.closePDF()
 		print("wrote", out)
-		if CommandLine.arguments.count > 2 {
+		if CommandLine.arguments.count > 3 {
+			drawBlueprint(CommandLine.arguments[3])
+			print("wrote", CommandLine.arguments[3])
+		}
+		if CommandLine.arguments.count > 2, CommandLine.arguments[2] != "-" {
 			// One big sheet with everything: 4 columns x 3 rows, in page order 1...12.
 			let poster = CommandLine.arguments[2]
 			// page: 1 cover, 2 power, 3 logic, 4 BB1, 5 BB2, 6-9 wire lists, 10 parts, 11 drivers, 12 models
