@@ -9,8 +9,7 @@ public enum TimerStyle: UInt8, CaseIterable, Sendable {
 	public var title: String { self == .drain ? "Drain" : "Fill" }
 }
 
-/// The timer bar: the top pixel row is the bar, the second row stays dark as a margin, and the rest of the board
-/// keeps showing the dither field. Time is absolute (`endsAtMillis`, unix time), so every device and the board agree
+/// The timer bar: it fills the status bar under the grid, and the grid keeps showing the dither field. Time is absolute (`endsAtMillis`, unix time), so every device and the board agree
 /// on what's left without sending a message every second.
 public struct TimerSettings: Hashable, Sendable {
 	public var durationSeconds: Int = 300
@@ -106,14 +105,12 @@ public struct AmbientSettings: Hashable, Sendable {
 	}
 }
 
-/// Mirrors what's playing: the album art on the board, and a progress bar on the bottom rows.
+/// Mirrors what's playing: the album art on the board, and a progress bar on the status bar under the grid.
 public struct MusicSettings: Hashable, Sendable {
 	public var showsProgress = true
 	/// Playback position, 0...1. The Mac updates it about once a second.
 	public var progress: Float = 0
 	public var isPlaying = false
-	/// Run the art through the dither colour levels and pattern, so it reads as a dithered picture.
-	public var ditherArt = true
 	/// How hard tiles jump on each beat, 0...1 (0 = off).
 	public var beatJump: Float = 0
 

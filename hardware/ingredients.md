@@ -1,10 +1,11 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 12)_
+_Last updated: 2026-11-20 (rev 13)_
 
 **CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
 **Budget (AUD):** brief says ≤ **AU$80** total component + material cost. The builder will go up to ~**AU$110** (≈ US$52 / US$72).
+**Rev 13: a fixed 24-LED status bar sits under the grid (gap between), for the timer and song progress, so the board has 600 LEDs (576 + 24). Pin map, circuit, fuses and the 7805 verdict are in [`circuit.md`](circuit.md). LED current is capped by the supply, not by a fixed 25 %: ~5–6 A of LEDs on a 10 A brick.**
 **Size (rev 12): N = 4 tiles per side, k = 6 LEDs per tile side → 16 tiles, 576 LEDs, 24 × 24 pixels (builder wanted more pixels; confirm k=6 vs 6×6 tiles).** Roughly 18 cm square at a 40 mm tile pitch; LED pitch ~6.7 mm. **Power: 576 × 60 mA = 34.6 A at 5 V at full white; size the PSU and wiring for the firmware cap (~25% → ~9 A worst case) and power-inject. 12 V WS2815 halves-plus the current (same ~0.3 W per LED) if the school supply allows.** LED cost ×2.25 (576 instead of 256 LEDs and caps, ~AU$25 → ~AU$60 at AliExpress bulk prices; a premade 16×16 module no longer fits the k).
 **Free from school:** Pico W, L298N drivers, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons, basic parts.
 **Rough total with those free (US$, before GST/shipping):** N=4 ≈ US$61 ≈ AU$93; N=5 ≈ US$85 ≈ AU$130. Still over; cuts TBD. The builder prefers **smaller tiles** (larger N).
@@ -25,7 +26,7 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 **Specific models, prices and links: see [`components.md`](components.md)** (Sonnet research, 2026-11-20; some prices are estimates marked [E]). Key corrections from it:
 - **Motor price:** the ~$1.10 motor price is a one-per-person new-buyer deal. The real price is ~$1.70 (with slider) to ~$3.35. **The bare lead-screw version** (needed if the builder designs the screw drive) is from SINONING at ~$0.60–1.10: 2 mm screw, 28 mm long, **no nut** (buy M2 brass nuts). Order 3 pilots first.
 - **Motor thrust:** the slider listing says ~30 gf, not 80 g. Keep tiles light and test early.
-- **74HCT595**, not 74HC595 (or power the 595s from 3.3 V). The Pico's 3.3 V signals aren't reliable for 5 V HC logic.
+- **74HCT595 on 5 V, or 74HC595 on 3.3 V** (the plan now: 3.3 V, so the school's HC chips work). The Pico's 3.3 V signals aren't reliable for 5 V HC logic.
 - **Barrel jack:** DC-022D (10 A), not DC-022B (3 A). **PSU:** a fully enclosed plug-in 5 V 10 A brick (~$16), not an open-terminal metal-case unit.
 - **Connectors:** JST-XH (breadboard/perfboard-friendly), not SH/ZH.
 - **Circuit board (rev 10):** breadboard + cut wires instead of perfboard (school supplies breadboards). Power for LEDs/motors on a separate bus, not the breadboard rails.
@@ -55,7 +56,7 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 
 | # | Item | Qty | Notes | Est. unit price |
 |---|---|---|---|---|
-| 2.1 | **74HC595 shift register** (DIP-16 or SMD) | 1 per 2 tiles | 8 outputs, enough for 2 steppers × 4 control lines. Chained so the Pico controls all motors with about 3 pins. | ~$0.05–0.20 |
+| 2.1 | **74HC595 shift register** (DIP-16 or SMD) | 1 per 2 tiles (8 for N=4) | 8 outputs, enough for 2 steppers × 4 control lines. Chained so the Pico controls all motors with 3 pins + OE. **Powered from the Pico's 3.3 V, so plain 74HC595 is fine** (74HCT only if powered from 5 V). | ~$0.05–0.20 |
 
 ## 3. Fixed / one-off
 
@@ -69,13 +70,18 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 | 3.4 | **Power switch** (rocker or toggle) | 1 | The only control on the device. | ~$0.50 |
 | 3.5 | **Inline fuse + holder** | 1 | Safety at 5–10 A. | ~$1 |
 | 3.6 | **Bulk capacitor** 1000 µF 6.3–10 V | 1–2 | Across the LED supply. | ~$0.30 |
-| 3.7 | **Level shifter for LED data**: 74AHCT125 / 74HCT245 | 1 | Converts the Pico's 3.3 V data to 5 V for the WS2812s. | ~$0.50 |
-| 3.8 | **Data line resistor** 330–470 Ω | 1 | In series with the first LED's data in. | ~$0.01 |
+| 3.7 | **Level shifter for LED data**: **74HCT245** (one chip, 5 lines used: 4 tile rows + status bar). 74AHCT125 also works but needs two chips. | 1 | Converts the Pico's 3.3 V data to 5 V for the WS2812s. DIR → 5 V, OE → GND, unused inputs → GND. | ~$0.50 |
+| 3.8 | **Data line resistor** 330 Ω | 5 | One in series with each LED data line (4 rows + bar). | ~$0.05 |
 | 3.9 | **Main board**: ~5×7 cm perfboard (no custom PCB) | 1 | Pico W, level shifter, sensor headers, status LED, bulk cap, fuse. | ~$1 |
 | 3.9b | **Row boards**: perfboard/stripboard, one per tile row (N) | N | ⌈4N/8⌉ 74HC595 + N driver modules each; 5-wire bus to the next row. Breadboards for prototyping only. | ~$1 each |
 | 3.10 | **Power wiring**: 18–22 AWG red/black, plus terminal blocks or Wago connectors | — | Bus wiring for 5 V and GND, fed into tile rows from several points. | ~$3 |
 | 3.11 | **Hookup wire, headers, Dupont cables** | — | Driver ↔ shift register connections. | ~$2 |
 | 3.12 | **Zip ties / cable clips** | — | | ~$1 |
+| 3.12b | **Status bar LEDs**: 24 × WS2812B + 24 × 100 nF, on a straight strip or small board under the grid | 24 | Fixed (does not move). Own data line (GP6) and own 2 A branch. | ~$1.5 |
+| 3.12c | **Branch fuses**: 7 × resettable PTC (4 × 3 A LED rows, 1 × 2 A bar, 1 × 3 A motors, 1 × 1 A logic) + the 10 A main fuse (3.5) | 7 | See `circuit.md` §3. | ~$3 |
+| 3.12d | **Schottky diode 1N5819** | 1 | Logic rail → Pico VSYS, so USB and the brick can both be plugged in. | ~$0.10 |
+| 3.12e | **5 V bus**: 2200 µF 10 V capacitor, terminal blocks or Wago connectors | 1 | Replaces the 1000 µF in 3.6 for the main bus; 100 µF per row of drivers. | ~$2 |
+| 3.12f | **7805 regulator (teacher's)** | optional | Logic only, and only if the supply is 9–12 V. Cannot run the LEDs or motors (1 A max; needs ≥ 7 V in). With a 5 V brick it is not used. | Free |
 
 ### Structure
 

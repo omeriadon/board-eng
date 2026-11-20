@@ -1,6 +1,6 @@
 # Dither Board — Full Project Context
 
-_Last updated: 2026-11-20 (rev 13)_
+_Last updated: 2026-11-20 (rev 14)_
 
 **Repo:** https://github.com/omeriadon/board-eng (public), a **monorepo**: `docs/` (this file, `app-plan.md`, `prospectful.md`), `hardware/` (`ingredients.md`, `BUILD-NOTES.md`, `cad/`), `firmware/` (Pico W, Embedded Swift), `server/` (Swift Vapor), `apps/` (SwiftUI iOS + macOS, maybe watchOS), `shared/` (`BoardKit`). The local folder is `~/Documents/Xcode_App_Library/Board`.
 **CAD:** `hardware/cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser PDFs (1:1 mm) and `blueprint_tile.svg`. **Repo rule (from the builder): no HTML or SVG in the repo, only PDF (plus STL and the `cad/*.py` config/generator scripts).** Intermediate files must not be committed (`.gitignore` blocks `*.svg` and `*.html`). The old concept diagram (`tile-design.html`) was removed; a board-layout PDF will replace it.
@@ -227,7 +227,7 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - **Breadboards:**
   - The builder has a mini breadboard and a ~10 × 22 cm one. Use them **for prototyping only**.
   - The final build should use **soldered perfboard/stripboard**, or later a custom PCB (JLCPCB ~$5–10 + shipping). Breadboard jumpers shake loose with motors and handling, and ~100+ control wires get unmanageable.
-- **Pico pins:**
+- **Pico pins (superseded by §19 and `hardware/circuit.md`):**
   - Shift-register chain: 3 GPIO (SPI/PIO)
   - LED data: 1–2 GPIO via PIO. 400 LEDs ≈ 12 ms per frame (~80 fps); the chain can be split for more.
   - LDR: 1 ADC
@@ -465,3 +465,23 @@ Example numbers for N=5, k=4, 40 mm pitch:
 ### Server redeployed (rev 13)
 - The BoardKit-based server is **live** on Dokploy (verified: a WebSocket client receives the time and state frames). The first deploy failed because the Docker build cache from the old layout was keyed to the old path; the cache id is now `board-server-build-v2`. Change the id again if the build path ever changes.
 - Apple Music tracks from the streaming catalogue are "shared tracks" and return no artwork to scripts (error -50), hence the online cover lookup.
+
+## 19. Status bar, art dithering removed, Pico circuit (rev 14, 2026-11-20)
+
+The builder said the apps and server are finished ("dont worry about the app or server anymore") and moved on to hardware.
+
+### Status bar (done in BoardKit and the apps)
+- The board now has a **separate row of 24 LEDs under the grid with a gap**, holding the timer and the song progress so they no longer cover the picture. `BoardGeometry.barPixelCount` (= pixelsPerSide) and `totalLEDCount` (= 600); `BoardFrame.bar` holds the bar LEDs. The bar is fixed (no motor).
+- Timer: grid keeps the dither, the bar is the countdown. Music: the art uses the whole 24 × 24 grid, the bar is the progress. Dither and Ambient leave the bar off (free for later uses).
+- The preview draws the gap and the bar; its aspect ratio is no longer 1. Docs in `docs/app-plan.md` updated.
+- **Album-art dithering removed** (builder: "remove the option to dither"): art is always true colour. The wire format keeps a reserved byte where `ditherArt` was, so it is byte-compatible with the deployed server and saved `state.bin`.
+- Not yet done: CAD for the bar and the longer bezel (`hardware/cad/tile.py` is also still the old N=5, K=4).
+
+### Raspberry Pi: pin map and circuit (`hardware/circuit.md`)
+- Full Pico W pin map, 3 inputs / 3 outputs table, power distribution (5 V bus, one PTC fuse per tile row, bar, motors, logic), blocks (LED level shifter, 595 chain, sensors, status LED, VSYS diode), budget and bring-up order.
+- Pins: LED data GP2–GP5 (tile rows) and GP6 (bar) through one 74HCT245 + 330 Ω each; 595 chain GP10 (clock), GP11 (data), GP12 (latch), GP13 (OE, pulled high until the firmware has cleared the motors); LDR GP26/ADC0; NTC GP27/ADC1; optional 5 V monitor GP28/ADC2; status LED GP15; GP0/GP1 debug UART; the rest spare. GP23/24/25/29 belong to the radio.
+- 595s run from the Pico's 3.3 V (plain 74HC595 works). L298N prototype modules need the 5 V-EN jumper removed and 5 V fed to their 5 V pin.
+- **Power-injection answer:** each tile row has its own fused 5 V + GND feed from the bus and each tile taps it with its own wire; only data daisy-chains.
+- **Power budget:** 600 LEDs at 25 % (~9 A) plus motors and logic overloads a 10 A brick, so the firmware should cap LED **current** (~5–6 A on a 10 A brick) instead.
+- **7805 (teacher's):** logic only, from 9–12 V, ≤ 1 A, hot without a heatsink; cannot run LEDs or motors; not needed from a 5 V brick.
+- **Open:** the school supply's actual voltage and current; 6 LEDs per tile vs 6×6 tiles; mechanical drive system.

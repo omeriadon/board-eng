@@ -32,11 +32,11 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
     - Max tiles moving at once
 - **Ambient / Sun (idle mode):** shows the sun (or similar) and animates through the day. Sunrise and sunset come from location; colours shift through the day.
 - **Music Mirror (Mac only):**
-  - Album art of the currently playing track, dithered to the board resolution
-  - **Bottom two pixel rows:** playback progress
+  - Album art of the currently playing track, in true colour at the board resolution
+  - **Status bar** (the separate LED row under the grid): playback progress
   - **Optional:** tiles jump to the beat
 - **Timer overlay:**
-  - **Top two pixel rows:** row 1 is the timer bar, row 2 is a black margin
+  - **Status bar** (the separate LED row under the grid) is the timer bar
   - The rest of the board keeps running the current mode
 - **Colours:** palettes and presets, changeable from Shortcuts.
 
@@ -76,9 +76,9 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
 | 1 | **Dither** | Live board preview (pixels + tile heights) + Stipple-style settings (wave, pattern, levels, tiles/motion, quiet mode) | Display |
 | 1b | **Motion** | Physical jumping: on/off, strength, speed, height source (lights / opposite / own wave / ripples / still), quiet mode, tiles at once | Display |
 | 2 | **Colours** | Palettes and presets shared by every mode | Style |
-| 3 | **Timer** | Top pixel row is the timer bar, second row a margin. Start/pause, presets | Display |
+| 3 | **Timer** | The status bar under the grid is the timer bar. Start/pause, presets | Display |
 | 4 | **Ambient** | Sun-through-the-day idle mode | Display |
-| 5 | **Music** | Music Mirror: album art, progress in the bottom 2 rows, beat-jumping tiles. **Mac only**; hidden on iOS | Display |
+| 5 | **Music** | Music Mirror: album art, progress on the status bar, beat-jumping tiles. **Mac only**; hidden on iOS | Display |
 | 6 | **Automations** | Schedules, presence (Mac keyboard/mouse, iPhone location), ambient light sensor, Shortcuts | Automate |
 | 7 | **Device** | Connection, motion & quiet mode, calibration, diagnostics, firmware | Board |
 

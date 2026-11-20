@@ -2,6 +2,8 @@
 public struct BoardFrame: Hashable, Sendable {
 	public var geometry: BoardGeometry
 	public var pixels: [Pixel]
+	/// The status bar under the grid, left to right (`geometry.barPixelCount` LEDs).
+	public var bar: [Pixel]
 	/// 0 ..< geometry.heightLevels for each tile: what the firmware drives the motors to.
 	public var heights: [UInt8]
 	/// The same heights as smooth positions, 0...1, for drawing.
@@ -12,6 +14,7 @@ public struct BoardFrame: Hashable, Sendable {
 	public init(geometry: BoardGeometry) {
 		self.geometry = geometry
 		pixels = Array(repeating: .off, count: geometry.pixelCount)
+		bar = Array(repeating: .off, count: geometry.barPixelCount)
 		heights = Array(repeating: 0, count: geometry.tileCount)
 		lift = Array(repeating: 0, count: geometry.tileCount)
 		tileLevels = Array(repeating: 0, count: geometry.tileCount)

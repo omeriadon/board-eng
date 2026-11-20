@@ -15,6 +15,11 @@ public struct BoardGeometry: Hashable, Sendable {
 	public var pixelsPerSide: Int { tilesPerSide * ledsPerTileSide }
 	public var pixelCount: Int { pixelsPerSide * pixelsPerSide }
 	public var tileCount: Int { tilesPerSide * tilesPerSide }
+	/// The status bar: one fixed row of LEDs under the grid, separated from it by a gap, as wide as the grid. It holds
+	/// the timer and the song progress, so they never cover the picture. It doesn't move.
+	public var barPixelCount: Int { pixelsPerSide }
+	/// Every LED on the board: the grid plus the status bar.
+	public var totalLEDCount: Int { pixelCount + barPixelCount }
 
 	/// The tile (column, row) that owns a pixel.
 	public func tile(forPixelColumn column: Int, row: Int) -> (column: Int, row: Int) {

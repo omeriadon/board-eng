@@ -68,8 +68,7 @@ public struct BoardRenderer: Sendable {
 				return frame
 
 			case .music:
-				if var frame = MusicField.render(artwork: artwork, music: state.music, dither: state.dither, field: field,
-				                                 geometry: g, brightness: brightness) {
+				if var frame = MusicField.render(artwork: artwork, music: state.music, geometry: g, brightness: brightness) {
 					fillLevels(&frame)
 					return frame
 				}
@@ -97,13 +96,10 @@ public struct BoardRenderer: Sendable {
 		for i in 0 ..< g.tileCount { frame.tileLevels[i] = clamp(sums[i] / perTile, 0, 1) }
 	}
 
-	/// Top row = the bar, second row = a dark margin; the dither field shows through below.
+	/// The timer fills the status bar; the board above keeps showing the dither field.
 	private func drawTimer(_ frame: inout BoardFrame, timer t: TimerSettings, now: UInt64, brightness: Float) {
-		let side = frame.geometry.pixelsPerSide
-		guard side >= 3 else { return }
 		let remaining = t.fractionRemaining(now: now)
 		var shown = t.style == .drain ? remaining : 1 - remaining
-		var bar = t.barColor
 
 		if t.isFinished(now: now) {
 			let since = now - t.endsAtMillis
@@ -112,15 +108,13 @@ public struct BoardRenderer: Sendable {
 			} else {
 				shown = t.style == .drain ? 0 : 1
 			}
-			bar = t.barColor
 		}
 
-		for column in 0 ..< side {
-			let lit = clamp(shown * Float(side) - Float(column), 0, 1)
-			frame.pixels[column] = t.trackColor.mixed(bar, lit).scaled(brightness).pixel
-			frame.pixels[side + column] = .off
+		let count = frame.bar.count
+		for column in 0 ..< count {
+			let lit = clamp(shown * Float(count) - Float(column), 0, 1)
+			frame.bar[column] = t.trackColor.mixed(t.barColor, lit).scaled(brightness).pixel
 		}
-		fillLevels(&frame)
 	}
 
 	/// Where each tile wants to be, 0...1, before the speed limit.

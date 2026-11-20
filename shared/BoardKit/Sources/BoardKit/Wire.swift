@@ -126,12 +126,12 @@ extension AmbientSettings {
 
 extension MusicSettings {
 	func encode(into w: inout ByteWriter) {
-		w.bool(showsProgress); w.f32(progress); w.bool(isPlaying); w.bool(ditherArt); w.f32(beatJump)
+		w.bool(showsProgress); w.f32(progress); w.bool(isPlaying); w.bool(true) /* reserved: was ditherArt */; w.f32(beatJump)
 	}
 
 	init(from r: inout ByteReader) {
 		self.init()
-		showsProgress = r.bool(); progress = r.f32(); isPlaying = r.bool(); ditherArt = r.bool(); beatJump = r.f32()
+		showsProgress = r.bool(); progress = r.f32(); isPlaying = r.bool(); _ = r.bool() /* reserved */; beatJump = r.f32()
 	}
 }
 

@@ -1,7 +1,7 @@
 import BoardKit
 import SwiftUI
 
-/// Music Mirror: the album art of what's playing on the Mac, dithered onto the board, with progress along the bottom.
+/// Music Mirror: the album art of what's playing on the Mac, in colour on the board, with progress along the status bar.
 /// It only works on the Mac, which can watch Music and Spotify all the time.
 struct MusicView: View {
 	var body: some View {
@@ -55,13 +55,12 @@ struct MusicView: View {
 				}
 
 				Section {
-					Toggle("Progress on the Bottom Rows", isOn: m.showsProgress)
-					Toggle("Dither the Album Art", isOn: m.ditherArt)
+					Toggle("Progress on the Status Bar", isOn: m.showsProgress)
 					Toggle("Look Up Missing Covers Online", isOn: $lookUpArtOnline)
 				} header: {
 					Text("Board")
 				} footer: {
-					Text("Dithering uses the Dither tab's colour levels and pattern. Apple Music streaming songs don't share their cover with other apps, so the cover is found with Apple's public search, which is sent only the song's title and artist. With nothing playing, the board shows the dither field.")
+					Text("The album art is shown in full colour, and the progress runs along the bar under the board. Apple Music streaming songs don't share their cover with other apps, so the cover is found with Apple's public search, which is sent only the song's title and artist. With nothing playing, the board shows the dither field.")
 				}
 
 				Section {

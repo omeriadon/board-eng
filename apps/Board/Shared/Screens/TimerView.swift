@@ -1,7 +1,7 @@
 import BoardKit
 import SwiftUI
 
-/// The timer bar: the top row of LEDs is the bar, the second row stays dark, and the dither shows below.
+/// The timer fills the status bar under the board, so it never covers the dither.
 struct TimerView: View {
 	@Environment(BoardStore.self) private var store
 

@@ -18,14 +18,26 @@ struct BoardPreview: View {
 				draw(frame, in: ctx, size: size)
 			}
 		}
-		.aspectRatio(1, contentMode: .fit)
+		.aspectRatio(Layout.aspect(for: geometry), contentMode: .fit)
 		.accessibilityLabel("Board preview")
+	}
+
+	/// The proportions, as fractions of the width: the grid, then a gap, then the one-row status bar.
+	private enum Layout {
+		static let border: CGFloat = 0.045
+		static let tileGap: CGFloat = 0.012
+		static let barGap: CGFloat = 0.03
+
+		static func aspect(for g: BoardGeometry) -> CGFloat {
+			let grid = 1 - border * 2
+			return 1 / (border + grid + barGap + grid / CGFloat(g.barPixelCount) + border)
+		}
 	}
 
 	private func draw(_ frame: BoardFrame, in ctx: GraphicsContext, size: CGSize) {
 		let g = frame.geometry
-		let border = size.width * 0.045
-		let tileGap = size.width * 0.012
+		let border = size.width * Layout.border
+		let tileGap = size.width * Layout.tileGap
 		let grid = size.width - border * 2
 		let tilePitch = grid / CGFloat(g.tilesPerSide)
 		let tileSize = tilePitch - tileGap
@@ -56,6 +68,16 @@ struct BoardPreview: View {
 					ctx.fill(Path(rect), with: .color(Color(red: Double(p.r) / 255, green: Double(p.g) / 255, blue: Double(p.b) / 255)))
 				}
 			}
+		}
+
+		// The status bar: fixed (it never lifts), under the grid with a gap, one LED per column.
+		let barTop = border + grid + size.width * Layout.barGap
+		for index in 0 ..< frame.bar.count {
+			let tc = index / g.ledsPerTileSide, lc = index % g.ledsPerTileSide
+			let p = frame.bar[index]
+			let rect = CGRect(x: border + CGFloat(tc) * tilePitch + tileGap / 2 + CGFloat(lc) * led + wall / 2, y: barTop + wall / 2,
+			                  width: led - wall, height: led - wall)
+			ctx.fill(Path(rect), with: .color(Color(red: Double(p.r) / 255, green: Double(p.g) / 255, blue: Double(p.b) / 255)))
 		}
 	}
 }

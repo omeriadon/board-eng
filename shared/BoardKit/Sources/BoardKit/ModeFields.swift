@@ -79,37 +79,26 @@ public enum AmbientField {
 }
 
 public enum MusicField {
-	/// The album art (optionally dithered with the dither settings) with the progress bar on the bottom two rows.
+	/// The album art in true colour across the whole grid, with the playback progress on the status bar underneath.
 	/// Returns nil when there's no usable art, so the caller can fall back to another mode.
-	public static func render(artwork: Artwork?, music m: MusicSettings, dither: DitherSettings, field: DitherField,
-	                          geometry g: BoardGeometry, brightness: Float) -> BoardFrame? {
+	public static func render(artwork: Artwork?, music m: MusicSettings, geometry g: BoardGeometry, brightness: Float) -> BoardFrame? {
 		guard let art = artwork, art.isValid else { return nil }
 		var frame = BoardFrame(geometry: g)
 		let side = g.pixelsPerSide
-		let levels = max(dither.colorLevels, 2) - 1
-		let usesThreshold = m.ditherArt && dither.ditherStrength != 0 && dither.pattern != .none
 
 		for row in 0 ..< side {
 			for column in 0 ..< side {
 				// Nearest pixel of the art, so a different-sized artwork still fills the board.
 				let ax = min(art.side - 1, column * art.side / side), ay = min(art.side - 1, row * art.side / side)
-				var c = art.pixels[ay * art.side + ax].rgb
-				if m.ditherArt {
-					let t = usesThreshold ? (field.threshold(column, row, dither.pattern) - 0.5) * dither.ditherStrength / levels : 0
-					@inline(__always) func q(_ v: Float) -> Float { clamp((clamp(v + t, 0, 1) * levels + 0.5).rounded(.down) / levels, 0, 1) }
-					c = RGB(q(c.r), q(c.g), q(c.b))
-				}
-				frame.pixels[row * side + column] = c.scaled(brightness).pixel
+				frame.pixels[row * side + column] = art.pixels[ay * art.side + ax].rgb.scaled(brightness).pixel
 			}
 		}
 
-		if m.showsProgress, side >= 4 {
-			let margin = side - 2, barRow = side - 1
-			for column in 0 ..< side {
-				frame.pixels[margin * side + column] = .off
-				let lit = clamp(m.progress * Float(side) - Float(column), 0, 1)
-				let bar = RGB(0.07, 0.07, 0.08).mixed(RGB(1, 1, 1), 0.85 * lit)
-				frame.pixels[barRow * side + column] = bar.scaled(brightness).pixel
+		if m.showsProgress {
+			let count = frame.bar.count
+			for column in 0 ..< count {
+				let lit = clamp(m.progress * Float(count) - Float(column), 0, 1)
+				frame.bar[column] = RGB(0.07, 0.07, 0.08).mixed(RGB(1, 1, 1), 0.85 * lit).scaled(brightness).pixel
 			}
 		}
 		return frame
