@@ -1,6 +1,6 @@
 # Dither Board — Full Project Context
 
-_Last updated: 2026-11-20 (rev 12)_
+_Last updated: 2026-11-20 (rev 13)_
 
 **Repo:** https://github.com/omeriadon/board-eng (public), a **monorepo**: `docs/` (this file, `app-plan.md`, `prospectful.md`), `hardware/` (`ingredients.md`, `BUILD-NOTES.md`, `cad/`), `firmware/` (Pico W, Embedded Swift), `server/` (Swift Vapor), `apps/` (SwiftUI iOS + macOS, maybe watchOS), `shared/` (`BoardKit`). The local folder is `~/Documents/Xcode_App_Library/Board`.
 **CAD:** `hardware/cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser PDFs (1:1 mm) and `blueprint_tile.svg`. **Repo rule (from the builder): no HTML or SVG in the repo, only PDF (plus STL and the `cad/*.py` config/generator scripts).** Intermediate files must not be committed (`.gitignore` blocks `*.svg` and `*.html`). The old concept diagram (`tile-design.html`) was removed; a board-layout PDF will replace it.
@@ -416,7 +416,7 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - `BoardMessage`: `.state(Revision, BoardState)`, `.status(BoardStatus)`, `.requestState`, `.time(...)`. State is always sent whole (~150 bytes), so it can't arrive half-applied.
 - Decoding rejects truncated/trailing/unknown-version messages and clamps every value (`bounded()`), so corrupt data can't push the board past its limits.
 - **Both links at once:** a device sends each change on every connected link. `Revision` = (counter, origin id). `StateSync` applies a message only if its revision is newer, so the duplicate over the second link is dropped and a late stale message is ignored. The board runs the same `StateSync`.
-- **Not done yet:** the server still speaks its own JSON DTOs. Integrating BoardKit into the server needs the mirror workflow to copy `shared/` too and the Dockerfile to build from the repo root (as Ergo does with ErgoKit). Real Bluetooth and Wi-Fi transports in the apps don't exist yet either (only the `BoardTransport` protocol and `BoardLink` fan-out/coalescing).
+- _Superseded in §18: the server and apps now use BoardKit and have real transports._
 
 ### Settings: every Stipple option that makes sense on LEDs
 - Kept: wave speed/direction (8-way)/frequency/amplitude/scale/contrast/brightness, pattern, strength, colour levels, wave colour, background (custom/black/white/dimmed), colour goes on (squares/background), square style, palette (≤8) + spread, plus presets (18 ported).
@@ -433,3 +433,31 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - Pinned live board preview on top of Dither and Motion (like Stipple's pinned watch), with a connection badge and a save-as-preset heart.
 - Custom controls ported from Stipple: `DirectionDial` (8-way pixel-arrow compass), `PositionPicker` (3×3, used for ripple origin; later the timer bar/sun position), live mini-board preset grid with touch-and-hold delete, `ValueSlider` with numeric transitions and haptics.
 - Both targets build (iOS + macOS). The Mac app was run and looks right.
+
+## 18. Bigger board, all modes, real links (2026-11-20, late night)
+
+### Resolution: 6 LEDs per tile → 24 × 24 pixels
+- The builder wants more pixels and/or a bigger board ("even 6×6"). `BoardGeometry.standard` is now **4 × 4 tiles × 6 × 6 LEDs per tile = 24 × 24 px, 576 LEDs**. Not yet confirmed whether the builder meant 6×6 LEDs per tile (what I did) or 6×6 tiles; ask.
+- **Consequences to resolve in hardware:** the LED pitch in a 40 mm tile is ~6.7 mm (5 mm 5050 bodies fit, but tightly); each moving tile carries 36 LEDs, and the 30 gf motor thrust limits tile weight (use thin flex/PCB, not a printed block). `hardware/cad/tile.py` still has N=5, K=4 and must be regenerated (K=6, N=4, thinner grid walls ~0.8 mm).
+- **Power:** 576 LEDs × 60 mA = **34.6 A at 5 V (173 W) at full white**. With the firmware brightness cap (~25%) and typical dither content (mostly dark) it is a few amps, but the supply and wiring must be sized for the cap, not the average. Power-inject at several points.
+- **"Run them in parallel / higher voltage?"** Power per LED is fixed (~0.3 W), so more voltage means less current for the same power, and thinner wire and less voltage drop, but not less energy. Parallel wiring of the same LEDs doesn't reduce the total current. The practical version is **12 V WS2815 LEDs** (same protocol, ~2.4× less current: ~14 A worst case) or just a 5 V supply injected in several places. 5 V stays the simpler, safer default for school.
+
+### New modes (BoardKit `ModeFields.swift`, shared by preview and firmware)
+- **Ambient:** sun and moon arc across the board by the hour; sky gradient, twilight, stars, optional time-lapse (a day in N seconds). **Music Mirror:** album art (24×24) with a progress bar on the bottom two rows; art can be dithered with the Dither settings; falls back to dither with no art. **Timer:** bar on the top LED row (second row stays dark), drain or fill, smooth to a fraction of an LED, blinks when done; the end time is absolute (`endsAtMillis`) so devices agree without per-second messages.
+- **Automation lives in the state** (`Automation.effective`): schedules (up to 8, can wrap past midnight), auto-brightness from the board's light sensor, and away-from-desk dimming/off/stop-moving. So the board follows them without any app.
+- Maximum wave speed is **0.04** (dither and motion own wave).
+
+### Wire format additions
+- `BoardMessage` now also has `.artwork` (side 0 = clear) and `.command` (home all, test pattern, stop test, test tile, reboot). `Framing` chunks messages for Bluetooth writes. Full state is ~350 bytes. BLE UUIDs and the socket path are in `BoardBLE`.
+
+### Links (apps)
+- `BoardLink` fans every change out to every connected transport (coalesced to ~30/s). On a link coming up, the store re-sends its state and asks for theirs. `WebSocketTransport` (pong-confirmed, 20 s keepalive, backoff, Bearer header) and `BluetoothTransport` (CoreBluetooth central, chunked writes). The server address is stored in UserDefaults, the password in the Keychain.
+- The Mac app also watches Music/Spotify (AppleScript, only while in Music Mirror, never launches them) and sets `isAway` from keyboard/mouse idle time. Apple Music streaming tracks don't share their cover with scripts, so the cover is fetched from Apple's public iTunes Search API (only title and artist are sent; there is a switch). The Mac app is no longer sandboxed (Apple Events + Bluetooth entitlements).
+- App Intents / Shortcuts: power, brightness, mode, jumping on/off, apply theme, start/pause/reset timer.
+- App icon: generated from the real renderer (`apps/Tools/MakeIcon.swift`).
+
+### Server
+- Now speaks the BoardKit binary format at `WS /v1/board/socket` (bearer token), relays state/artwork/status/commands between sockets without echo, dedupes by revision, persists the state to `/data/state.bin` (volume `board-data`), and still serves `/health`, `/time` and JSON `GET/PUT /v1/board/state`. Docker builds from the repo root and the mirror workflow copies `server/` and `shared/BoardKit/`.
+
+### Preview scroll lag
+- The Dither list's mini boards were all animating while scrolling. They now run at 6 fps and pause while the list scrolls.

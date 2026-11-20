@@ -1,11 +1,11 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 11)_
+_Last updated: 2026-11-20 (rev 12)_
 
 **CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
 **Budget (AUD):** brief says ≤ **AU$80** total component + material cost. The builder will go up to ~**AU$110** (≈ US$52 / US$72).
-**Size locked (rev 11): N = 4 tiles per side, k = 4 LEDs per tile side → 16 tiles, 256 LEDs, 16 × 16 pixels, ~18 cm square.**
+**Size (rev 12): N = 4 tiles per side, k = 6 LEDs per tile side → 16 tiles, 576 LEDs, 24 × 24 pixels (builder wanted more pixels; confirm k=6 vs 6×6 tiles).** Roughly 18 cm square at a 40 mm tile pitch; LED pitch ~6.7 mm. **Power: 576 × 60 mA = 34.6 A at 5 V at full white; size the PSU and wiring for the firmware cap (~25% → ~9 A worst case) and power-inject. 12 V WS2815 halves-plus the current (same ~0.3 W per LED) if the school supply allows.** LED cost ×2.25 (576 instead of 256 LEDs and caps, ~AU$25 → ~AU$60 at AliExpress bulk prices; a premade 16×16 module no longer fits the k).
 **Free from school:** Pico W, L298N drivers, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons, basic parts.
 **Rough total with those free (US$, before GST/shipping):** N=4 ≈ US$61 ≈ AU$93; N=5 ≈ US$85 ≈ AU$130. Still over; cuts TBD. The builder prefers **smaller tiles** (larger N).
 
