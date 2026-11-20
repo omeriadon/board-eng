@@ -1,0 +1,66 @@
+name: Board
+options:
+  bundleIdPrefix: com.omeriadon.board
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_KEY_CFBundleDisplayName: Board
+packages:
+  BoardKit:
+    path: ../shared/BoardKit
+targets:
+  Board-iOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: Board/Shared
+      - path: Board/iOS
+    dependencies:
+      - package: BoardKit
+    settings:
+      base:
+        PRODUCT_NAME: Board
+        PRODUCT_BUNDLE_IDENTIFIER: com.omeriadon.board
+        TARGETED_DEVICE_FAMILY: "1,2"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: "Board uses Bluetooth to find and control your dither board."
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: "Board connects to your dither board on your local network."
+  Board-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - path: Board/Shared
+      - path: Board/macOS
+    dependencies:
+      - package: BoardKit
+    settings:
+      base:
+        PRODUCT_NAME: Board
+        PRODUCT_BUNDLE_IDENTIFIER: com.omeriadon.board.mac
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: "Board uses Bluetooth to find and control your dither board."
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Board reads what's playing in Music and Spotify to mirror album art on your board."
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        ENABLE_APP_SANDBOX: YES
+        ENABLE_OUTGOING_NETWORK_CONNECTIONS: YES
+        ENABLE_HARDENED_RUNTIME: YES
+schemes:
+  Board-iOS:
+    build:
+      targets:
+        Board-iOS: all
+  Board-macOS:
+    build:
+      targets:
+        Board-macOS: all

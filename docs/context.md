@@ -1,6 +1,6 @@
 # Dither Board — Full Project Context
 
-_Last updated: 2026-11-20 (rev 8)_
+_Last updated: 2026-11-20 (rev 9)_
 
 **Repo:** https://github.com/omeriadon/board-eng (public), a **monorepo**: `docs/` (this file, `app-plan.md`, `prospectful.md`), `hardware/` (`ingredients.md`, `BUILD-NOTES.md`, `cad/`), `firmware/` (Pico W, Embedded Swift), `server/` (Swift Vapor), `apps/` (SwiftUI iOS + macOS, maybe watchOS), `shared/` (`BoardKit`). The local folder is `~/Documents/Xcode_App_Library/Board`.
 **CAD:** `hardware/cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser PDFs (1:1 mm) and `blueprint_tile.svg`. **Repo rule (from the builder): no HTML or SVG in the repo, only PDF (plus STL and the `cad/*.py` config/generator scripts).** Intermediate files must not be committed (`.gitignore` blocks `*.svg` and `*.html`). The old concept diagram (`tile-design.html`) was removed; a board-layout PDF will replace it.
@@ -327,3 +327,39 @@ Example numbers for N=5, k=4, 40 mm pitch:
   - It's printable (e.g. module 1, single-start worm, 30-tooth wheel → 30:1).
   - Fits the builder's two-side-joint stand idea and works on desk or wall.
 - Status: **suggested, not yet decided.**
+
+## 15. Decisions (2026-11-20, evening)
+
+### Mechanical drive system: still open
+- The "screw drive in every tile" meant the lead screw **inside the bought motor**. The builder says, rightly, that **this won't count**: the mechanism has to be their own design.
+- The builder **rejected the hand-cranked worm tilt** ("human controlled doesn't make sense").
+- **Options now on the table:**
+  1. **Design the tile screw drive yourself (recommended).** Buy 8 mm micro steppers with a **bare lead-screw shaft + brass nut** (no slider frame). Then design the rest: the nut carrier captured in the tile stem, anti-rotation from the square stem/guide, end stops, and the motor mount. The screw drive (rotary → linear) is then the builder's own design, central to the project, and in every tile.
+  2. **Automated tilt ("sleep posture"):** a small geared stepper (e.g. 28BYJ-48 + ULN2003, ~$2–3) drives a self-locking **worm + worm wheel** at the stand pivot. The board tilts down to "sleep" when you're away or at night, and rises when you're back. It's driven by presence/schedule (automated), not by hand.
+- Status: **awaiting the builder's choice.**
+
+### Inputs
+- The builder agrees that some inputs must be automated (LDR, NTC thermistor) and is fine with that. The LD2410C mmWave sensor is still being considered.
+
+### Server
+- **Runs in the cloud** (builder's decision). Hosting provider TBD.
+
+### Firmware requirement
+- **Time sync:** on startup and after any power loss, the Pico W asks the server for the current time (`GET /time?tz=`), with an NTP fallback.
+
+### App navigation (revised by the builder)
+- No "Board" home tab. The live preview and dither controls live in **Dither**.
+- Sections: Dither, Colours, Timer, Ambient, Music (Mac only), Automations, Device.
+- More than 5 tabs → iOS "More" tab is wanted (don't condense unrelated things), which makes a bigger Mac sidebar.
+- Colours = global palettes for every mode.
+- Details in `docs/app-plan.md` §2.
+
+### Music Mirror
+- Now playing via AppleScript to Music.app / Spotify (one-time Automation permission): **accepted.**
+- Beat detection: **deferred**; not system-audio capture for now.
+
+### Software scaffolding done
+- `shared/BoardKit`: a Swift package (dither engine ported from Stipple; tests pass; written to be Embedded-compatible but not yet verified; no Embedded toolchain installed).
+- `apps/`: XcodeGen `project.yml` → `Board.xcodeproj` with iOS + macOS targets. Both build; the Dither section is live with the preview.
+- `server/`: Vapor scaffold delegated to a Sonnet subagent (in progress).
+- `hardware/components.md`: specific component models and costing delegated to a Sonnet subagent (in progress).

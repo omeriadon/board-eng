@@ -1,6 +1,6 @@
 # App, Server & Firmware Plan
 
-_Last updated: 2026-11-20 (rev 1). These are initial thoughts, not final._
+_Last updated: 2026-11-20 (rev 2). Navigation revised by the builder; app + BoardKit scaffolded._
 
 The project has three software parts, all in this monorepo:
 
@@ -61,39 +61,38 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
 
 ---
 
-## 2. Navigation — initial thoughts
+## 2. Navigation (rev 2, builder's revision)
 
-**One shared section model, platform-specific containers.**
+**Builder's rules:**
+- **No "Board" home tab.** The live preview and dither controls belong to **Dither**.
+- **Timer is its own section**, not part of the board controls.
+- **Don't condense unrelated things into fewer tabs.** More than 5 tabs on iPhone is fine: iOS adds a **More** tab. That also makes the Mac sidebar bigger and nicer.
+- **Colours** are global palettes used by every mode (the dither palette, sun colours, timer bar colour), and Shortcuts can switch them. It's its own section.
 
-```swift
-enum AppSection: Hashable { case board, modes, automations, device }
-```
+**Sections (`AppSection`, in this order):**
 
-### iPhone / iPad: `TabView` with `.tabViewStyle(.sidebarAdaptable)`
-- **iPhone:** a tab bar with 4 tabs (Liquid Glass on iOS 26). **iPad:** the same code becomes a sidebar.
-- I'd pick this over a single `NavigationStack`. The app has four distinct jobs (control it now / tune modes / automate / device), and a tab bar keeps the Board tab one tap away.
+| # | Section | Contents | Group (sidebar) |
+|---|---|---|---|
+| 1 | **Dither** | Live board preview (pixels + tile heights) + Stipple-style settings (wave, pattern, levels, tiles/motion, quiet mode) | Display |
+| 2 | **Colours** | Palettes and presets shared by every mode | Style |
+| 3 | **Timer** | Top pixel row is the timer bar, second row a margin. Start/pause, presets | Display |
+| 4 | **Ambient** | Sun-through-the-day idle mode | Display |
+| 5 | **Music** | Music Mirror: album art, progress in the bottom 2 rows, beat-jumping tiles. **Mac only**; hidden on iOS | Display |
+| 6 | **Automations** | Schedules, presence (Mac keyboard/mouse, iPhone location), ambient light sensor, Shortcuts | Automate |
+| 7 | **Device** | Connection, motion & quiet mode, calibration, diagnostics, firmware | Board |
 
-| Tab | Contents |
-|---|---|
-| **Board** (home) | **Live preview** of the board (pixel grid + tile heights shaded or subtly 3D), power, brightness, **current mode picker**, preset carousel, timer start |
-| **Modes** | List → Dither (Stipple-style form), Ambient/Sun, Music Mirror (shown greyed on iPhone with "Mac only"), Timer, Colours & palettes |
-| **Automations** | Schedules, Presence, Ambient light, Shortcuts gallery |
-| **Device** | Connection, motion & quiet mode, calibration, diagnostics, app settings |
+- **iPhone:** `TabView` + `.sidebarAdaptable`. Dither, Colours, Timer and Ambient sit in the tab bar; the rest go under **More**.
+  - **Quick controls** (power + brightness) live in the iOS 26 `tabViewBottomAccessory`, like the Music mini-player, so they're reachable from every tab without a Board tab.
+- **iPad:** the same `TabView` becomes a sidebar.
+- **Mac:** `NavigationSplitView`, with the sidebar grouped Display / Style / Automate / Board.
+  - Quick controls (power, brightness, mode) sit in the toolbar.
+  - A **`MenuBarExtra`** shows a live mini preview + quick controls, because the Mac app runs all the time.
+- **watchOS (later):** power, mode, timer start; the Digital Crown sets brightness.
 
-### Mac: `NavigationSplitView` sidebar
-- The same 4 sections, but **Modes and Automations expand into their sub-items** in the sidebar (Dither, Ambient, Music, Timer / Schedules, Presence, Light, Shortcuts).
-- The detail pane always has the live preview pinned at the top.
-- **Plus a `MenuBarExtra`:** the Mac app has to run all the time (presence detection, Music Mirror, long-task detection), so it should be a **menu-bar app with launch-at-login**. The main window opens from the menu bar. The menu bar popover holds quick controls: power, mode, brightness, timer.
-- App-level settings go in the standard `Settings` scene (⌘,).
-
-### watchOS (maybe later)
-- A single screen: power, mode, timer start. The Digital Crown sets brightness, like Stipple's crown preset switching.
-
-### Design notes
-- **The live preview is the hero.** It uses the same `BoardKit` dither engine as the firmware, so the phone shows exactly what the board shows.
-- Reuse Stipple's patterns: `ValueSlider`, `PresetSection`, `PaletteSection`, `Codable` settings with defaulting decoders.
-
----
+**Scaffolded (builds for iOS 26 + macOS 26):** `apps/project.yml` (XcodeGen) → `apps/Board.xcodeproj`.
+- Shared code is in `apps/Board/Shared`: `AppSection`, `BoardStore`, `BoardPreview`, `DitherView`, `QuickControls`.
+- Platform entry points are in `apps/Board/iOS` and `apps/Board/macOS`.
+- The Dither section is fully wired to `BoardKit` (live preview + all settings); the other sections are placeholders.
 
 ## 3. Architecture thoughts
 
@@ -105,26 +104,34 @@ enum AppSection: Hashable { case board, modes, automations, device }
   - BLE for setup and nearby control.
   - Local Wi-Fi (WebSocket/HTTP on the Pico, found via mDNS/Bonjour) for normal app control.
   - Server for remote access and integrations.
-- **The Vapor server can't run on the Pico.** It needs a host:
-  - The Mac at home: free, but only works while the Mac is on.
-  - A home Raspberry Pi: one-off cost.
-  - A small VPS / Fly.io: ~$0–6/month.
+- **The server runs in the cloud** (builder's decision). Hosting provider TBD.
 
   Server jobs: remote control away from home, schedules even when no device is awake (the Pico can also keep time with NTP), fetching weather and sunrise data (HTTPS is heavy on a Pico), and relaying Mac-only data.
-  **Open question:** is the server needed for v1, or can it come later?
 - **Embedded Swift constraints:** no Foundation and limited existentials/reflection. `BoardKit`'s engine and protocol types must stick to plain Swift (structs, enums, fixed arrays, Float math). Then the same code compiles for the Pico, the server and the apps.
+
+### Firmware requirement: time sync
+- **On startup and after any power loss, the Pico W asks the server for the current time** (`GET /time`, plus `?tz=` for the local offset) and sets its clock.
+- Schedules, the sun mode and the timer depend on this.
+- Fallback if the server is unreachable: plain NTP (`pool.ntp.org`). If neither works, keep running modes that don't need the time and retry with backoff.
 
 ### Music Mirror caveats (Mac)
 - **Now playing:** Apple restricted the `MediaRemote` private framework for third-party apps in macOS 15.4.
   - **Reliable route:** query **Music.app** and **Spotify** directly via AppleScript / ScriptingBridge for track, position and artwork. This needs the Automation permission.
   - A community "mediaremote-adapter" workaround exists for other players, but it's fragile.
-- **Beat:** no public API gives beats for Apple Music, and Spotify's audio-features API is deprecated.
-  - **Plan:** capture system audio with **Core Audio process taps** (macOS 14.2+) or ScreenCaptureKit audio, then run onset/beat detection locally, sending "beat" events to the board.
+- **Now playing approach (decided):** AppleScript / ScriptingBridge to Music.app and Spotify, with the one-time Automation permission.
+- **Beat detection:** deferred. No public beat API exists; the approach will be decided later (the builder doesn't want system-audio capture for now).
 - **iPhone:** `MPMusicPlayerController.systemMusicPlayer` only covers Apple Music and only while the app is in the foreground, which is why this mode is Mac only.
 
 ---
 
-## 4. Next steps (software)
+## 4. Status / next steps (software)
+
+- ✅ `shared/BoardKit`: geometry, colours, settings, `BoardState` (Codable when not Embedded), and the **dither engine** ported from Stipple. It's libm/Foundation-free; 7 tests pass.
+  - ⚠️ Not yet verified as Embedded Swift: no Embedded-capable toolchain is installed. Install one with `swiftly` (Swift 6.x release toolchains include the Embedded stdlib) before firmware work.
+- ✅ `apps/`: iOS + macOS app shell with the revised navigation; the Dither section is live.
+- ⏳ `server/`: Vapor scaffold in progress (`/health`, `/time`, board state, WebSocket).
+
+Original next steps:
 
 1. Agree on the navigation above.
 2. Scaffold:
