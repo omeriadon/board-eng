@@ -4,7 +4,7 @@ Dither Board — parametric tile + laser-part generator.
 Generates printable STLs and laser-cut SVGs for one tile design.
 Change the PARAMETERS block, then run:
 
-    python3 -m venv .venv && .venv/bin/pip install manifold3d numpy trimesh
+    python3 -m venv .venv && .venv/bin/pip install manifold3d numpy trimesh svglib reportlab
     .venv/bin/python cad/tile.py
 
 Outputs go to cad/out/. All units are millimetres.
@@ -17,6 +17,9 @@ import math
 import numpy as np
 import trimesh
 from manifold3d import Manifold, CrossSection
+import io
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
 
 # ------------------------------------------------------------------ PARAMETERS
 N = 5                 # tiles per side
@@ -131,12 +134,20 @@ def clearance_coupon() -> Manifold:
 
 
 # --------------------------------------------------------------- laser SVGs
-def svg(name, w, h, body):
-    (OUT / name).write_text(
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w:.2f}mm" height="{h:.2f}mm" '
-        f'viewBox="0 0 {w:.2f} {h:.2f}">\n'
+def to_pdf(svg_text: str, name: str):
+    """Convert SVG text to a true-scale PDF (laser files stay 1:1 in mm)."""
+    drawing = svg2rlg(io.BytesIO(svg_text.encode()))
+    renderPDF.drawToFile(drawing, str(OUT / name))
+
+
+def svg(name, w, h, body, pad=3.0):
+    """Laser PDF at 1:1 scale, with a small page margin so the outer cut isn't clipped."""
+    W, H = w + 2 * pad, h + 2 * pad
+    to_pdf(
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.2f}mm" height="{H:.2f}mm" '
+        f'viewBox="0 0 {W:.2f} {H:.2f}">\n'
         f'<!-- red hairline = cut. units: mm. Dither Board, rough rev 1 -->\n'
-        f'<g fill="none" stroke="#ff0000" stroke-width="0.1">\n{body}</g>\n</svg>\n')
+        f'<g fill="none" stroke="#ff0000" stroke-width="0.1" transform="translate({pad},{pad})">\n{body}</g>\n</svg>\n', name)
     print(f"  {name:28s} {w:6.1f} x {h:6.1f} mm")
 
 
@@ -155,7 +166,7 @@ def laser_parts():
     cols = N
     rows = math.ceil(N * N / cols)
     body = "".join(rect(sp + (i % cols) * (d + sp), sp + (i // cols) * (d + sp), d, d) for i in range(N * N))
-    svg("laser_diffusers_smoked.svg", sp + cols * (d + sp), sp + rows * (d + sp), body)
+    svg("laser_diffusers_smoked.pdf", sp + cols * (d + sp), sp + rows * (d + sp), body)
 
     outer = N * PITCH + 2 * MARGIN
     corners = [(MARGIN / 2, MARGIN / 2), (outer - MARGIN / 2, MARGIN / 2),
@@ -164,7 +175,7 @@ def laser_parts():
 
     # front bezel: opening = full grid (each tile already has GAP/2 each side)
     body = rect(0, 0, outer, outer) + rect(MARGIN, MARGIN, N * PITCH, N * PITCH) + mount
-    svg("laser_front_bezel_black.svg", outer, outer, body)
+    svg("laser_front_bezel_black.pdf", outer, outer, body)
 
     # guide plates (front + rear identical): square holes for the stems
     hole = STEM + 2 * STEM_CLEAR
@@ -172,7 +183,7 @@ def laser_parts():
         rect(MARGIN + c * PITCH + (PITCH - hole) / 2, MARGIN + r * PITCH + (PITCH - hole) / 2, hole, hole)
         for r in range(N) for c in range(N))
     body = rect(0, 0, outer, outer) + holes + mount
-    svg("laser_guide_plate_x2.svg", outer, outer, body)
+    svg("laser_guide_plate_x2.pdf", outer, outer, body)
 
 
 # --------------------------------------------------------- blueprint drawing
@@ -251,19 +262,21 @@ def blueprint():
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 48, f"border {MARGIN:g} · M3 corner holes", "start", "n")
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 66, f"overall {N*PITCH+2*MARGIN:g} × {N*PITCH+2*MARGIN:g} for {N}×{N} tiles", "start", "n")
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 84, f"head gap {GAP} between tiles · stroke {STROKE:g}", "start", "n")
-    T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 112, "ROUGH REV 1 · units mm · motor interface TBD", "start", "w")
+    T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 112, "ROUGH REV 2 · units mm · motor interface TBD", "start", "w")
 
     W, H = 720, 680
     css = """.part{fill:#2b2b30;stroke:#9aa0aa;stroke-width:1}.hole{fill:#0e1a2b;stroke:#9aa0aa;stroke-width:1}
 .led{fill:#e8e8e8;opacity:.25;stroke:#ccc;stroke-width:.5}.acr{fill:#4a3d5c;stroke:#b9a3d6}.pcb{fill:#111;stroke:#888}
 .dim{stroke:#7fb7ff;stroke-width:1}.t{fill:#ddd;font:12px sans-serif}.h{fill:#fff;font:bold 13px sans-serif}
 .d{fill:#7fb7ff;font:11px monospace}.n{fill:#bbb;font:11px sans-serif}.w{fill:#ffb347;font:bold 11px sans-serif}"""
-    (OUT / "blueprint_tile.svg").write_text(
+    svg_text = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">'
         f'<defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">'
         f'<path d="M0,0 L10,5 L0,10 z" fill="#7fb7ff"/></marker><style>{css}</style></defs>'
         f'<rect width="100%" height="100%" fill="#0b1220"/>{"".join(o)}</svg>')
-    print("  blueprint_tile.svg")
+    (OUT / "blueprint_tile.svg").write_text(svg_text)   # kept only for the README preview
+    to_pdf(svg_text, "blueprint_tile.pdf")
+    print("  blueprint_tile.pdf (+ .svg preview for README)")
 
 
 if __name__ == "__main__":

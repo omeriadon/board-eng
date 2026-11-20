@@ -10,6 +10,7 @@ A school engineering-design project: a **mechanical, kinetic 3D version of a dit
 |---|---|
 | [`ingredients.md`](ingredients.md) | Full parts list (quantities in terms of N tiles per side and k LEDs per tile side) |
 | [`context.md`](context.md) | All design decisions, constraints and history, enough to hand the project to someone else |
+| [`BUILD-NOTES.md`](BUILD-NOTES.md) | Print settings, calibration and laser tips for build time |
 | [`tile-design.html`](tile-design.html) | Early concept diagram (exploded tile, board section, front view) |
 | [`cad/tile.py`](cad/tile.py) | Parametric generator for every tile and laser part |
 | [`cad/out/`](cad/out) | Generated files, ready to print or cut |
@@ -21,10 +22,12 @@ A school engineering-design project: a **mechanical, kinetic 3D version of a dit
 | `tile_head.stl` | Prusa MK4S, black PLA, **face-down** | N² |
 | `tile_stem.stl` | Prusa MK4S, black PLA, upright | N² |
 | `test_clearance_coupon.stl` | Print first, to tune the stem ↔ guide fit | 1 |
-| `laser_diffusers_smoked.svg` | Laser, smoked "LED" acrylic ~2 mm | 1 sheet |
-| `laser_front_bezel_black.svg` | Laser, black acrylic 3 mm | 1 |
-| `laser_guide_plate_x2.svg` | Laser, clear acrylic 3 mm | 2 |
-| `blueprint_tile.svg` | Dimensioned drawing | — |
+| `laser_diffusers_smoked.pdf` | Laser, smoked "LED" acrylic ~2 mm | 1 sheet |
+| `laser_front_bezel_black.pdf` | Laser, black acrylic 3 mm | 1 |
+| `laser_guide_plate_x2.pdf` | Laser, clear acrylic 3 mm | 2 |
+| `blueprint_tile.pdf` | Dimensioned drawing (an `.svg` copy is kept only for the preview below) | — |
+
+Laser PDFs are **1:1 scale in mm**, red hairline = cut. See [`BUILD-NOTES.md`](BUILD-NOTES.md) before printing or cutting.
 
 ![Tile blueprint](cad/out/blueprint_tile.svg)
 
@@ -32,7 +35,7 @@ A school engineering-design project: a **mechanical, kinetic 3D version of a dit
 
 ```sh
 python3 -m venv .venv
-.venv/bin/pip install manifold3d numpy trimesh
+.venv/bin/pip install manifold3d numpy trimesh svglib reportlab
 .venv/bin/python cad/tile.py
 ```
 

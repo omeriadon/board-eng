@@ -1,9 +1,9 @@
 # Dither Board — Full Project Context
 
-_Last updated: 2026-11-20 (rev 5)_
+_Last updated: 2026-11-20 (rev 6)_
 
 **Repo:** https://github.com/omeriadon/board-eng (public). This folder *is* the repo.
-**CAD:** `cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser SVGs and `blueprint_tile.svg`. `tile-design.html` is the earlier rough concept diagram (rev 1, superseded in details: the diffuser is now glued on the front, not in a lip; the end-stop pad is not felt).
+**CAD:** `cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser PDFs (1:1 mm) and `blueprint_tile.svg`. `tile-design.html` is the earlier rough concept diagram (rev 1, superseded in details: the diffuser is now glued on the front, not in a lip; the end-stop pad is not felt).
 
 This file holds the full context of the planning conversation, so another agent or person can pick up the work without the original chat. It is updated as decisions change. The live parts list is in `ingredients.md`, in the same folder, and is also updated every turn.
 
@@ -194,6 +194,8 @@ Example numbers for N=5, k=4, 40 mm pitch:
   - Correct filament profile / flow
 - Print `test_clearance_coupon.stl` first (holes at 0.15 / 0.20 / 0.25 / 0.30 mm per side, with dimples marking 1–4) and pick the best fit before printing the full set.
 - Print all tiles in the same orientation with the same filament.
+- **Full build-time checklist is in `BUILD-NOTES.md`** (the builder asked for these notes to be kept for build time).
+- Laser and blueprint outputs are **PDF** (the builder asked for PDF instead of SVG); `blueprint_tile.svg` is kept only for the README preview.
 
 ## 8. Open questions
 

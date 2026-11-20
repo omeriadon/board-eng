@@ -1,8 +1,8 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 5)_
+_Last updated: 2026-11-20 (rev 6)_
 
-**CAD / blueprints:** `cad/tile.py` (parametric) generates `cad/out/`: tile head + stem STLs, clearance test coupon, laser SVGs (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
+**CAD / blueprints:** `cad/tile.py` (parametric) generates `cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
 **Budget:** brief says ≤ **$80** total component + material cost. The builder will go up to ~**$110**.
 **Rough total at N=5, k=4 (25 tiles, 400 LEDs):** ~$95–110, with the Pico W and drivers free. **At N=4:** ~$80–90. Shipping is the main risk.
