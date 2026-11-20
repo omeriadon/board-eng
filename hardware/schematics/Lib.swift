@@ -20,13 +20,49 @@ func openPDF(_ path: String) {
 	                [kCGPDFContextTitle as String: "Dither Board schematics", kCGPDFContextAuthor as String: "omeriadon/board-eng"] as CFDictionary)!
 }
 
+// Poster mode: every page is drawn as a panel of one big sheet instead of its own A4 page.
+var posterSlots: [(Int, Int)] = []
+var posterOn = false
+var posterIndex = 0
+var posterW: CGFloat = 0, posterH: CGFloat = 0
+let posterMargin: CGFloat = 40, posterGap: CGFloat = 24, posterHeader: CGFloat = 150
+
+func openPoster(_ path: String, columns: Int, rows: Int, slots: [(Int, Int)]) {
+	posterW = posterMargin * 2 + CGFloat(columns) * PW + CGFloat(columns - 1) * posterGap
+	posterH = posterHeader + posterMargin + CGFloat(rows) * PH + CGFloat(rows - 1) * posterGap
+	var box = CGRect(x: 0, y: 0, width: posterW, height: posterH)
+	ctx = CGContext(URL(fileURLWithPath: path) as CFURL, mediaBox: &box,
+	                [kCGPDFContextTitle as String: "Dither Board: everything on one sheet", kCGPDFContextAuthor as String: "omeriadon/board-eng"] as CFDictionary)!
+	posterOn = true; posterSlots = slots; posterIndex = 0; pageNumber = 0
+	ctx.beginPDFPage(nil)
+	ctx.saveGState()
+	ctx.translateBy(x: 0, y: posterH)
+	ctx.scaleBy(x: 1, y: -1)
+	ctx.setFillColor(cWhite)
+	ctx.fill(CGRect(x: 0, y: 0, width: posterW, height: posterH))
+}
+
+func closePoster() {
+	ctx.restoreGState()
+	ctx.endPDFPage()
+	ctx.closePDF()
+	posterOn = false
+}
+
 func beginPage(_ title: String, _ subtitle: String = "") {
 	pageNumber += 1
 	pageTitleText = title
-	ctx.beginPDFPage(nil)
 	ctx.saveGState()
-	ctx.translateBy(x: 0, y: PH)
-	ctx.scaleBy(x: 1, y: -1)
+	if posterOn {
+		let (c, r) = posterSlots[posterIndex]
+		posterIndex += 1
+		ctx.translateBy(x: posterMargin + CGFloat(c) * (PW + posterGap), y: posterHeader + CGFloat(r) * (PH + posterGap))
+		ctx.clip(to: CGRect(x: 0, y: 0, width: PW, height: PH))
+	} else {
+		ctx.beginPDFPage(nil)
+		ctx.translateBy(x: 0, y: PH)
+		ctx.scaleBy(x: 1, y: -1)
+	}
 	ctx.setFillColor(cWhite)
 	ctx.fill(CGRect(x: 0, y: 0, width: PW, height: PH))
 	text(title, 28, 30, size: 16, bold: true)
@@ -37,8 +73,14 @@ func beginPage(_ title: String, _ subtitle: String = "") {
 }
 
 func endPage() {
-	ctx.restoreGState()
-	ctx.endPDFPage()
+	if posterOn {
+		ctx.setStrokeColor(cGray); ctx.setLineWidth(2)
+		ctx.stroke(CGRect(x: 1, y: 1, width: PW - 2, height: PH - 2))
+		ctx.restoreGState()
+	} else {
+		ctx.restoreGState()
+		ctx.endPDFPage()
+	}
 }
 
 func measure(_ s: String, size: CGFloat, bold: Bool) -> CGFloat {

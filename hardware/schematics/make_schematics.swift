@@ -1,5 +1,5 @@
-// Generates dither-board-schematics.pdf (A4 landscape): power, logic, both breadboards, wire lists.
-// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf
+// Generates dither-board-schematics.pdf (A4 landscape pages) and, with a second argument, dither-board-poster.pdf (all pages on one big sheet).
+// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf dither-board-poster.pdf
 import CoreGraphics
 import Foundation
 
@@ -105,22 +105,45 @@ func pagePower() {
 	endPage()
 }
 
+func allPages() {
+	pageCover()
+	pagePower()
+	pageLogic()
+	pageBB(1)
+	pageBB(2)
+	pageWireLists()
+	pageParts()
+	pageDrivers()
+	pageModels()
+}
+
 @main
 struct Main {
 	static func main() {
 		let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "dither-board-schematics.pdf"
-		openPDF(out)
-		pageCover()
-		pagePower()
 		buildNetlist()
-		pageLogic()
-		pageBB(1)
-		pageBB(2)
-		pageWireLists()
-		pageParts()
-		pageDrivers()
-		pageModels()
+		openPDF(out)
+		allPages()
 		ctx.closePDF()
 		print("wrote", out)
+		if CommandLine.arguments.count > 2 {
+			// One big sheet with everything: 4 columns x 3 rows, in page order 1...12.
+			let poster = CommandLine.arguments[2]
+			// page: 1 cover, 2 power, 3 logic, 4 BB1, 5 BB2, 6-9 wire lists, 10 parts, 11 drivers, 12 models
+			let slots: [(Int, Int)] = [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (0, 2), (1, 2), (2, 2), (3, 2), (2, 1), (3, 0), (3, 1)]
+			openPoster(poster, columns: 4, rows: 3, slots: slots)
+			posterHeaderBand()
+			allPages()
+			closePoster()
+			print("wrote", poster)
+		}
 	}
+}
+
+func posterHeaderBand() {
+	text("Dither Board: everything on one sheet", 40, 62, size: 44, bold: true)
+	text("4 × 4 tiles · 6 × 6 LEDs per tile + 24-LED status bar = 600 LEDs · 16 stepper motors · Raspberry Pi Pico W · three chargers, two buck modules, two breadboards", 40, 92, size: 16, color: cGray)
+	text("Each panel is one A4 page, drawn at full size, so zoom in to read it. The page number in each panel footer is the number on the cover's contents list (and in the separate multi-page PDF).", 40, 116, size: 13, color: cGray)
+	text("Row 1: cover, power, logic schematic, drivers.  Row 2: breadboard 1, breadboard 2, parts, models.  Row 3: wire lists for both breadboards.", 40, 136, size: 13, color: cGray)
+	line(40, 144, posterW - 40, 144, 1.2, cGray)
 }
