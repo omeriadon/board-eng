@@ -41,6 +41,10 @@ final class BoardStore {
 		var initial = saved?.bounded() ?? BoardState()
 		// "Away" is a live fact about the desk, not something to restore from last time.
 		initial.isAway = false
+		#if DEBUG
+			// Launch with `-debugMode 2` to start in a given mode (for checking each mode's look).
+			if UserDefaults.standard.string(forKey: "debugMode") != nil, let mode = BoardMode(rawValue: UInt8(UserDefaults.standard.integer(forKey: "debugMode"))) { initial.mode = mode }
+		#endif
 		state = initial
 
 		// Each install has its own id, so two devices never stamp a change identically.

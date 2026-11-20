@@ -19,6 +19,7 @@ struct MusicView: View {
 	private struct MacMusicView: View {
 		@Environment(BoardStore.self) private var store
 		@Environment(NowPlayingMonitor.self) private var nowPlaying
+		@AppStorage("lookUpArtOnline") private var lookUpArtOnline = true
 
 		var body: some View {
 			@Bindable var store = store
@@ -56,10 +57,11 @@ struct MusicView: View {
 				Section {
 					Toggle("Progress on the Bottom Rows", isOn: m.showsProgress)
 					Toggle("Dither the Album Art", isOn: m.ditherArt)
+					Toggle("Look Up Missing Covers Online", isOn: $lookUpArtOnline)
 				} header: {
 					Text("Board")
 				} footer: {
-					Text("Dithering uses the Dither tab's colour levels and pattern. With nothing playing, the board shows the dither field.")
+					Text("Dithering uses the Dither tab's colour levels and pattern. Apple Music streaming songs don't share their cover with other apps, so the cover is found with Apple's public search, which is sent only the song's title and artist. With nothing playing, the board shows the dither field.")
 				}
 
 				Section {

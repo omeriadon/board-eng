@@ -29,7 +29,7 @@ struct BoardApp: App {
 }
 
 struct RootSplitView: View {
-	@State private var selection: AppSection? = .dither
+	@State private var selection: AppSection? = AppSection(rawValue: UserDefaults.standard.string(forKey: "startSection") ?? "") ?? .dither
 
 	var body: some View {
 		NavigationSplitView {

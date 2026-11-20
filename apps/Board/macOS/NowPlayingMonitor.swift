@@ -78,7 +78,12 @@ final class NowPlayingMonitor {
 			currentKey = key
 			artworkImage = nil
 			store.artwork = nil
-			if let data = await NowPlayingScripts.artworkData(reading), let image = NSImage(data: data), key == currentKey {
+			var data = await NowPlayingScripts.artworkData(reading)
+			// Apple Music streaming tracks don't hand their art to scripts, so ask Apple's public search for the cover.
+			if data == nil, reading.player == .music, UserDefaults.standard.object(forKey: "lookUpArtOnline") as? Bool ?? true {
+				data = await NowPlayingScripts.onlineArtwork(title: reading.title, artist: reading.artist)
+			}
+			if let data, let image = NSImage(data: data), key == currentKey {
 				artworkImage = image
 				store.artwork = Self.artwork(from: image, side: store.geometry.pixelsPerSide, id: Self.hash(key))
 			}
@@ -170,6 +175,21 @@ nonisolated enum NowPlayingScripts {
 		func number(_ i: Int) -> Double { Double(text(i).replacingOccurrences(of: ",", with: ".")) ?? 0 }
 		return .playing(Reading(player: player, title: text(1), artist: text(2), isPlaying: text(3) == "true",
 		                        position: number(4), duration: number(5), artworkURL: out.numberOfItems >= 6 ? text(6) : nil))
+	}
+
+	/// Apple's public iTunes Search API: no key, and it only ever sees the title and artist.
+	@concurrent static func onlineArtwork(title: String, artist: String) async -> Data? {
+		var parts = URLComponents(string: "https://itunes.apple.com/search")
+		parts?.queryItems = [.init(name: "term", value: "\(artist) \(title)"), .init(name: "media", value: "music"),
+		                     .init(name: "entity", value: "song"), .init(name: "limit", value: "1")]
+		guard let url = parts?.url,
+		      let (json, _) = try? await URLSession.shared.data(from: url),
+		      let root = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
+		      let first = (root["results"] as? [[String: Any]])?.first,
+		      let small = first["artworkUrl100"] as? String,
+		      let big = URL(string: small.replacingOccurrences(of: "100x100", with: "300x300"))
+		else { return nil }
+		return try? await URLSession.shared.data(from: big).0
 	}
 
 	@concurrent static func artworkData(_ reading: Reading) async -> Data? {
