@@ -364,3 +364,13 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - `apps/`: XcodeGen `project.yml` → `Board.xcodeproj` with iOS + macOS targets. Both build; the Dither section is live with the preview.
 - `server/`: Vapor scaffold delegated to a Sonnet subagent (in progress).
 - `hardware/components.md`: specific component models and costing delegated to a Sonnet subagent (in progress).
+
+### Component costing (2026-11-20, `hardware/components.md`)
+- Neither N=4 nor N=5 fits the $80 brief. **Lean N=4 ≈ US$106** (≈ $96 if the school L298Ns count), roughly $112 with GST. Lean N=5 ≈ $136.
+- Corrections: real motor price ~$1.70–3.35 (the $1.10 was a new-buyer deal). The bare lead-screw motor (SINONING, ~$0.60–1.10, no nut) supports designing the screw drive yourself. Thrust is ~30 gf, not 80 g. Use 74HCT595, the DC-022D 10 A jack, an enclosed plug-in PSU, and JST-XH.
+- Premade 4×4 WS2812 module (~7.5 mm pitch, $0.96/tile) vs hand-wired bare 5050s at 9.1 mm: **undecided** (the builder previously preferred bare square LEDs; the CAD cell would change to match whichever).
+- **Open questions for the builder:**
+  - Is the budget in USD or AUD?
+  - Which parts are truly free (Pico W, how many L298Ns, acrylic, PSU)?
+  - N=4 or N=5?
+  - Which PSU, and does it need testing/tagging for school?

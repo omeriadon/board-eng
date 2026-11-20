@@ -1,6 +1,6 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 8)_
+_Last updated: 2026-11-20 (rev 9)_
 
 **CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
@@ -18,6 +18,15 @@ This is the full parts list. Grid size is still a variable, so quantities are wr
 - **P** = total LEDs = N² × k²
 
 Prices are rough estimates for later optimisation. "Free" means the school or home supplies it.
+
+
+**Specific models, prices and links: see [`components.md`](components.md)** (Sonnet research, 2026-11-20; some prices are estimates marked [E]). Key corrections from it:
+- **Motor price:** the ~$1.10 motor price is a one-per-person new-buyer deal. The real price is ~$1.70 (with slider) to ~$3.35. **The bare lead-screw version** (needed if the builder designs the screw drive) is from SINONING at ~$0.60–1.10: 2 mm screw, 28 mm long, **no nut** (buy M2 brass nuts). Order 3 pilots first.
+- **Motor thrust:** the slider listing says ~30 gf, not 80 g. Keep tiles light and test early.
+- **74HCT595**, not 74HC595 (or power the 595s from 3.3 V). The Pico's 3.3 V signals aren't reliable for 5 V HC logic.
+- **Barrel jack:** DC-022D (10 A), not DC-022B (3 A). **PSU:** a fully enclosed plug-in 5 V 10 A brick (~$16), not an open-terminal metal-case unit.
+- **Connectors:** JST-XH (perfboard-friendly), not SH/ZH.
+- **Totals (USD, before GST/shipping):** N=4 lean ≈ $106 ($96 with free L298Ns); N=5 lean ≈ $136 ($122). **Neither fits $80**; N=4 is near the $110 stretch.
 
 ---
 
