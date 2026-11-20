@@ -6,7 +6,6 @@
 DerivedData/
 *.xcodeproj
 xcuserdata/
-Tests/
 README.md
 Dockerfile
 .dockerignore
