@@ -32,6 +32,7 @@ final class BoardStore {
 
 	@ObservationIgnored private var sync: StateSync
 	@ObservationIgnored private var applyingRemote = false
+	@ObservationIgnored private var applyTask: Task<Void, Never>?
 
 	private static let key = "boardState"
 	private static let originKey = "boardOrigin"
@@ -60,6 +61,16 @@ final class BoardStore {
 		link.onMessage = { [weak self] message in self?.receive(message) }
 		link.onLinkUp = { [weak self] in self?.linkCameUp() }
 		applyConnectionSettings()
+	}
+
+	/// Call while the server address or password is being typed: reconnects once typing pauses.
+	func applyConnectionSettingsSoon() {
+		applyTask?.cancel()
+		applyTask = Task { [weak self] in
+			try? await Task.sleep(for: .milliseconds(600))
+			guard !Task.isCancelled else { return }
+			self?.applyConnectionSettings()
+		}
 	}
 
 	/// Call after the server address, password or link switches change.

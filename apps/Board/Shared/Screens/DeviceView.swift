@@ -42,6 +42,8 @@ struct DeviceView: View {
 			}
 			.onChange(of: connection.useBluetooth) { store.applyConnectionSettings() }
 			.onChange(of: connection.useServer) { store.applyConnectionSettings() }
+			.onChange(of: connection.serverURL) { store.applyConnectionSettingsSoon() }
+			.onChange(of: connection.token) { store.applyConnectionSettingsSoon() }
 			.onSubmit { store.applyConnectionSettings() }
 
 			Section("Board") {

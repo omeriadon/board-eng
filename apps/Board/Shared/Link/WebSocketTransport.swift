@@ -1,24 +1,26 @@
 import Foundation
+import Observation
 
 /// Wi-Fi: a WebSocket to the server, which relays to the board (and to your other devices). It works from anywhere,
 /// not only within Bluetooth range. Each frame is one `BoardMessage`.
 @MainActor
+@Observable
 final class WebSocketTransport: BoardTransport {
 	let kind = LinkKind.wifi
-	var onReceive: (([UInt8]) -> Void)?
-	var onConnectionChange: (() -> Void)?
+	@ObservationIgnored var onReceive: (([UInt8]) -> Void)?
+	@ObservationIgnored var onConnectionChange: (() -> Void)?
 	private(set) var isConnected = false {
 		didSet { if oldValue != isConnected { onConnectionChange?() } }
 	}
 	/// A short description of the last problem, for the Device screen.
 	private(set) var lastError: String?
 
-	private var task: URLSessionWebSocketTask?
-	private var url: URL?
-	private var token = ""
-	private var enabled = false
-	private var generation = 0
-	private var attempts = 0
+	@ObservationIgnored private var task: URLSessionWebSocketTask?
+	@ObservationIgnored private var url: URL?
+	@ObservationIgnored private var token = ""
+	@ObservationIgnored private var enabled = false
+	@ObservationIgnored private var generation = 0
+	@ObservationIgnored private var attempts = 0
 
 	func configure(url: URL?, token: String, enabled: Bool) {
 		let changed = url != self.url || token != self.token || enabled != self.enabled
@@ -27,7 +29,11 @@ final class WebSocketTransport: BoardTransport {
 		self.enabled = enabled
 		guard changed else { return }
 		disconnect()
-		if enabled, url != nil { connect() }
+		guard enabled else { lastError = nil; return }
+		if url == nil { lastError = "Enter the server address"; return }
+		if token.isEmpty { lastError = "Enter the password"; return }
+		lastError = nil
+		connect()
 	}
 
 	func send(_ bytes: [UInt8]) {
@@ -44,22 +50,9 @@ final class WebSocketTransport: BoardTransport {
 		let task = URLSession.shared.webSocketTask(with: request)
 		self.task = task
 		task.resume()
-		// A pong proves the upgrade worked, so the badge never claims a link that isn't there.
-		task.sendPing { [weak self] error in
-			Task { @MainActor in
-				guard let self, mine == self.generation else { return }
-				if let error {
-					self.lastError = error.localizedDescription
-					self.scheduleReconnect()
-				} else {
-					self.lastError = nil
-					self.attempts = 0
-					self.isConnected = true
-					self.listen(task, mine)
-					self.keepAlive(task, mine)
-				}
-			}
-		}
+		// The server speaks first (the time, then the state), so the first message received proves the upgrade worked,
+		// and the badge never claims a link that isn't there. (A ping isn't used for this: the proxy doesn't answer it.)
+		listen(task, mine)
 	}
 
 	private func disconnect() {
@@ -75,6 +68,12 @@ final class WebSocketTransport: BoardTransport {
 				guard let self, mine == self.generation else { return }
 				switch result {
 					case let .success(message):
+						if !self.isConnected {
+							self.lastError = nil
+							self.attempts = 0
+							self.isConnected = true
+							self.keepAlive(task, mine)
+						}
 						if case let .data(data) = message { self.onReceive?([UInt8](data)) }
 						self.listen(task, mine)
 					case let .failure(error):

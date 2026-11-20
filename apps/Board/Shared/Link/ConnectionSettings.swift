@@ -12,10 +12,13 @@ final class ConnectionSettings {
 
 	init() {
 		let d = UserDefaults.standard
-		serverURL = d.string(forKey: "serverURL") ?? ""
+		serverURL = d.string(forKey: "serverURL") ?? "board-15.235.184.129.sslip.io"
 		useServer = d.object(forKey: "useServer") as? Bool ?? true
 		useBluetooth = d.object(forKey: "useBluetooth") as? Bool ?? true
 		token = Keychain.get(account: "boardToken") ?? ""
+		#if DEBUG
+			if let t = d.string(forKey: "debugToken") { token = t }
+		#endif
 	}
 
 	/// The WebSocket address for the server, or nil until it's filled in.
