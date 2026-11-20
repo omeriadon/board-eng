@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - "server/**"
+      - "shared/**"
   workflow_dispatch:
 
 permissions:
@@ -19,19 +20,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout server directory
+      - name: Checkout server directories
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          # The server builds against shared/BoardKit (a path dependency), so the mirror needs both.
           sparse-checkout: |
             server
+            shared/BoardKit
 
       - name: Push deployment mirror
         env:
           MIRROR_KEY: ${{ secrets.SERVER_MIRROR_KEY }}
         run: |
           mkdir "$RUNNER_TEMP/mirror"
+          mkdir "$RUNNER_TEMP/mirror/shared"
           cp -a server "$RUNNER_TEMP/mirror/"
+          cp -a shared/BoardKit "$RUNNER_TEMP/mirror/shared/"
 
           printf '%s\n' "$MIRROR_KEY" > "$RUNNER_TEMP/mirror_key"
           chmod 600 "$RUNNER_TEMP/mirror_key"

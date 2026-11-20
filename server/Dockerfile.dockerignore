@@ -1,0 +1,17 @@
+# Read by BuildKit for `docker build -f server/Dockerfile .`, since the context is the repository root.
+# (A file named <Dockerfile name>.dockerignore next to the Dockerfile wins over a .dockerignore at the root.)
+# Only what the Swift build needs gets in: the server and BoardKit, and none of the apps, firmware, docs or secrets.
+**
+!shared/BoardKit/Package.swift
+!shared/BoardKit/Sources/**
+# SwiftPM needs the test folders too: leaving them out makes it report overlapping sources.
+!shared/BoardKit/Tests/**
+!server/Package.swift
+!server/Package.resolved
+!server/Sources/**
+!server/Tests/**
+**/.build
+**/.swiftpm
+**/.DS_Store
+**/.env
+**/.env.*

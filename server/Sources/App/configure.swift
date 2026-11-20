@@ -15,5 +15,5 @@ func configure(_ app: Application, config: BoardConfig) async throws {
     app.http.server.configuration.hostname = config.hostname
     app.http.server.configuration.port = config.port
 
-    try routes(app, config: config, store: BoardStore())
+    try routes(app, config: config, store: BoardStore(dataDirectory: config.dataDirectory, logger: app.logger))
 }
