@@ -137,6 +137,23 @@ What changes in the circuit:
 
 **Cost reality:** a new 12 V 5 A brick is about **AU$46** (e.g. Mean Well GST60A12 at Core Electronics, Australian-approved), plus ~AU$5 for the buck. A smaller 12 V 3 A plug-pack costs less and works if the LED cap is lowered to ~15 W. This is on top of the ~AU$93 total, which assumed a free supply.
 
+### 3.4 Chosen supply: the 12 V 4 A charger (48 W)
+
+Candidates found at home: 12 V 4 A (48 W), 16 V 3.75 A (60 W), 20 V 3.33 A (66 W). **The 12 V one is the pick:** the WS2815 LEDs run straight from it, so only one buck module is needed (12 → 5 V for motors, logic and the level shifter). The other two need two bucks and 12 V WS2815 LEDs would still need a buck down to 12 V.
+
+| | Budget |
+|---|---|
+| Supply (keep 15 % margin) | 48 W → 41 W usable |
+| Motors (up to 4 moving), Pico W, 74HCT245, drivers: ~3 A at 5 V | ~15 W |
+| Buck loss (~90 %) | ~2 W |
+| **LEDs** | **~23–24 W ≈ 1.9–2 A at 12 V** (about 9 % of the 258 W full-white maximum) |
+
+- The firmware caps LED **power** at ~23 W. Real dither pictures average far below full white, so the limit is rarely reached. Lowering `maxMovingTiles` from 4 to 2 frees ~5 W for the LEDs.
+- Fuses for this supply: main 5 A; LED rows 2 A each; bar 1 A; the 5 V motor rail 3 A (after the buck); logic 1 A.
+- Buck module: 12 → 5 V, rated **5 A** (XL4015/XL4016 type, ~AU$4–8), set to 5.0 V with a multimeter **before** connecting anything. Do not use a 3 A LM2596 at its limit.
+- **Check the charger first:** measure the no-load output with a multimeter (should be about 12–12.6 V; an old unregulated transformer type can read 15 V+ and would damage the LEDs), confirm the polarity from the label, and don't use a damaged cable. A switch-mode "laptop-style" brick is regulated; a heavy transformer plug-pack is not.
+- **Still to verify before relying on this:** that bare 12 V WS2815 5050 LEDs can be bought in small quantity. If not, WS2812B at 5 V would need a ≥ 8 A buck, which a 48 W supply can only just feed.
+
 ---
 
 ## 4. Blocks
