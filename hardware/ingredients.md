@@ -1,8 +1,8 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 7)_
+_Last updated: 2026-11-20 (rev 8)_
 
-**CAD / blueprints:** `cad/tile.py` (parametric) generates `cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
+**CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
 **Budget:** brief says ≤ **$80** total component + material cost. The builder will go up to ~**$110**.
 **Rough total at N=5, k=4 (25 tiles, 400 LEDs):** ~$95–110, with the Pico W and drivers free. **At N=4:** ~$80–90. Shipping is the main risk.
@@ -58,7 +58,7 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 | 3.6 | **Bulk capacitor** 1000 µF 6.3–10 V | 1–2 | Across the LED supply. | ~$0.30 |
 | 3.7 | **Level shifter for LED data**: 74AHCT125 / 74HCT245 | 1 | Converts the Pico's 3.3 V data to 5 V for the WS2812s. | ~$0.50 |
 | 3.8 | **Data line resistor** 330–470 Ω | 1 | In series with the first LED's data in. | ~$0.01 |
-| 3.9 | **Main board**: ~5×7 cm perfboard | 1 | Pico W, level shifter, sensor headers, status LED, bulk cap, fuse. | ~$1 |
+| 3.9 | **Main board**: ~5×7 cm perfboard (no custom PCB) | 1 | Pico W, level shifter, sensor headers, status LED, bulk cap, fuse. | ~$1 |
 | 3.9b | **Row boards**: perfboard/stripboard, one per tile row (N) | N | ⌈4N/8⌉ 74HC595 + N driver modules each; 5-wire bus to the next row. Breadboards for prototyping only. | ~$1 each |
 | 3.10 | **Power wiring**: 18–22 AWG red/black, plus terminal blocks or Wago connectors | — | Bus wiring for 5 V and GND, fed into tile rows from several points. | ~$3 |
 | 3.11 | **Hookup wire, headers, Dupont cables** | — | Driver ↔ shift register connections. | ~$2 |
@@ -73,8 +73,8 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 | 3.15 | **Black PLA filament** | ~0.5–1 kg | Tiles, grids, guides, stand. | Free |
 | 3.16 | **Smoked black acrylic sheet** ("LED black acrylic") for diffusers, plus optionally a thin white diffuser film/PLA | 1 sheet | One laser job cuts all N² diffuser squares. | ~$5–10 / free |
 | 3.17 | **Stand**: printed/MDF base and arm | 1 | Designed for looks. | Free |
-| 3.18 | **Mini camera ball head** (1/4"-20 thread, lockable knob, rated ≥ 1.5 kg) | 1 | Buy rather than print. Mounts at the centre of the back panel. | ~$5–10 |
-| 3.18b | **1/4"-20 threaded insert or nut** | 1 | In the back panel for the ball head. | ~$0.50 |
+| 3.18 | ~~Camera ball head~~ **dropped** (the builder wants a custom stand: a rotation joint at each side end + wooden supports to the centre, mountable on desk or wall) | — | Design later. | — |
+| 3.18-alt | **Stand parts** (TBD): timber (free/cheap), 2× pivot bolts (M5/M6) + nylon washers, printed **worm + worm wheel** tilt mechanism (suggested mechanical drive), wall-mount plate | 1 set | | ~$2–5 |
 | 3.18c | **M3 threaded rod** (×4, ~150 mm) + nuts / printed spacers | 1 set | Holds the plate stack at exact spacings. | ~$3 |
 | 3.19 | **M3 screws, nuts, standoffs** (assortment) | 1 | Frame and electronics mounting. | ~$3–5 |
 | 3.20 | **Heat-set inserts M2/M3** (optional) | ~20 | For printed parts. | ~$2 |
@@ -85,7 +85,8 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 | # | Item | Qty | Role | Est. price |
 |---|---|---|---|---|
 | 3.22 | **LDR** + 10 kΩ resistor | 1 | **Input (automated):** room light → auto LED brightness, and dims or sleeps at night. Hidden behind a tiny hole in the black border. | ~$0.20 |
-| 3.23 | **Presence sensor**: VL53L0X/VL53L1X time-of-flight (preferred, tiny, I2C) or AM312 mini PIR | 1 | **Input (automated):** detects someone at the desk → tiles wake and move, and stop when nobody's there. Prefer a small sensor behind the border over an HC-SR04 ultrasonic, whose two round "eyes" would spoil the look. | ~$1–4 |
+| 3.23 | ~~Presence sensor~~ **dropped**. Presence comes from the Mac/iPhone apps. Optional later: HLK-LD2410C 24 GHz mmWave (detects people sitting still, works through acrylic, UART) | 0 (opt. 1) | | ~$0 (opt. $3–5) |
+| 3.23b | **NTC thermistor 10 kΩ** + 10 kΩ resistor | 1 | **Input (automated):** internal temperature → dims LEDs / pauses motors if it gets too hot. Thermal safety, and replaces the presence sensor as hardware input #2. | ~$0.20 |
 | 3.24 | **Bluetooth app link** (built into the Pico W) | — | **Input (user):** iPhone/Mac apps set pattern, colour, speed and timers, plus Mac activity and Claude Code status. Optional extra: a colour sensor (TCS34725, ~$3) to pick a palette from a real object. | Free |
 | 3.25 | **Status LED on the back** (single small LED + 4.7–10 kΩ resistor, or one extra WS2812 at the end of the chain) | 1 | **Output 3:** very dim "it's on" indicator through a small hole in the back plate. Driven from a Pico GPIO so it can also show status, e.g. slow breathing = Bluetooth connected. (No piezo; the builder dropped it.) | ~$0.05 |
 | — | Outputs: **LEDs** (driven by the LDR), **stepper tiles** (driven by the presence sensor) and the **status LED** (3.25) | | Covers "3 outputs, ≥2 driven from an automated input". Risk: the teacher may count the status LED and the main LEDs as the same output type. If so, consider a different third output. | |

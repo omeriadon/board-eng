@@ -1,20 +1,21 @@
-# board-eng — Kinetic Dither Board
+# board-eng — Kinetic Dither Board (monorepo)
 
-A school engineering-design project: a **mechanical, kinetic 3D version of a dither effect**. It's a square board of moving tiles, and each tile carries a grid of square RGB pixels. The lights draw a fine dither pattern; the tiles slide in and out to add slow, calming 3D motion and a soft mechanical-keyboard-like sound.
+A school engineering-design project: a **mechanical, kinetic 3D version of a dither effect**. It's a square board of moving tiles, each carrying a grid of square RGB pixels. The lights draw a fine dither pattern; the tiles slide in and out to add slow, calming 3D motion and a soft mechanical-keyboard-like sound.
 
 **Problem it addresses:** during short, unpredictable waits in focused work (AI tools, builds, renders), people reach for their phones and doomscroll. The board is a screen-free, calming desk object that gives idle attention somewhere to rest.
 
-## Repo layout
+## Layout
 
-| Path | What |
+| Folder | What |
 |---|---|
-| [`ingredients.md`](ingredients.md) | Full parts list (quantities in terms of N tiles per side and k LEDs per tile side) |
-| [`context.md`](context.md) | All design decisions, constraints and history, enough to hand the project to someone else |
-| [`BUILD-NOTES.md`](BUILD-NOTES.md) | Print settings, calibration and laser tips for build time |
-| [`cad/tile.py`](cad/tile.py) | Parametric generator for every tile and laser part (the config: edit the PARAMETERS block) |
-| [`cad/out/`](cad/out) | Generated files, ready to print or cut |
+| [`docs/`](docs) | [`context.md`](docs/context.md) (all decisions and history), [`app-plan.md`](docs/app-plan.md) (features, navigation, architecture), [`prospectful.md`](docs/prospectful.md) (ideas for later) |
+| [`hardware/`](hardware) | [`ingredients.md`](hardware/ingredients.md) (parts list), [`BUILD-NOTES.md`](hardware/BUILD-NOTES.md) (print/laser checklist), [`cad/`](hardware/cad) (parametric generator + STL/PDF outputs) |
+| [`firmware/`](firmware) | Pico W code, Embedded Swift (not started) |
+| [`server/`](server) | Swift + Vapor server (not started) |
+| [`apps/`](apps) | SwiftUI iOS + macOS clients, maybe watchOS (not started) |
+| [`shared/`](shared) | `BoardKit` Swift package shared by everything (not started) |
 
-### Generated parts (`cad/out/`)
+## Hardware parts (`hardware/cad/out/`)
 
 | File | Make with | Qty |
 |---|---|---|
@@ -26,19 +27,13 @@ A school engineering-design project: a **mechanical, kinetic 3D version of a dit
 | `laser_guide_plate_x2.pdf` | Laser, clear acrylic 3 mm | 2 |
 | `blueprint_tile.pdf` | Dimensioned drawing | — |
 
-Laser PDFs are **1:1 scale in mm**, red hairline = cut. See [`BUILD-NOTES.md`](BUILD-NOTES.md) before printing or cutting.
+Laser PDFs are **1:1 scale in mm**, red hairline = cut. Read [`hardware/BUILD-NOTES.md`](hardware/BUILD-NOTES.md) before printing or cutting. Main CAD from here on is **Shapr3D**; the generator is a parametric reference.
 
-
-## Regenerating
-
+Regenerate:
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install manifold3d numpy trimesh svglib reportlab
-.venv/bin/python cad/tile.py
+.venv/bin/python hardware/cad/tile.py
 ```
 
-Edit the `PARAMETERS` block in `cad/tile.py` (grid size, pitch, gaps, clearances, stroke) and rerun.
-
-## Status
-
-Rough rev 2. The motor plate and slider interface wait on measurements of the real 8 mm micro slider stepper. Next step: a single-tile prototype.
+Repo rule: only PDF / STL / source / markdown are committed, no HTML or SVG.
