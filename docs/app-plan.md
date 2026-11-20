@@ -104,7 +104,8 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
   - BLE for setup and nearby control.
   - Local Wi-Fi (WebSocket/HTTP on the Pico, found via mDNS/Bonjour) for normal app control.
   - Server for remote access and integrations.
-- **The server runs in the cloud** (builder's decision). Hosting provider TBD.
+- **The server runs in the cloud** (builder's decision), deployed with **Docker Compose** (Dokploy/Traefik; modelled on Ergo's compose file).
+  - **One board, one owner:** no accounts, users or IDs, just one state, one socket and one shared bearer token.
 
   Server jobs: remote control away from home, schedules even when no device is awake (the Pico can also keep time with NTP), fetching weather and sunrise data (HTTPS is heavy on a Pico), and relaying Mac-only data.
 - **Embedded Swift constraints:** no Foundation and limited existentials/reflection. `BoardKit`'s engine and protocol types must stick to plain Swift (structs, enums, fixed arrays, Float math). Then the same code compiles for the Pico, the server and the apps.
@@ -129,7 +130,10 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
 - ✅ `shared/BoardKit`: geometry, colours, settings, `BoardState` (Codable when not Embedded), and the **dither engine** ported from Stipple. It's libm/Foundation-free; 7 tests pass.
   - ⚠️ Not yet verified as Embedded Swift: no Embedded-capable toolchain is installed. Install one with `swiftly` (Swift 6.x release toolchains include the Embedded stdlib) before firmware work.
 - ✅ `apps/`: iOS + macOS app shell with the revised navigation; the Dither section is live.
-- ⏳ `server/`: Vapor scaffold in progress (`/health`, `/time`, board state, WebSocket).
+- ✅ `server/`: Vapor 4 scaffold with 8 tests passing.
+  - Public: `GET /health`, `GET /time?tz=`.
+  - Bearer-token: `GET/PUT /v1/board/state`, `WS /v1/board/socket` (sends `{"type":"state","state":{…}}`).
+  - Docker Compose + Dockerfile modelled on Ergo's. ⚠️ The image hasn't been built yet: Docker isn't working on this Mac.
 
 Original next steps:
 

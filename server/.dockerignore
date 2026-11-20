@@ -1,0 +1,14 @@
+.build/
+.swiftpm/
+.git
+.gitignore
+.DS_Store
+DerivedData/
+*.xcodeproj
+xcuserdata/
+Tests/
+README.md
+Dockerfile
+.dockerignore
+.env
+.env.*

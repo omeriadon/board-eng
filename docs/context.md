@@ -342,7 +342,8 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - The builder agrees that some inputs must be automated (LDR, NTC thermistor) and is fine with that. The LD2410C mmWave sensor is still being considered.
 
 ### Server
-- **Runs in the cloud** (builder's decision). Hosting provider TBD.
+- **Runs in the cloud** (builder's decision), deployed with **Docker Compose** (via Dokploy/Traefik), modelled on Ergo's `ErgoServer/compose.yaml`.
+- **Single board, single owner:** no accounts, users or device IDs. One board state and one board socket, protected only by a shared bearer token so strangers can't control it.
 
 ### Firmware requirement
 - **Time sync:** on startup and after any power loss, the Pico W asks the server for the current time (`GET /time?tz=`), with an NTP fallback.

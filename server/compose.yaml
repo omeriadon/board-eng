@@ -1,0 +1,29 @@
+# The dither board's cloud server.
+#
+#   docker compose up -d --build
+#   docker compose logs -f board-server
+#   docker compose down
+#
+# Run one instance only: there is one board, and the socket broadcaster and the board state are in memory.
+# Nothing is published to the host: the proxy reaches port 8080 over its Docker network, as Dokploy's Traefik does.
+
+services:
+  board-server:
+    image: board-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    # Every variable in the .env beside this file reaches the server, which is where Dokploy writes its list.
+    # BOARD_API_TOKEN is required: the server refuses to start in production without it.
+    env_file:
+      - path: .env
+        required: false
+    # Run as the image's non-root `board` user, with no capabilities.
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
