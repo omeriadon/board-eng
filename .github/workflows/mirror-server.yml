@@ -1,0 +1,62 @@
+name: Mirror server repository
+
+# Copy of Ergo's mirror-server.yml. Differences:
+# - pushes with a write deploy key (secret SERVER_MIRROR_KEY) instead of a personal access token;
+# - the Dokploy compose ID is the repo variable DOKPLOY_COMPOSE_ID, and the deploy step is skipped until it's set.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout server directory
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            server
+
+      - name: Push deployment mirror
+        env:
+          MIRROR_KEY: ${{ secrets.SERVER_MIRROR_KEY }}
+        run: |
+          mkdir "$RUNNER_TEMP/mirror"
+          cp -a server "$RUNNER_TEMP/mirror/"
+
+          printf '%s\n' "$MIRROR_KEY" > "$RUNNER_TEMP/mirror_key"
+          chmod 600 "$RUNNER_TEMP/mirror_key"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/mirror_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+
+          cd "$RUNNER_TEMP/mirror"
+
+          git init -b main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "Mirror source $GITHUB_SHA"
+
+          git remote add origin git@github.com:omeriadon/BoardServerDeploy.git
+
+          git push --force origin main
+
+      - name: Deploy on Dokploy
+        if: ${{ vars.DOKPLOY_COMPOSE_ID != '' }}
+        env:
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          COMPOSE_ID: ${{ vars.DOKPLOY_COMPOSE_ID }}
+        run: |
+          curl --fail-with-body --silent --show-error -X POST "https://dokploy.jdqc.dev/api/compose.deploy" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $DOKPLOY_API_KEY" \
+            -d "{\"composeId\":\"$COMPOSE_ID\"}"
