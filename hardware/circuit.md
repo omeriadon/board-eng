@@ -178,6 +178,19 @@ Works, and is better than one charger. Example: the **12 V 4 A** feeds only the 
 - All three negatives join at the one star point; one switch (power board) for all three plugs; pull-downs on every data line; check each charger's no-load voltage first; buck inputs are rated well above 20 V.
 - Cost: one more buck (AU$8) and more wiring. Every extra charger and buck is another thing that can fail.
 
+### 3.7 Joining chargers, and the motor limit
+
+- **Joining the chargers is not worth it.** Different voltages (12, 16, 20 V) cannot go in parallel: the highest one would push into the others. Same-voltage chargers in parallel don't share current evenly. In series the voltages add (28 V, 48 V) and the current is limited by the weakest one, which then needs bigger bucks, runs near the 50 V line (the project is meant to stay 5 V / 12 V), and one charger tripping drags the rest down. Keeping the chargers **separate, one per group** (§3.6) already adds their watts, with no joining.
+- The LEDs are the power problem, not the motors. The motors sit on their own supply, so raising `maxMovingTiles` costs nothing from the LED budget.
+- **The motor limit is set by the 5 V buck, not the charger.** One moving motor (both coils on) draws ~0.3–0.6 A at 5 V (about 0.15–0.3 A per coil). With ~0.5 A for the Pico and logic:
+
+| 5 V buck | Moving at once (worst case 0.6 A each) | At 0.3 A each |
+|---|---|---|
+| 5 A | **6–7** | ~14 |
+| 8 A | ~12 | all 16 |
+
+  Raise `maxMovingTiles` from 4 to **6** with a 5 A buck; 12 needs an 8 A buck. Measure the real coil current on the first motor before trusting these numbers. More tiles moving together is also louder; quiet mode already halves the limit.
+
 ---
 
 ## 4. Blocks
