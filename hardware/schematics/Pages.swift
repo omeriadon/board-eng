@@ -116,7 +116,7 @@ func pageDrivers() {
 	let notes = [
 		"Each driver: IN1 and IN2 drive coil A (OUT1, OUT2), IN3 and IN4 drive coil B (OUT3, OUT4). On an MX1508 the four inputs are INA1, INA2, INB1, INB2.",
 		"The firmware shifts 64 bits per update, tile 15 first, then latches. Outputs stay off until OE goes low.",
-		"School L298N modules: take the 5 V-EN jumper OFF and feed 5 V (motor rail) into the module's 5 V pin as well as VS. Leave the ENA and ENB jumpers on. They drop ~2 V, so a coil gets ~3 V: fine for a test, weak for the final.",
+		"MX1508 modules (decided driver; the school does not supply L298N): VCC = motor rail (5 V), GND to the star point, IN1 to IN4 from the shift register outputs. No jumpers and almost no voltage drop.",
 		"Drivers, their supply and the motor wires are off the breadboards: motor rail (F9, 5 V) to every driver's supply pins, with 100 µF + 100 nF per row of four drivers.",
 		"Motor cable, 4 wires: find the two coils with a multimeter (about 15 to 40 Ω between each pair) and wire one coil to OUT1/OUT2, the other to OUT3/OUT4. Swapping a coil's two wires only reverses the motor.",
 		"LED cable per tile: +12 V, GND, DIN, DOUT (WS2815). The WS2815 backup-data pins, and so the connector size, are not decided until the LED part is chosen. Each row's DIN comes from the LED output block on breadboard 1 (P3 to P7).",
@@ -136,7 +136,7 @@ func pageModels() {
 		["Diode", "1N5819 Schottky", "Charger-to-Pico VSYS."],
 		["Fuses", "Resistive PTC (resettable): F1 4 A, F2 F3 F5 F6 3 A, F4 3 A, F7 1 A, F8 2 A, F9 5 A, F10 1 A", "The number is the hold current."],
 		["Sensors", "LDR; 10 kΩ NTC thermistor (β about 3950)", "Both listed sensors in the brief."],
-		["Drivers (provisional)", "L298N (school, prototype) or MX1508 / DRV8833 (final)", "One per motor. Not decided."],
+		["Drivers (provisional)", "MX1508 (decided; DRV8833 is the fallback)", "One per motor, 18 bought. Check the module you receive."],
 		["Motors (provisional)", "8 mm 2-phase stepper, bare lead-screw version", "Coil resistance and real current not measured yet."],
 		["LEDs (provisional)", "12 V WS2815, 5050 SMD", "Small-quantity supply and the data-input level are NOT verified."],
 	]
@@ -154,7 +154,7 @@ func pageModels() {
 	for l in checks { y = paragraph("• " + l, 36, y, width: 750, size: 8.5) }
 	y += 6
 	y = paragraph("Not decided yet", 28, y, width: 380, size: 10, bold: true) + 2
-	for l in ["The LED part, and so the tile connectors and the data-input level. The motor and driver models. The mechanical drive system. 6 LEDs per tile versus 6 × 6 tiles. The firmware power limiter (per group) is not built."] {
+	for l in ["The LED part, and so the tile connectors and the data-input level. The motor model. The mechanical drive system. The firmware power limiter (per group) is not built."] {
 		y = paragraph("• " + l, 36, y, width: 750, size: 8.5)
 	}
 	endPage()

@@ -1,150 +1,88 @@
-# Dither Board — Ingredients List
+# Dither Board: Ingredients List
 
-_Last updated: 2026-11-20 (rev 13)_
+_Last updated: 2026-11-20 (rev 16). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
-**CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
+**Build:** 4 × 4 tiles, 6 × 6 LEDs per tile (576) + a 24-LED status bar = **600 LEDs**, 16 stepper motors, Pico W. Power is the builder's own three chargers (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A) plus two buck modules. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
-**Budget (AUD):** brief says ≤ **AU$80** total component + material cost. The builder will go up to ~**AU$110** (≈ US$52 / US$72).
-**Rev 15: schematics PDF added (`schematics/dither-board-schematics.pdf`, two breadboards); power is the three-charger plan, see 3.12h. Rev 13: a fixed 24-LED status bar sits under the grid (gap between), for the timer and song progress, so the board has 600 LEDs (576 + 24). Pin map, circuit, fuses and the 7805 verdict are in [`circuit.md`](circuit.md). Power: three spare chargers plus two buck modules (3.12h), not a single 5 V 10 A brick.**
-**Size (rev 12): N = 4 tiles per side, k = 6 LEDs per tile side → 16 tiles, 576 LEDs, 24 × 24 pixels (builder wanted more pixels; confirm k=6 vs 6×6 tiles).** Roughly 18 cm square at a 40 mm tile pitch; LED pitch ~6.7 mm. **Power: 576 × 60 mA = 34.6 A at 5 V at full white; size the PSU and wiring for the firmware cap (~25% → ~9 A worst case) and power-inject. 12 V WS2815 halves-plus the current (same ~0.3 W per LED) if the school supply allows.** LED cost ×2.25 (576 instead of 256 LEDs and caps, ~AU$25 → ~AU$60 at AliExpress bulk prices; a premade 16×16 module no longer fits the k).
-**Free from school:** Pico W, L298N drivers, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons, basic parts.
-**Rough total with those free (US$, before GST/shipping):** N=4 ≈ US$61 ≈ AU$93; N=5 ≈ US$85 ≈ AU$130. Still over; cuts TBD. The builder prefers **smaller tiles** (larger N).
-
-**Mechanical drive requirement:** still open. The screw inside a bought motor doesn't count; candidates are a self-designed tile screw drive (bare lead-screw motor + printed nut carrier) or an automated sleep-tilt worm drive.
-
-**Rough tile design:** see `hardware/cad/out/blueprint_tile.pdf`.
-
-This is the full parts list. Grid size is still a variable, so quantities are written in terms of these:
-
-- **N** = moving tiles per side (the grid has N² tiles; candidates are 2, 3, 4, 5 or 6)
-- **k** = LEDs per tile side (each tile has k² LEDs; candidates are 3, 4 or 5)
-- **P** = total LEDs = N² × k²
-
-Prices are rough estimates for later optimisation. "Free" means the school or home supplies it.
-
-
-**Specific models, prices and links: see [`components.md`](components.md)** (Sonnet research, 2026-11-20; some prices are estimates marked [E]). Key corrections from it:
-- **Motor price:** the ~$1.10 motor price is a one-per-person new-buyer deal. The real price is ~$1.70 (with slider) to ~$3.35. **The bare lead-screw version** (needed if the builder designs the screw drive) is from SINONING at ~$0.60–1.10: 2 mm screw, 28 mm long, **no nut** (buy M2 brass nuts). Order 3 pilots first.
-- **Motor thrust:** the slider listing says ~30 gf, not 80 g. Keep tiles light and test early.
-- **74HCT595 on 5 V, or 74HC595 on 3.3 V** (the plan now: 3.3 V, so the school's HC chips work). The Pico's 3.3 V signals aren't reliable for 5 V HC logic.
-- **Power (rev 15):** the old single 5 V 10 A brick and 10 A barrel jack are dropped; see 3.12h (three chargers, two bucks).
-- **Connectors:** JST-XH (breadboard/perfboard-friendly), not SH/ZH.
-- **Circuit board (rev 10):** breadboard + cut wires instead of perfboard (school supplies breadboards). Power for LEDs/motors on a separate bus, not the breadboard rails.
-- **PSU (rev 10):** school supplies one; no test-and-tag needed.
-- **Totals (USD, before GST/shipping):** N=4 lean ≈ $106 ($96 with free L298Ns); N=5 lean ≈ $136 ($122). **Neither fits $80**; N=4 is near the $110 stretch.
+Confidence tags: **[P]** page opened and read, **[C]** search-result card only, **[E]** my estimate, nothing checked.
 
 ---
 
-## 1. Per tile (multiply by N²)
+## A. BUY LIST (what you must purchase)
 
-| # | Item | Qty per tile | Notes | Est. unit price |
-|---|---|---|---|---|
-| 1.1 | **Micro linear slider stepper**: 8 mm, 2-phase, 4-wire, lead screw + slider nut | 1 | 3.3–5 V, ~20 Ω/phase, M2×0.4 screw. Stroke 10 mm (5–10 levels) or 15–20 mm (more levels). Example: VIC-TECH VSM08102-type. Search AliExpress for "8mm stepper motor slider". | ~$1.10–3 |
-| 1.2 | **Motor driver, one per tile.** Prototype: school **L298N** (free; bulky ~43 mm, old bipolar-transistor design with a ~2 V drop, so the coils get ~3 V from 5 V). Likely final: **MX1508** (~$0.30–0.50, ~24×21 mm) or **DRV8833** (~$0.50–1, ~18×16 mm) modules, which have MOSFETs with almost no voltage drop. | 1 | Every option drives exactly one bipolar stepper (one channel per coil) via 4 inputs from the shift registers. Swapping L298N → MX1508 costs ~$8–15 for 16–25 tiles. | Free / ~$0.30–1 |
-| 1.3 | **WS2812B-5050 addressable RGB LED** (bare SMD, square package) | k² | Square 5×5 mm body with a built-in driver, so no resistor needed. The square pixel look comes from the grid and diffuser (1.6–1.7). | ~$0.03–0.08 |
-| 1.4 | **100 nF capacitor** (0603/0805 SMD) | k² | Decoupling, one per LED as in the datasheet. | ~$0.005 |
-| 1.5 | **Custom tile PCB**, black soldermask, sized edge-to-edge | 1 | Holds the k² LEDs at exact pitch, with IN/OUT pads for 5 V, GND, DIN/DOUT. JLCPCB (optionally with SMT assembly). | ~$0.20–1 (batch) |
-| 1.6 | **Tile head**: black PLA, rim + k×k square light grid in one print (printed face-down) | 1 | ~39×39×13 mm at 40 mm pitch; 1 mm grid walls, 8 mm tall cells; 2 mm lip holds the diffuser. Batch-printed. | Free |
-| 1.7 | **Smoked "dead-front" diffuser square**: smoked/tinted black "LED acrylic" (~2–3 mm), laser-cut | 1 | Looks black when off, light shows through when on, so the all-black rule holds. Cut all squares from one sheet in one laser job and glue one per tile. Alternatives: a thin translucent black PETG/PLA print, or a thin white diffuser layer under the smoked one for more even squares. It cuts brightness, so LEDs run brighter. | ~$5–10 per sheet total, or free if the school has it |
-| 1.9 | **Guide holes**: 20.6 mm square holes in the front + rear MDF guide plates | — | Keep the stem straight; the motor only pushes. | Free |
-| 1.10 | **Detent / click feature** (printed flexure or bumps) | 1 | Optional: gives a soft keyboard-like click at each level. | Free |
-| 1.11 | **Flexible tile wiring**: 3–4 core silicone wire, ~26–30 AWG, ~10 cm | 1 set | 5 V, GND, data in/out, with slack for 10–20 mm of travel. | ~$0.10 |
-| 1.12 | **Small connectors** (JST-SH/ZH or similar), tile ↔ harness | 1–2 pairs | So tiles can be swapped and repaired. | ~$0.10 |
-| 1.13 | **M2 screws** (motor mount) | ~2 | | ~$0.02 |
+| # | Item | Qty | Model / spec | Where | Price (AUD) | Conf. |
+|---|---|---|---|---|---|---|
+| A1 | **Stepper motor, 8 mm, 2-phase 4-wire, bare lead screw** | 18 (16 + 2 spare). **Order 3 first** as a pilot. | SINONING "Mini 8 mm precision stepper motor 2-phase 4-wire, long linear screw shaft" (2 mm screw, 28 mm, no nut) | sinoning.com (links in `components.md` §1.1) | 18 × 1.58 = **28.40** + postage ~8 | [P] price, [E] postage |
+| A2 | **M2 brass nuts** | 100 | Pitch unverified (probably M2 × 0.4); test one on a pilot motor | AliExpress | **2.20** | [E] |
+| A3 | **Motor driver module MX1508** (dual H-bridge, 2–10 V, 1.5 A per channel, MOSFET) | 18 (2 packs of 10) | One per motor; 4 inputs IN1–IN4 | AliExpress "MX1508 10 pcs" | **13.80** | [C] |
+| A4 | **WS2815 RGB LED, 5050 SMD, 12 V, addressable** | 660 (600 + 10 % spare) | Worldsemi **WS2815B-V1**, LCSC C5446699 (datasheet lists data-high ≥ 2.7 V, so even a 3.3 V line would read; we feed 5 V from the 74HCT245 anyway) | LCSC (5+ price ~US$0.0925 each; snapshots range 0.0915–0.1021) | 660 × US$0.0925 = US$61 = **88.40** + shipping ~25 | [C] price, [E] shipping |
+| A5 | **100 nF capacitor, 0805** (one per LED) | 700 | Decoupling | AliExpress / LCSC | **7.00** | [E] |
+| A6 | **Tile PCBs**, 2 layers, **black** solder mask: 16 tile boards (36 LEDs each at ~6.5 mm pitch, 4 pads: +12 V, GND, DIN, DOUT) + the 24-LED bar board | 5 panels of 2 × 2 tiles (20 tiles) + 5 bar boards (need 2) | **Not designed yet.** Two designs, each "from US$2 for 5 pcs" (≤ 100 × 100 mm) | JLCPCB | **~40.00** incl. shipping | [E] |
+| A7 | **74HC595N, DIP-16** | 10 (8 + 2 spare), one pack | Powered from 3.3 V, so plain HC is fine | AliExpress 10-pack (AU$1–3) | **2.00** | [C] |
+| A8 | **74HCT245, DIP-20** (level shifter for the five LED data lines) | 5 (1 + spares) | Must be **HCT**, not HC or LS (needs 5 V logic with a 3.3 V input threshold) | AliExpress / eBay "SN74HCT245N" | **4.00** | [E] |
+| A9 | **Buck module XL4016-class, 8 A, adjustable** ("XH-M404" style) | 3 (2 + 1 spare) | Used at ≤ 5 A with your aluminium heatsink: **12.0 V** from 20 V, **5.0 V** from 16 V | AliExpress / eBay (one eBay sale AU$5.78 + postage) | **18.00** | [E] |
+| A10 | **JST-XH 4-pin connector sets** (housing + header) | ~50 pairs | Tile ↔ harness for the LED chain and the motor | AliExpress | **10.00** | [E] |
+| | **Subtotal, ex-GST** | | | | **≈ 246** | |
+| | **+10 % GST on imports (rough)** | | | | **≈ 25** | |
+| | **Total to buy** | | | | **≈ AU$270** | |
 
-## 2. Per 2 tiles (multiply by ⌈N²/2⌉)
+The LEDs (A4) are about 45 % of it. They are priced for the 12 V part because the power plan is 12 V; the 5 V WS2812B would be ~AU$44 for the same count but cannot be powered by this plan (90 W of LEDs at 5 V is ~18 A).
 
-| # | Item | Qty | Notes | Est. unit price |
-|---|---|---|---|---|
-| 2.1 | **74HC595 shift register** (DIP-16 or SMD) | 1 per 2 tiles (8 for N=4) | 8 outputs, enough for 2 steppers × 4 control lines. Chained so the Pico controls all motors with 3 pins + OE. **Powered from the Pico's 3.3 V, so plain 74HC595 is fine** (74HCT only if powered from 5 V). | ~$0.05–0.20 |
+---
 
-## 3. Fixed / one-off
+## B. PROVIDED FREE (confirmed by the builder, 2026-11-20)
 
-### Electronics
+| Item | Detail from the blueprint |
+|---|---|
+| **Pico W** | Wi-Fi/BLE version |
+| **Basic passives** | 330 Ω × 5, 10 kΩ × 8, 4.7 kΩ × 1, 100 nF × ~15 (decoupling), 100 µF × 5, **1000 µF 25 V × 2**, **470 µF 16 V × 1**, 1N5819 Schottky × 1, LDR (GL5528-type) × 1, NTC 10 kΩ (β 3950) × 1, red LED × 1 |
+| **2 breadboards + jumper wires** | Two large (~60 column) boards |
+| **Wire and connectors** | Hookup wire, 18–20 AWG power wire, terminal blocks / Wago, Dupont leads, 3–4 core silicone wire for the tile flex |
+| **Screws, nuts, threaded rod** | M2 and M3 screws, nuts, standoffs, 4 × M3 rod (~150 mm) |
+| **Switch, DC plugs, fuses** | One rocker switch (power board), three DC sockets matching the charger plugs, **10 resettable PTC fuses**: F1 4 A, F2 3 A, F3 3 A, F4 3 A, F5 3 A, F6 3 A, F7 1 A, F8 2 A, F9 5 A, F10 1 A |
+| **Black + clear acrylic, laser cut** | 3 mm: front bezel (black), guide plates, motor plate, sides, back (clear) |
+| **Diffuser** | A thin **3D-printed sheet** (the school does not supply smoked acrylic) |
+| **PLA + 3D printer** | Prusa MK4S, black PLA: tile heads, grids, guides, stand parts |
+| **Soldering kit + multimeter** | Plus aluminium for the buck heatsinks |
+| **The three chargers** | 12 V 4 A, 20 V 3.33 A, 16 V 3.75 A |
+| **Stand timber / paint** | From home |
 
-| # | Item | Qty | Notes | Est. price |
-|---|---|---|---|---|
-| 3.1 | **Raspberry Pi Pico W or Pico 2 W** | 1 | The only computer. **Built-in Wi-Fi (2.4 GHz) + Bluetooth (BLE)** on one chip (Infineon CYW43439), so no extra module is needed. PIO handles LED timing and stepping; runs Embedded Swift. Ask the school for a W. Buying one costs ~$6–7. (Separate modules if stuck with a plain Pico: HM-10 BLE ~$2–4, ESP-01 Wi-Fi ~$2, but a Pico W is simpler.) | Free (ask) / ~$6–7 |
-| 3.2 | ~~5 V power supply~~ **Superseded by 3.12h** (the builder's three chargers). Old note: | Size it from N and k. Roughly: LEDs P × 60 mA at full white, capped in firmware to ~20–25%, plus about 0.5 A per stepper moving at once. 5 V 10 A is likely enough for most configs. | ~$10–15 |
-| 3.3 | **DC inputs**: one connector per charger (3 total; match each charger's plug) | 3 | Superseded the single 10 A jack. | ~$0.50 |
-| 3.4 | **Power switch** (rocker or toggle) | 1 | The only control on the device. | ~$0.50 |
-| 3.5 | ~~Inline fuse + holder~~ | 0 | Replaced by the ten PTC fuses in 3.12c. | ~$1 |
-| 3.6 | **Bulk capacitors**: 2 × 1000 µF 25 V (12 V buses), 1 × 470 µF 10 V (5 V bus) | 3 | One per bus, see `circuit.md` §3. | ~$0.30 |
-| 3.7 | **Level shifter for LED data**: **74HCT245** (one chip, 5 lines used: 4 tile rows + status bar). 74AHCT125 also works but needs two chips. | 1 | Converts the Pico's 3.3 V data to 5 V for the WS2812s. DIR → 5 V, OE → GND, unused inputs → GND. | ~$0.50 |
-| 3.8 | **Data line resistor** 330 Ω | 5 | One in series with each LED data line (4 rows + bar). | ~$0.05 |
-| 3.9 | **Main board**: ~5×7 cm perfboard (no custom PCB) | 1 | Pico W, level shifter, sensor headers, status LED, bulk cap, fuse. | ~$1 |
-| 3.9b | **Row boards**: perfboard/stripboard, one per tile row (N) | N | ⌈4N/8⌉ 74HC595 + N driver modules each; 5-wire bus to the next row. Breadboards for prototyping only. | ~$1 each |
-| 3.10 | **Power wiring**: 18–22 AWG red/black, plus terminal blocks or Wago connectors | — | Bus wiring for 5 V and GND, fed into tile rows from several points. | ~$3 |
-| 3.11 | **Hookup wire, headers, Dupont cables** | — | Driver ↔ shift register connections. | ~$2 |
-| 3.12 | **Zip ties / cable clips** | — | | ~$1 |
-| 3.12b | **Status bar LEDs**: 24 × WS2812B + 24 × 100 nF, on a straight strip or small board under the grid | 24 | Fixed (does not move). Own data line (GP6) and own 2 A branch. | ~$1.5 |
-| 3.12c | **Fuses**: 10 × resettable PTC (hold current): F1 4 A, F2/F3 3 A, F4 3 A, F5/F6 3 A, F7 1 A, F8 2 A, F9 5 A, F10 1 A | 10 | See `circuit.md` §3. | ~$3 |
-| 3.12d | **Schottky diode 1N5819** | 1 | Logic rail → Pico VSYS, so USB and the brick can both be plugged in. | ~$0.10 |
-| 3.12e | **Bus connectors**: terminal blocks or Wago connectors; 100 µF per row of four drivers | — | Capacitors for the buses are in 3.6. | ~$2 |
-| 3.12h | **DECIDED (rev 14): use the builder's three spare chargers** (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A; free) per `circuit.md` §3, plus **2 buck modules**: 20 V → 12 V rated 5 A+ (XL4016-type, heatsink) and 16 V → 5 V rated 5 A (XL4015/XL4016 type), ~AU$8 each, and a power board with one switch. `maxMovingTiles` default is now 6. | 2 | | ~AU$16 |
-| 3.12g | ~~Own power supply (buy).~~ Superseded by 3.12h. | 0 | | — |
-| 3.12f | **7805 regulator (teacher's)** | optional | Logic only, and only if the supply is 9–12 V. Cannot run the LEDs or motors (1 A max; needs ≥ 7 V in). With a 5 V brick it is not used. | Free |
+---
 
-### Structure
+## C. Not bought, dropped, or still open
 
-| # | Item | Qty | Notes | Est. price |
-|---|---|---|---|---|
-| 3.13 | **Laser-cut acrylic frame** (preferred over MDF for looks, durability and dimensional stability). **Black** acrylic for the front bezel (`laser_front_bezel_black.svg`). **Clear** acrylic allowed for the guide plates (`laser_guide_plate_x2.svg`), motor plate, sides and back, so the mechanism shows. Clear doesn't break the all-black rule (it's not a colour, and it's not the front). MDF is the fallback. | 1 set | ~22×22 cm plates for 5×5 tiles, ~3 mm thick, ~11 cm deep overall. Check whether school acrylic stock is free. | Free / ~$10–20 if buying sheet |
-| 3.14 | **Matte black spray paint / primer** | — | Only needed for any MDF or printed parts that aren't already black. | Free (dad's) |
-| 3.15 | **Black PLA filament** | ~0.5–1 kg | Tiles, grids, guides, stand. | Free |
-| 3.16 | **Smoked black acrylic sheet** ("LED black acrylic") for diffusers, plus optionally a thin white diffuser film/PLA | 1 sheet | One laser job cuts all N² diffuser squares. | ~$5–10 / free |
-| 3.17 | **Stand**: printed/MDF base and arm | 1 | Designed for looks. | Free |
-| 3.18 | ~~Camera ball head~~ **dropped** (the builder wants a custom stand: a rotation joint at each side end + wooden supports to the centre, mountable on desk or wall) | — | Design later. | — |
-| 3.18-alt | **Stand parts** (TBD): timber (free/cheap), 2× pivot bolts (M5/M6) + nylon washers, printed **worm + worm wheel** tilt mechanism (suggested mechanical drive), wall-mount plate | 1 set | | ~$2–5 |
-| 3.18c | **M3 threaded rod** (×4, ~150 mm) + nuts / printed spacers | 1 set | Holds the plate stack at exact spacings. | ~$3 |
-| 3.19 | **M3 screws, nuts, standoffs** (assortment) | 1 | Frame and electronics mounting. | ~$3–5 |
-| 3.20 | **Heat-set inserts M2/M3** (optional) | ~20 | For printed parts. | ~$2 |
-| 3.21 | **Rubber feet** | 4 | Under the stand base. | ~$1 |
+- **Not bought:** L298N modules (the school does not supply them, so the final driver is the MX1508 in A3), PTFE pen (graphite pencil instead), heat-set inserts (printed bosses or self-tapping), zip ties, level-shifter 74AHCT125 (replaced by A8), 7805 (not used).
+- **Open: soldering effort.** The cheapest route is hand-soldering 660 LEDs + 660 capacitors (1,320 tiny parts) on the tile PCBs. If that is too much, **JLCPCB SMT assembly** of the tile boards is the alternative; it was not priced.
+- **Open: the tile PCB and CAD.** The PCB (A6) is not drawn yet, and `hardware/cad/tile.py` is still set for K = 4 (9.1 mm cells). With K = 6 the cell is about 6.5 mm, so a 5 mm 5050 LED leaves ~1.5 mm walls. Check this before ordering PCBs.
+- **Open: mechanical drive.** The bare-screw motor has no nut; the printed nut carrier and the tile stem are not designed.
+- **Open: the WS2815 backup-data pins** (BI/BO) and so the tile connector size.
+- **Open:** whether the diffuser printed sheet is light enough and even enough (test print before the tile heads).
 
-## 3b. Sensors and extra outputs (required by the brief: 3 inputs, 3 outputs, ≥2 outputs driven by an automated input)
+## D. What is not verified
 
-| # | Item | Qty | Role | Est. price |
-|---|---|---|---|---|
-| 3.22 | **LDR** + 10 kΩ resistor | 1 | **Input (automated):** room light → auto LED brightness, and dims or sleeps at night. Hidden behind a tiny hole in the black border. | ~$0.20 |
-| 3.23 | ~~Presence sensor~~ **dropped**. Presence comes from the Mac/iPhone apps. Optional later: HLK-LD2410C 24 GHz mmWave (detects people sitting still, works through acrylic, UART) | 0 (opt. 1) | | ~$0 (opt. $3–5) |
-| 3.23b | **NTC thermistor 10 kΩ** + 10 kΩ resistor | 1 | **Input (automated):** internal temperature → dims LEDs / pauses motors if it gets too hot. Thermal safety, and replaces the presence sensor as hardware input #2. | ~$0.20 |
-| 3.24 | **Bluetooth app link** (built into the Pico W) | — | **Input (user):** iPhone/Mac apps set pattern, colour, speed and timers, plus Mac activity and Claude Code status. Optional extra: a colour sensor (TCS34725, ~$3) to pick a palette from a real object. | Free |
-| 3.25 | **Status LED on the back** (single small LED + 4.7–10 kΩ resistor, or one extra WS2812 at the end of the chain) | 1 | **Output 3:** very dim "it's on" indicator through a small hole in the back plate. Driven from a Pico GPIO so it can also show status, e.g. slow breathing = Bluetooth connected. (No piezo; the builder dropped it.) | ~$0.05 |
-| — | Outputs: **LEDs** (driven by the LDR), **stepper tiles** (driven by the presence sensor) and the **status LED** (3.25) | | Covers "3 outputs, ≥2 driven from an automated input". Risk: the teacher may count the status LED and the main LEDs as the same output type. If so, consider a different third output. | |
+- Nothing has been tested on hardware.
+- LED price and stock at LCSC: search snapshots disagree (part C965559 showed "not available" while C5446699 showed 100k+ in stock). Check the live page, and an AliExpress "WS2815 5050 chip 100 pcs" listing as a possible cheaper source (not found by the search tool). The only other price found: a bare-chip pack at US$14.98 per 100 (SuperLightingLED), i.e. ~AU$150 for 660, so LCSC is cheaper if it ships.
+- Motor coil resistance and real current (the bare listing has no tested specs), the M2 thread pitch, the XL4016 module revision and rating, MX1508 availability in packs of 10.
 
-## 3c. Tile clearance and anti-collision (design rules)
+---
 
-- Tiles are located **only by their stems in the guide plates**, never by neighbouring tiles.
-- **Gap between tile heads:** 1.0–1.5 mm (0.5–0.75 mm per side).
-- **Stem ↔ guide-hole clearance:** 0.2–0.3 mm per side. Keep the two guide plates as **far apart** as possible: wobble at the head ≈ clearance × (lever ÷ guide span).
-- **Prusa MK4S:** expect ±0.1–0.2 mm. Chamfer the head's first-layer edge 0.4 mm to beat elephant's foot. Print a **2×2 test coupon** first and tune the clearances.
-- Chamfer or round the top edges of the heads so any brush glides instead of catching. Use PTFE dry lube or graphite on the stems.
-- **Laser-cut** the guide-plate holes (accurate pitch). Consider 3 mm acrylic or a printed guide instead of MDF if humidity swelling is a problem.
-- **Firmware safety nets:**
-  - Micro steppers are too weak (~80 g) to break anything; they skip steps rather than crash.
-  - Periodic **re-homing** (retract to the end stop when idle) clears any lost steps.
-  - Optional soft limits / max speed.
+## E. Design rules that still apply
 
-## 4. Prototype / sample order (before committing to N)
+- Tiles are located **only by their stems in the guide plates**, never by neighbouring tiles. Gap between heads 1.0–1.5 mm. Stem to guide-hole clearance 0.2–0.3 mm per side; keep the two guide plates as far apart as possible. Print a 2 × 2 test coupon first and tune the clearances (Prusa MK4S gives ±0.1–0.2 mm; chamfer the first-layer edge 0.4 mm).
+- Laser-cut the guide-plate holes. Use graphite or dry lube on the stems.
+- Firmware safety nets: periodic re-homing, soft limits, at most 6 tiles moving at once (`maxMovingTiles`).
 
-| Item | Qty | Purpose |
+## F. Brief requirement check (3 inputs, 3 outputs, ≥ 2 outputs driven by an automated input)
+
+| Role | Part | Note |
 |---|---|---|
-| 8 mm slider stepper, 10 mm stroke | 3 | Main candidate |
-| 8 mm slider stepper, 15–20 mm stroke | 2–3 | Test whether more levels are worth it |
-| WS2812B-5050 LEDs | ~20 | One tile's worth (+ spares) |
-| School dual H-bridge boards | 2 | Confirm they drive the stepper well |
-| 74HC595 | 2 | Shift register test |
-| Pico W / 2 W | 1 | |
+| Input (automated) | LDR → room light sets LED brightness | Pico GP26 |
+| Input (automated) | NTC → internal temperature dims LEDs or pauses motors | Pico GP27 (a digital sensor such as DS18B20 is possible later; needs teacher approval) |
+| Input (user) | Bluetooth / Wi-Fi from the iPhone and Mac apps | Built into the Pico W |
+| Output | 600 LEDs (brightness driven by the LDR) | |
+| Output | 16 stepper tiles | |
+| Output | Status LED on the back | Risk: the teacher may count it as the same type as the LEDs |
 
-## 5. Open questions affecting this list
+## G. Prototype order (before committing)
 
-- ~~Can the school give a Pico W?~~ Yes (rev 10).
-- **N** (builder wants smaller tiles) and how to cut the remaining AUD overrun.
-- LED route: premade 4×4 module (`components.md` §1.5) vs bare 5050s.
-- Final driver: keep the free L298N, or buy MX1508/DRV8833 (decide after the prototype).
-
-- Exact **model and quantity of the school's motor drivers** (decides whether 1.2 is free for all N² tiles).
-- Whether the school's Pico **has wireless** (plain Pico vs Pico W / 2 W).
-- **N and k**: decide after price optimisation.
-- **Stroke length**: 10 mm or 15–20 mm, decided after the prototype.
-- **Tile PCB**: hand-solder or JLCPCB assembly.
+Order **3 motors** first (A1), plus 1 pack of MX1508 (A3) and the 74HC595 pack (A7): verify the M2 nut pitch, coil resistance and current, and that an MX1508 drives a coil from 5 V. Then order the rest.

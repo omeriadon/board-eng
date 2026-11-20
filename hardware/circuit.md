@@ -145,8 +145,8 @@ The 74HCT245 accepts 3.3 V highs and outputs full 5 V, which a WS2812B at 5 V ne
 - Chip n drives tiles 2n and 2n+1: outputs QA–QD → tile 2n (IN1, IN2, IN3, IN4), QE–QH → tile 2n+1.
 - Each motor driver (one per tile): IN1/IN2 = coil A, IN3/IN4 = coil B, `OUT1/OUT2` to coil A, `OUT3/OUT4` to coil B.
 - Powering the 595s from the Pico's 3.3 V means **plain 74HC595 works** (the school's are fine), and the outputs are 3.3 V, which the L298N (needs ≥ 2.3 V) and MX1508 inputs read as high. Use 74HCT595 only if you power the chips from 5 V.
-- **School L298N modules (prototype):** take the "5 V-EN" jumper **off**, feed 5 V into the module's **5 V pin** and the motor rail into **VS**, keep the ENA/ENB jumpers on. With only 5 V on VS the module's own regulator would otherwise output ~3 V. The L298N drops ~2 V, so each coil sees ~3 V (about 75–180 mA): weak but enough to test.
-- **MX1508 (final):** VCC = motor rail, GND, IN1–IN4. No jumpers and no drop.
+- **School L298N modules (not available, kept for reference):** take the "5 V-EN" jumper **off**, feed 5 V into the module's **5 V pin** and the motor rail into **VS**, keep the ENA/ENB jumpers on. With only 5 V on VS the module's own regulator would otherwise output ~3 V. The L298N drops ~2 V, so each coil sees ~3 V (about 75–180 mA): weak but enough to test.
+- **MX1508 (DECIDED driver, rev 16):** VCC = motor rail, GND, IN1–IN4. No jumpers and no drop.
 - The motor rail and the logic rail are separate fuse branches, so a motor surge cannot brown out the Pico.
 
 ### 4.3 Sensors
@@ -197,7 +197,7 @@ The builder has decided the supply will be **bought**, since the school's is unk
 
 1. Pico alone on USB: blink the status LED, read the LDR and NTC.
 2. Add 3V3 and the 595s with no motors: check the OE pull-up, shift a pattern, watch outputs with a multimeter or LEDs.
-3. One L298N/MX1508 + one motor (from the motor rail, with F9 in place).
+3. One MX1508 + one motor (from the motor rail, with F9 in place).
 4. One tile of LEDs with the 74HCT245 and its 330 Ω, at low brightness.
 5. Then add rows one at a time, measuring the supply current at each step.
 
@@ -219,7 +219,7 @@ The builder has decided the supply will be **bought**, since the school's is unk
 | c = 3 | 2r + 1 | QE, QF, QG, QH | IN1, IN2, IN3, IN4 |
 
 - **Chain:** Pico SER → chip 0 SER; each chip's QH' (pin 9) → next chip's SER; chips 0…7 in order (row 0 first). To load the chain the firmware shifts 64 bits, tile 15's bits first. SRCLK, RCLK and OE go to all chips in parallel. 3V3 power, 100 nF per chip.
-- **Driver wiring:** VS and the logic 5 V pin → motor rail; GND → star; IN1–IN4 as above; OUT1/OUT2 = coil A, OUT3/OUT4 = coil B. School L298N modules: remove the 5 V-EN jumper and feed 5 V into the 5 V pin (§4.2). 100 µF + 100 nF per row of drivers across the motor rail.
+- **Driver wiring:** VS and the logic 5 V pin → motor rail; GND → star; IN1–IN4 as above; OUT1/OUT2 = coil A, OUT3/OUT4 = coil B. MX1508: VCC = motor rail, no jumpers (the L298N note in §4.2 applies only if you get some). 100 µF + 100 nF per row of drivers across the motor rail.
 - Each row board also has the row's LED feed (12 V bus, GND) running along behind the tiles, plus the row's LED data line from the main board.
 
 **Sheet 4, tile cables** (what moves with the tile, with a service loop):

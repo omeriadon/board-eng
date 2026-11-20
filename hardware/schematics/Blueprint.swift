@@ -255,7 +255,7 @@ func bpTiles() {
 			let dy = b + 90
 			rect(x, dy, 170, 96, fill: rgb(0.93, 0.95, 1), stroke: cBlack, lw: 1.2, r: 4)
 			text("Driver \(t)", x + 85, dy + 14, size: 9, bold: true, align: 1)
-			text("L298N / MX1508", x + 85, dy + 25, size: 7, color: cGray, align: 1)
+			text("MX1508", x + 85, dy + 25, size: 7, color: cGray, align: 1)
 			flag(x + 85, dy, "+5V·MOT", cRed, dir: 0)
 			ground(x + 85, dy + 96)
 			let pinY = (0 ..< 4).map { dy + 40 + 14 * CGFloat($0) }
@@ -349,9 +349,9 @@ func bpNotes() {
 	text("WHAT IS VERIFIED AND WHAT IS NOT", 40, y, size: 12, bold: true); y += 16
 	for l in ["Verified by arithmetic only: the power budget and fuse values. Nothing has been tested on hardware.",
 	          "From the standard datasheets, not checked against your chips: the 74HCT245 and 74HC595 pin numbers.",
-	          "Provisional: the LED part (WS2815 5050), the tile connectors, the motor and driver models (L298N prototype or MX1508/DRV8833), the XL4016 buck module rating.",
-	          "Not decided: the mechanical drive system, 6 LEDs per tile versus 6 × 6 tiles, and the firmware power limiter (per group) is not built.",
-	          "On the school L298N modules remove the 5 V-EN jumper and feed 5 V into the module's 5 V pin as well as VS."] {
+	          "Provisional: the LED part (WS2815 5050), the tile connectors, the motor model, the MX1508 module as received, the XL4016 buck module rating.",
+	          "Not decided: the mechanical drive system, and the firmware power limiter (per group) is not built.",
+	          "MX1508 drivers: VCC = +5V·MOT, GND to star, IN1 to IN4 from the T-circle bus. No jumpers."] {
 		y = paragraph("• " + l, 48, y, width: 590, size: 8.5)
 	}
 
