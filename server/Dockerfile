@@ -19,9 +19,10 @@ COPY shared/BoardKit shared/BoardKit
 COPY server server
 WORKDIR /src/server
 
+# The cache id changes whenever the build path does (the old cache was built under /src/.build and breaks the module cache here).
 # .build lives in a cache mount that outlasts each build, so a change only recompiles what it touches.
 # Package.resolved is used as committed, so a deploy never spends time resolving and never picks up a new dependency.
-RUN --mount=type=cache,id=board-server-build,target=/src/server/.build \
+RUN --mount=type=cache,id=board-server-build-v2,target=/src/server/.build \
 	swift build -c release --product App --static-swift-stdlib --force-resolved-versions \
 	&& bin="$(swift build -c release --show-bin-path --force-resolved-versions)" \
 	&& mkdir /staging \
