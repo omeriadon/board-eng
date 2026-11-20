@@ -58,7 +58,7 @@ public enum SquareStyle: UInt8, CaseIterable, Sendable {
 /// makes sense on a screen (gap, corner radius, joined squares, touch, always-on, intro, frame rate).
 public struct DitherSettings: Hashable, Sendable {
 	// Wave
-	public var waveSpeed: Float = 0.05
+	public var waveSpeed: Float = 0.03
 	/// Degrees, snapped to the eight compass points.
 	public var waveDirection: Float = 135
 	public var waveFrequency: Float = 3
@@ -89,7 +89,7 @@ public struct DitherSettings: Hashable, Sendable {
 	public var blur: Float = 0
 
 	public static let maxPaletteCount = 8
-	public static let maxWaveSpeed: Float = 0.066
+	public static let maxWaveSpeed: Float = 0.04
 	public static let cellSizes = [1, 2, 4]
 
 	public init() {}
@@ -105,7 +105,7 @@ public struct DitherSettings: Hashable, Sendable {
 	/// Clamps every value into what the renderer supports. Used on everything that arrives over the wire.
 	public func bounded() -> DitherSettings {
 		var v = self
-		v.waveSpeed = limit(waveSpeed, 0.05, 0, Self.maxWaveSpeed)
+		v.waveSpeed = limit(waveSpeed, 0.03, 0, Self.maxWaveSpeed)
 		v.waveDirection = Self.snappedDirection(waveDirection)
 		v.waveFrequency = limit(waveFrequency, 3, 0.01, 12)
 		v.waveAmplitude = limit(waveAmplitude, 0.3, 0, 1)
@@ -176,7 +176,7 @@ public struct MotionSettings: Hashable, Sendable {
 	/// Rings per second, 0...1.
 	public var rippleSpeed: Float = 0.4
 
-	public static let maxWaveSpeed: Float = 0.066
+	public static let maxWaveSpeed: Float = 0.04
 
 	public init() {}
 
@@ -204,6 +204,12 @@ public struct BoardState: Hashable, Sendable {
 	public var mode: BoardMode = .dither
 	public var dither = DitherSettings()
 	public var motion = MotionSettings()
+	public var timer = TimerSettings()
+	public var ambient = AmbientSettings()
+	public var music = MusicSettings()
+	public var automation = AutomationSettings()
+	/// Set by the Mac when you've stepped away from the desk; the board applies the "away" behaviour.
+	public var isAway = false
 
 	public init() {}
 
@@ -212,6 +218,10 @@ public struct BoardState: Hashable, Sendable {
 		v.brightness = limit(brightness, 0.6, 0, 1)
 		v.dither = dither.bounded()
 		v.motion = motion.bounded()
+		v.timer = timer.bounded()
+		v.ambient = ambient.bounded()
+		v.music = music.bounded()
+		v.automation = automation.bounded()
 		return v
 	}
 }

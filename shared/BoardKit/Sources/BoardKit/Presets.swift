@@ -95,4 +95,44 @@
 			},
 		]
 	}
+
+	/// A set of colours that can be applied everywhere at once: the dither palette, the timer bar and the sun.
+	public struct ColorTheme: Identifiable, Hashable, Codable, Sendable {
+		public var id: String
+		public var name: String
+		public var colors: [RGB]
+		public var isCustom: Bool
+
+		public init(id: String? = nil, name: String, colors: [RGB], isCustom: Bool = false) {
+			self.id = id ?? name
+			self.name = name
+			self.colors = Array(colors.prefix(DitherSettings.maxPaletteCount)).map { $0.clamped }
+			self.isCustom = isCustom
+		}
+
+		/// Dither palette ← every colour; timer bar and sun ← the brightest; night sky ← the darkest.
+		public func apply(to state: inout BoardState) {
+			guard !colors.isEmpty else { return }
+			state.dither.palette = colors
+			let byLight = colors.sorted { $0.luminance < $1.luminance }
+			state.timer.barColor = byLight.last!
+			state.ambient.sunColor = byLight.last!
+			state.ambient.nightSky = byLight.first!.scaled(0.25)
+		}
+
+		private static func theme(_ name: String, _ hex: [UInt32]) -> ColorTheme { ColorTheme(name: name, colors: hex.map { RGB(hex: $0) }) }
+
+		public static let builtIn: [ColorTheme] = [
+			theme("Aurora", [0x1FD9FF, 0x8C2EFF, 0xFF338C, 0xFFB82E]),
+			theme("Ember", [0x7A5230, 0xC9A07A, 0xFFD9A8]),
+			theme("Tide", [0x0B3D91, 0x1E88E5, 0x4DD0E1, 0xE0F7FA]),
+			theme("Sunset", [0x2B1055, 0xD53369, 0xFF8C42, 0xFFD166]),
+			theme("Moss", [0x1B4332, 0x40916C, 0x95D5B2]),
+			theme("Sakura", [0xFFD6E0, 0xFF8FAB, 0xFB6F92]),
+			theme("Neon", [0x00F5FF, 0xFF00E5]),
+			theme("Candy", [0xFFADAD, 0xFDFFB6, 0xCAFFBF, 0x9BF6FF, 0xBDB2FF]),
+			theme("Lava", [0x3A0000, 0xB31312, 0xFF6A00, 0xFFE259]),
+			theme("Mono", [0x202020, 0x808080, 0xFFFFFF]),
+		]
+	}
 #endif

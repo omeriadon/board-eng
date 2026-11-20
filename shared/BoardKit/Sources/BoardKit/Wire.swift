@@ -11,6 +11,7 @@ public struct ByteWriter: Sendable {
 	public mutating func bool(_ v: Bool) { bytes.append(v ? 1 : 0) }
 	public mutating func u16(_ v: UInt16) { bytes.append(UInt8(v & 0xFF)); bytes.append(UInt8(v >> 8)) }
 	public mutating func u32(_ v: UInt32) { for shift in [0, 8, 16, 24] { bytes.append(UInt8((v >> UInt32(shift)) & 0xFF)) } }
+	public mutating func u64(_ v: UInt64) { u32(UInt32(truncatingIfNeeded: v)); u32(UInt32(truncatingIfNeeded: v >> 32)) }
 	public mutating func f32(_ v: Float) { u32(v.bitPattern) }
 	public mutating func rgb(_ c: RGB) { let p = c.pixel; u8(p.r); u8(p.g); u8(p.b) }
 }
@@ -37,6 +38,7 @@ public struct ByteReader: Sendable {
 		for shift in [0, 8, 16, 24] { v |= UInt32(u8()) << UInt32(shift) }
 		return v
 	}
+	public mutating func u64() -> UInt64 { let low = UInt64(u32()); return low | UInt64(u32()) << 32 }
 	public mutating func f32() -> Float { Float(bitPattern: u32()) }
 	public mutating func rgb() -> RGB { let r = u8(), g = u8(), b = u8(); return Pixel(r: r, g: g, b: b).rgb }
 	/// An enum's raw byte, or `fallback` for a value this version doesn't know.
@@ -94,11 +96,84 @@ extension MotionSettings {
 	}
 }
 
+extension TimerSettings {
+	func encode(into w: inout ByteWriter) {
+		w.u32(UInt32(truncatingIfNeeded: durationSeconds)); w.bool(isRunning); w.u64(endsAtMillis); w.u32(pausedRemainingMillis)
+		w.rgb(barColor); w.rgb(trackColor); w.u8(style.rawValue); w.bool(flashWhenDone)
+	}
+
+	init(from r: inout ByteReader) {
+		self.init()
+		durationSeconds = Int(r.u32()); isRunning = r.bool(); endsAtMillis = r.u64(); pausedRemainingMillis = r.u32()
+		barColor = r.rgb(); trackColor = r.rgb(); style = r.choice(TimerStyle.self, .drain); flashWhenDone = r.bool()
+	}
+}
+
+extension AmbientSettings {
+	func encode(into w: inout ByteWriter) {
+		w.f32(sunrise); w.f32(sunset); w.bool(timeLapse); w.f32(lapseSeconds)
+		w.rgb(sunColor); w.rgb(daySky); w.rgb(twilight); w.rgb(nightSky)
+		w.f32(glow); w.bool(showStars); w.bool(showMoon)
+	}
+
+	init(from r: inout ByteReader) {
+		self.init()
+		sunrise = r.f32(); sunset = r.f32(); timeLapse = r.bool(); lapseSeconds = r.f32()
+		sunColor = r.rgb(); daySky = r.rgb(); twilight = r.rgb(); nightSky = r.rgb()
+		glow = r.f32(); showStars = r.bool(); showMoon = r.bool()
+	}
+}
+
+extension MusicSettings {
+	func encode(into w: inout ByteWriter) {
+		w.bool(showsProgress); w.f32(progress); w.bool(isPlaying); w.bool(ditherArt); w.f32(beatJump)
+	}
+
+	init(from r: inout ByteReader) {
+		self.init()
+		showsProgress = r.bool(); progress = r.f32(); isPlaying = r.bool(); ditherArt = r.bool(); beatJump = r.f32()
+	}
+}
+
+extension AutomationSettings {
+	func encode(into w: inout ByteWriter) {
+		let list = schedules.prefix(Self.maxSchedules)
+		w.u8(UInt8(list.count))
+		for x in list {
+			w.bool(x.isEnabled); w.u8(x.days); w.u16(UInt16(truncatingIfNeeded: x.startMinute)); w.u16(UInt16(truncatingIfNeeded: x.endMinute))
+			w.u8(x.action.rawValue); w.u8(x.mode.rawValue); w.f32(x.dimLevel)
+		}
+		w.bool(autoBrightness.isEnabled); w.f32(autoBrightness.minimum); w.f32(autoBrightness.maximum)
+		w.bool(autoBrightness.offInDark); w.f32(autoBrightness.darkLevel)
+		w.bool(presence.isEnabled); w.u8(UInt8(truncatingIfNeeded: presence.idleMinutes)); w.u8(presence.action.rawValue); w.f32(presence.dimLevel)
+	}
+
+	init(from r: inout ByteReader) {
+		self.init()
+		let count = min(Int(r.u8()), Self.maxSchedules)
+		schedules = []
+		for _ in 0 ..< count {
+			var x = Schedule()
+			x.isEnabled = r.bool(); x.days = r.u8(); x.startMinute = Int(r.u16()); x.endMinute = Int(r.u16())
+			x.action = r.choice(ScheduleAction.self, .off); x.mode = r.choice(BoardMode.self, .ambient); x.dimLevel = r.f32()
+			schedules.append(x)
+		}
+		autoBrightness.isEnabled = r.bool(); autoBrightness.minimum = r.f32(); autoBrightness.maximum = r.f32()
+		autoBrightness.offInDark = r.bool(); autoBrightness.darkLevel = r.f32()
+		presence.isEnabled = r.bool(); presence.idleMinutes = Int(r.u8()); presence.action = r.choice(AwayAction.self, .dim); presence.dimLevel = r.f32()
+	}
+}
+
 extension BoardState {
 	func encode(into w: inout ByteWriter) {
 		w.bool(isOn); w.f32(brightness); w.u8(mode.rawValue)
 		dither.encode(into: &w)
 		motion.encode(into: &w)
+		timer.encode(into: &w)
+		ambient.encode(into: &w)
+		music.encode(into: &w)
+		automation.encode(into: &w)
+		w.bool(isAway)
 	}
 
 	init(from r: inout ByteReader) {
@@ -106,6 +181,11 @@ extension BoardState {
 		isOn = r.bool(); brightness = r.f32(); mode = r.choice(BoardMode.self, .dither)
 		dither = DitherSettings(from: &r)
 		motion = MotionSettings(from: &r)
+		timer = TimerSettings(from: &r)
+		ambient = AmbientSettings(from: &r)
+		music = MusicSettings(from: &r)
+		automation = AutomationSettings(from: &r)
+		isAway = r.bool()
 	}
 }
 
@@ -128,6 +208,18 @@ public struct Revision: Hashable, Comparable, Sendable {
 	public static func < (a: Revision, b: Revision) -> Bool {
 		a.counter != b.counter ? a.counter < b.counter : a.origin < b.origin
 	}
+}
+
+/// One-off actions for the Device screen.
+public enum BoardCommand: UInt8, Sendable {
+	/// Drive every tile to its zero position again.
+	case homeAll = 1
+	/// Raise and lower the tiles in turn with a test pattern on the lights.
+	case testPattern = 2
+	case stopTest = 3
+	/// Raise one tile (the argument is its index) to check it.
+	case testTile = 4
+	case reboot = 5
 }
 
 /// What the board reports about itself.
@@ -157,6 +249,10 @@ public enum BoardMessage: Hashable, Sendable {
 	case requestState
 	/// The current time, from the server, so the board can keep schedules after a power cut.
 	case time(unixMillis: UInt64, utcOffsetSeconds: Int32)
+	/// Album art for Music Mirror, sent once per track.
+	case artwork(Artwork)
+	/// A one-off action rather than a setting.
+	case command(BoardCommand, argument: UInt8)
 
 	public static let version: UInt8 = 1
 
@@ -173,8 +269,12 @@ public enum BoardMessage: Hashable, Sendable {
 			case .requestState:
 				w.u8(3)
 			case let .time(millis, offset):
-				w.u8(4); w.u32(UInt32(truncatingIfNeeded: millis)); w.u32(UInt32(truncatingIfNeeded: millis >> 32))
-				w.u32(UInt32(bitPattern: offset))
+				w.u8(4); w.u64(millis); w.u32(UInt32(bitPattern: offset))
+			case let .artwork(art):
+				w.u8(5); w.u32(art.id); w.u8(UInt8(truncatingIfNeeded: art.side))
+				for p in art.pixels { w.u8(p.r); w.u8(p.g); w.u8(p.b) }
+			case let .command(command, argument):
+				w.u8(6); w.u8(command.rawValue); w.u8(argument)
 		}
 		return w.bytes
 	}
@@ -197,8 +297,17 @@ public enum BoardMessage: Hashable, Sendable {
 			case 3:
 				message = .requestState
 			case 4:
-				let low = UInt64(r.u32()), high = UInt64(r.u32())
-				message = .time(unixMillis: low | high << 32, utcOffsetSeconds: Int32(bitPattern: r.u32()))
+				message = .time(unixMillis: r.u64(), utcOffsetSeconds: Int32(bitPattern: r.u32()))
+			case 5:
+				let id = r.u32(), side = Int(r.u8())
+				guard side > 0, side <= 64 else { return nil }
+				var pixels: [Pixel] = []
+				pixels.reserveCapacity(side * side)
+				for _ in 0 ..< side * side { let red = r.u8(), green = r.u8(), blue = r.u8(); pixels.append(Pixel(r: red, g: green, b: blue)) }
+				message = .artwork(Artwork(id: id, side: side, pixels: pixels))
+			case 6:
+				guard let command = BoardCommand(rawValue: r.u8()) else { return nil }
+				message = .command(command, argument: r.u8())
 			default:
 				return nil
 		}
@@ -238,4 +347,42 @@ public struct StateSync: Sendable {
 
 	/// The state to answer a `requestState` with.
 	public var current: BoardMessage { .state(revision, state) }
+}
+
+/// Splits a message into pieces that fit a Bluetooth write, and puts them back together. The first byte of each
+/// piece is its number (low seven bits) and, in the top bit, whether it is the last. WebSocket frames don't need it.
+public enum Framing {
+	public static func split(_ bytes: [UInt8], payload: Int) -> [[UInt8]] {
+		let size = max(payload, 1)
+		var chunks: [[UInt8]] = []
+		var index = 0, start = 0
+		repeat {
+			let end = min(start + size, bytes.count)
+			let last = end >= bytes.count
+			chunks.append([UInt8(index & 0x7F) | (last ? 0x80 : 0)] + bytes[start ..< end])
+			start = end
+			index += 1
+		} while start < bytes.count && index < 128
+		return chunks
+	}
+
+	public struct Reassembler: Sendable {
+		private var buffer: [UInt8] = []
+		private var expected = 0
+
+		public init() {}
+
+		/// The whole message once its last piece arrives; nil until then, and for pieces that arrive out of order.
+		public mutating func add(_ chunk: [UInt8]) -> [UInt8]? {
+			guard let header = chunk.first else { return nil }
+			let index = Int(header & 0x7F), last = header & 0x80 != 0
+			if index == 0 { buffer = []; expected = 0 }
+			guard index == expected else { buffer = []; expected = 0; return nil }
+			buffer.append(contentsOf: chunk.dropFirst())
+			expected += 1
+			guard last else { return nil }
+			defer { buffer = []; expected = 0 }
+			return buffer
+		}
+	}
 }

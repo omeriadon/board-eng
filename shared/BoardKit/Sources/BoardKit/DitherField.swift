@@ -190,7 +190,7 @@ public struct DitherField: Sendable {
 	private static let bayer2: [Float] = [0, 2, 3, 1]
 
 	@inline(__always)
-	private func threshold(_ column: Int, _ row: Int, _ pattern: DitherPattern) -> Float {
+	func threshold(_ column: Int, _ row: Int, _ pattern: DitherPattern) -> Float {
 		let x = Float(column), y = Float(row)
 		switch pattern {
 			case .bayer8: return Self.bayer8[(row % 8) * 8 + column % 8] / 64
