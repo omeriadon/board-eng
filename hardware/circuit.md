@@ -164,6 +164,20 @@ Works, and is better than one charger. Example: the **12 V 4 A** feeds only the 
 - Fuses: 5 A on the 12 V charger output, 2 A per LED row (F1–F4), 1 A for the bar (F5); 3 A on the 5 V motor rail (F6), 1 A for logic (F7).
 - Two mains cords and plugs are an enclosure/tidiness cost, and each charger must be undamaged and double-insulated (no exposed mains).
 
+### 3.6 All three chargers (upgrade path)
+
+| Charger | Job | Conversion | Usable (15 % margin) |
+|---|---|---|---|
+| 12 V 4 A (48 W) | LED rows 0 and 1 (288 LEDs) | none, WS2815 runs straight from it | ~41 W |
+| 20 V 3.33 A (66 W) | LED rows 2 and 3 + status bar (312 LEDs) | one 12 V buck rated 5 A+ (XL4016 type, heatsink), ~88 % efficient | ~49 W |
+| 16 V 3.75 A (60 W) | Motors, Pico, level shifter, drivers (~15 W) | one 5 V buck rated 5 A | far more than needed |
+
+- LED budget goes from ~41 W (two chargers) to **~90 W ≈ 35 % of full white**, about twice the light. That matters because the smoked diffuser acrylic absorbs a lot of it.
+- The rows already have separate fused branches, so this only changes which charger each branch is wired to. **Start with two chargers (§3.5), test the brightness through the acrylic, and add the third only if it's too dim.**
+- The power limiter must work **per supply group** (rows 0–1, rows 2–3 + bar), not just globally, or a bright half overloads its own charger.
+- All three negatives join at the one star point; one switch (power board) for all three plugs; pull-downs on every data line; check each charger's no-load voltage first; buck inputs are rated well above 20 V.
+- Cost: one more buck (AU$8) and more wiring. Every extra charger and buck is another thing that can fail.
+
 ---
 
 ## 4. Blocks
