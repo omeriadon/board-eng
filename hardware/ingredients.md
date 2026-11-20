@@ -81,7 +81,8 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 | 3.12c | **Branch fuses**: 7 × resettable PTC (4 × 3 A LED rows, 1 × 2 A bar, 1 × 3 A motors, 1 × 1 A logic) + the 10 A main fuse (3.5) | 7 | See `circuit.md` §3. | ~$3 |
 | 3.12d | **Schottky diode 1N5819** | 1 | Logic rail → Pico VSYS, so USB and the brick can both be plugged in. | ~$0.10 |
 | 3.12e | **5 V bus**: 2200 µF 10 V capacitor, terminal blocks or Wago connectors | 1 | Replaces the 1000 µF in 3.6 for the main bus; 100 µF per row of drivers. | ~$2 |
-| 3.12g | **Own power supply (decided: buy).** Either 5 V ≥ 8 A, or **12 V 5 A** plug-in (≈ AU$46, e.g. Mean Well GST60A12) + a 12 V → 5 V buck module (~AU$5) + 12 V WS2815 LEDs. See `circuit.md` §3.3. **Not in the AU$93 total above: adds ~AU$25–50.** | 1 | | ~AU$25–50 |
+| 3.12h | **DECIDED (rev 14): use the builder's three spare chargers** (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A; free) per `circuit.md` §3.6, plus **2 buck modules**: 20 V → 12 V rated 5 A+ (XL4016-type, heatsink) and 16 V → 5 V rated 5 A (XL4015/XL4016 type), ~AU$8 each, and a power board with one switch. `maxMovingTiles` default is now 6. | 2 | | ~AU$16 |
+| 3.12g | ~~Own power supply (buy).~~ Superseded by 3.12h. Either 5 V ≥ 8 A, or **12 V 5 A** plug-in (≈ AU$46, e.g. Mean Well GST60A12) + a 12 V → 5 V buck module (~AU$5) + 12 V WS2815 LEDs. See `circuit.md` §3.3. **Not in the AU$93 total above: adds ~AU$25–50.** | 1 | | ~AU$25–50 |
 | 3.12f | **7805 regulator (teacher's)** | optional | Logic only, and only if the supply is 9–12 V. Cannot run the LEDs or motors (1 A max; needs ≥ 7 V in). With a 5 V brick it is not used. | Free |
 
 ### Structure

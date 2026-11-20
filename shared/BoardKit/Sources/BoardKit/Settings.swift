@@ -160,7 +160,7 @@ public struct MotionSettings: Hashable, Sendable {
 	/// Slower, eased, fewer tiles at once, so the clicks never stack up.
 	public var quietMode = false
 	/// Most tiles allowed to move in the same instant (power and noise).
-	public var maxMovingTiles: Int = 4
+	public var maxMovingTiles: Int = 6
 
 	// Own wave
 	public var waveSpeed: Float = 0.03
