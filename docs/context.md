@@ -461,3 +461,7 @@ Example numbers for N=5, k=4, 40 mm pitch:
 
 ### Preview scroll lag
 - The Dither list's mini boards were all animating while scrolling. They now run at 6 fps and pause while the list scrolls.
+
+### Server redeployed (rev 13)
+- The BoardKit-based server is **live** on Dokploy (verified: a WebSocket client receives the time and state frames). The first deploy failed because the Docker build cache from the old layout was keyed to the old path; the cache id is now `board-server-build-v2`. Change the id again if the build path ever changes.
+- Apple Music tracks from the streaming catalogue are "shared tracks" and return no artwork to scripts (error -50), hence the online cover lookup.
