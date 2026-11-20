@@ -154,6 +154,16 @@ Candidates found at home: 12 V 4 A (48 W), 16 V 3.75 A (60 W), 20 V 3.33 A (66 W
 - **Check the charger first:** measure the no-load output with a multimeter (should be about 12–12.6 V; an old unregulated transformer type can read 15 V+ and would damage the LEDs), confirm the polarity from the label, and don't use a damaged cable. A switch-mode "laptop-style" brick is regulated; a heavy transformer plug-pack is not.
 - **Still to verify before relying on this:** that bare 12 V WS2815 5050 LEDs can be bought in small quantity. If not, WS2812B at 5 V would need a ≥ 8 A buck, which a 48 W supply can only just feed.
 
+### 3.5 Two chargers: one for the LEDs, one for everything else
+
+Works, and is better than one charger. Example: the **12 V 4 A** feeds only the LEDs (WS2815, straight from it), and the **16 V 3.75 A or 20 V 3.33 A** feeds one 5 A buck module (→ 5 V) for the motors, Pico, 74HCT245 and drivers (~15 W, 1 A or less drawn from the charger). A spare 5 V phone charger (2.4 A or more) could replace the second charger and the buck, with `maxMovingTiles` at 2.
+
+- **LED budget rises** to ~41 W (48 W minus 15 % margin) ≈ 3.4 A at 12 V, about 16 % of full white, instead of ~23 W. Motor surges can no longer dim the LEDs or reset the Pico.
+- **Join the two negatives (GND) at one point** (the star point). Without it the LED data line has no reference and the LEDs flicker. Do not join the positives.
+- **One mains switch for both**: plug both into a power board (or switch both DC outputs with one DPST switch), because a half-powered board misbehaves: LEDs on with the level shifter off leaves the data lines floating (random flicker), and the level shifter on with LEDs off can push a little current into the unpowered LEDs through the data line. Add a 10 kΩ pull-down from each LED data line to GND at the level shifter output as well.
+- Fuses: 5 A on the 12 V charger output, 2 A per LED row (F1–F4), 1 A for the bar (F5); 3 A on the 5 V motor rail (F6), 1 A for logic (F7).
+- Two mains cords and plugs are an enclosure/tidiness cost, and each charger must be undamaged and double-insulated (no exposed mains).
+
 ---
 
 ## 4. Blocks
