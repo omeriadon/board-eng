@@ -7,7 +7,7 @@ Change the PARAMETERS block, then run:
     python3 -m venv .venv && .venv/bin/pip install manifold3d numpy trimesh svglib reportlab
     .venv/bin/python cad/tile.py
 
-Outputs go to cad/out/. All units are millimetres.
+Outputs go to cad/out/ (STL + PDF only). All units are millimetres.
 
 Status: ROUGH rev 1. The slider/motor interface is a placeholder until the
 real 8 mm micro slider stepper is measured.
@@ -274,9 +274,8 @@ def blueprint():
         f'<defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">'
         f'<path d="M0,0 L10,5 L0,10 z" fill="#7fb7ff"/></marker><style>{css}</style></defs>'
         f'<rect width="100%" height="100%" fill="#0b1220"/>{"".join(o)}</svg>')
-    (OUT / "blueprint_tile.svg").write_text(svg_text)   # kept only for the README preview
     to_pdf(svg_text, "blueprint_tile.pdf")
-    print("  blueprint_tile.pdf (+ .svg preview for README)")
+    print("  blueprint_tile.pdf")
 
 
 if __name__ == "__main__":
