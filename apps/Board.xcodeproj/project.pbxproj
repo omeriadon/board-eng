@@ -7,17 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06D6C9594901A819B78D5A97 /* MotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0447CBBC02F18B1427D02C /* MotionView.swift */; };
 		08284F8A815ED5950DE8F759 /* BoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9733225970EF786BC4BEE6 /* BoardApp.swift */; };
+		0D39286D99616685CAF7D385 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E3CC23DB37D9A195DDCB49 /* Controls.swift */; };
 		11F3DD5C7C92396986952BC5 /* BoardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA333DCC6B8A478E0952B377 /* BoardPreview.swift */; };
+		14BAAE633C7849CCED1571F9 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E3CC23DB37D9A195DDCB49 /* Controls.swift */; };
 		174068BC457640C773FE1EF3 /* AppSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E82C24EE179B28A37D3092 /* AppSection.swift */; };
 		2261C7C137746C3445010F7A /* BoardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA333DCC6B8A478E0952B377 /* BoardPreview.swift */; };
 		28726157A26EE5285FCE012B /* QuickControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED7D91BE7B32C6EED965836 /* QuickControls.swift */; };
+		2CAB4FC18AD88197B7B175B2 /* BoardLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = B536879A50EC64D2A4949C3E /* BoardLink.swift */; };
 		2EABE1F6D2692D1DE69ABE1B /* BoardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173AF635EC82812352B474A8 /* BoardStore.swift */; };
 		3402D300950FAE218886CB84 /* DitherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A25C3D5B7A1ACD416BA460A /* DitherView.swift */; };
 		41979C177F75109C66C9E214 /* DitherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A25C3D5B7A1ACD416BA460A /* DitherView.swift */; };
 		652B462F06A016014C7D1C35 /* BoardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173AF635EC82812352B474A8 /* BoardStore.swift */; };
 		6D6E673F6DE1C5AFE64B21C8 /* QuickControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED7D91BE7B32C6EED965836 /* QuickControls.swift */; };
 		A26598A98E477ABD36219E2F /* AppSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E82C24EE179B28A37D3092 /* AppSection.swift */; };
+		A68E4F6F5D2D6983FC058CD1 /* MotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0447CBBC02F18B1427D02C /* MotionView.swift */; };
+		B6C88558F7F9DCC9AE6F3C0D /* BoardLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = B536879A50EC64D2A4949C3E /* BoardLink.swift */; };
 		BB9EA28EF87E3D3E95986AB0 /* BoardKit in Frameworks */ = {isa = PBXBuildFile; productRef = A89B215A59E27CF533322D0E /* BoardKit */; };
 		C33416CDBA3119C59B9C72B2 /* BoardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1C59B5D07757826C1EFED28E /* BoardKit */; };
 		CFB1A0025DBC861896EF9A20 /* BoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38A1F290F1E5A048D4F2729 /* BoardApp.swift */; };
@@ -29,9 +35,12 @@
 		1EBE6F2969ED2956BF9CBCFC /* Board-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Board-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9733225970EF786BC4BEE6 /* BoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardApp.swift; sourceTree = "<group>"; };
 		5747339792EF40B85CDE8657 /* Board-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Board-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		61E3CC23DB37D9A195DDCB49 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
+		7D0447CBBC02F18B1427D02C /* MotionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionView.swift; sourceTree = "<group>"; };
 		9B338A091C44DD38EADC6868 /* BoardKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BoardKit; path = ../shared/BoardKit; sourceTree = SOURCE_ROOT; };
 		AED7D91BE7B32C6EED965836 /* QuickControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickControls.swift; sourceTree = "<group>"; };
 		B38A1F290F1E5A048D4F2729 /* BoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardApp.swift; sourceTree = "<group>"; };
+		B536879A50EC64D2A4949C3E /* BoardLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardLink.swift; sourceTree = "<group>"; };
 		DA333DCC6B8A478E0952B377 /* BoardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardPreview.swift; sourceTree = "<group>"; };
 		F3E82C24EE179B28A37D3092 /* AppSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -56,6 +65,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04424433F1704843E34E1D66 /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				61E3CC23DB37D9A195DDCB49 /* Controls.swift */,
+			);
+			path = Controls;
+			sourceTree = "<group>";
+		};
 		10D0B0A00A0757623B7B82FE /* macOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -72,6 +89,14 @@
 				CFBDEA904B97DD3926CCB209 /* Shared */,
 			);
 			path = Board;
+			sourceTree = "<group>";
+		};
+		61EF7D2A71EB1FE86590B1D1 /* Link */ = {
+			isa = PBXGroup;
+			children = (
+				B536879A50EC64D2A4949C3E /* BoardLink.swift */,
+			);
+			path = Link;
 			sourceTree = "<group>";
 		};
 		7D2720C95E91C13B2C43DDED /* Products */ = {
@@ -107,7 +132,10 @@
 				DA333DCC6B8A478E0952B377 /* BoardPreview.swift */,
 				173AF635EC82812352B474A8 /* BoardStore.swift */,
 				0A25C3D5B7A1ACD416BA460A /* DitherView.swift */,
+				7D0447CBBC02F18B1427D02C /* MotionView.swift */,
 				AED7D91BE7B32C6EED965836 /* QuickControls.swift */,
+				04424433F1704843E34E1D66 /* Controls */,
+				61EF7D2A71EB1FE86590B1D1 /* Link */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -210,9 +238,12 @@
 			files = (
 				174068BC457640C773FE1EF3 /* AppSection.swift in Sources */,
 				08284F8A815ED5950DE8F759 /* BoardApp.swift in Sources */,
+				2CAB4FC18AD88197B7B175B2 /* BoardLink.swift in Sources */,
 				11F3DD5C7C92396986952BC5 /* BoardPreview.swift in Sources */,
 				2EABE1F6D2692D1DE69ABE1B /* BoardStore.swift in Sources */,
+				0D39286D99616685CAF7D385 /* Controls.swift in Sources */,
 				3402D300950FAE218886CB84 /* DitherView.swift in Sources */,
+				06D6C9594901A819B78D5A97 /* MotionView.swift in Sources */,
 				28726157A26EE5285FCE012B /* QuickControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -223,9 +254,12 @@
 			files = (
 				A26598A98E477ABD36219E2F /* AppSection.swift in Sources */,
 				CFB1A0025DBC861896EF9A20 /* BoardApp.swift in Sources */,
+				B6C88558F7F9DCC9AE6F3C0D /* BoardLink.swift in Sources */,
 				2261C7C137746C3445010F7A /* BoardPreview.swift in Sources */,
 				652B462F06A016014C7D1C35 /* BoardStore.swift in Sources */,
+				14BAAE633C7849CCED1571F9 /* Controls.swift in Sources */,
 				41979C177F75109C66C9E214 /* DitherView.swift in Sources */,
+				A68E4F6F5D2D6983FC058CD1 /* MotionView.swift in Sources */,
 				6D6E673F6DE1C5AFE64B21C8 /* QuickControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -3,13 +3,14 @@ import SwiftUI
 /// Every top-level destination. iOS shows these as tabs (5+ → "More"), iPadOS as a sidebar,
 /// macOS as grouped sidebar rows.
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
-	case dither, colors, timer, ambient, music, automations, device
+	case dither, motion, colors, timer, ambient, music, automations, device
 
 	var id: String { rawValue }
 
 	var title: String {
 		switch self {
 			case .dither: "Dither"
+			case .motion: "Motion"
 			case .colors: "Colours"
 			case .timer: "Timer"
 			case .ambient: "Ambient"
@@ -22,6 +23,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 	var symbol: String {
 		switch self {
 			case .dither: "square.grid.3x3.fill"
+			case .motion: "arrow.up.and.down.square.fill"
 			case .colors: "paintpalette.fill"
 			case .timer: "timer"
 			case .ambient: "sun.horizon.fill"
@@ -38,7 +40,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
 	var group: Group {
 		switch self {
-			case .dither, .ambient, .music, .timer: .display
+			case .dither, .motion, .ambient, .music, .timer: .display
 			case .colors: .style
 			case .automations: .automate
 			case .device: .hardware
@@ -61,6 +63,7 @@ struct SectionDetail: View {
 	var body: some View {
 		switch section {
 			case .dither: DitherView()
+			case .motion: MotionView()
 			case .colors: PlaceholderView(section: section, summary: "Palettes shared by every mode: dither palette, sun colours, timer bar. Shortcuts can switch them.")
 			case .timer: PlaceholderView(section: section, summary: "Timer bar across the top pixel row (second row stays dark as a margin). Start, pause, presets.")
 			case .ambient: PlaceholderView(section: section, summary: "Idle mode: the sun crosses the board through the day, colours follow sunrise and sunset.")

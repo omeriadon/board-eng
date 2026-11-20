@@ -1,6 +1,6 @@
 # App, Server & Firmware Plan
 
-_Last updated: 2026-11-20 (rev 2). Navigation revised by the builder; app + BoardKit scaffolded._
+_Last updated: 2026-11-20 (rev 3). Dither + Motion screens built; unified wire format in BoardKit; board is 4×4 tiles (16×16 LEDs)._
 
 The project has three software parts, all in this monorepo:
 
@@ -74,6 +74,7 @@ Timeline: the school project starts in ~3 months (≈ Feb 2027). The design port
 | # | Section | Contents | Group (sidebar) |
 |---|---|---|---|
 | 1 | **Dither** | Live board preview (pixels + tile heights) + Stipple-style settings (wave, pattern, levels, tiles/motion, quiet mode) | Display |
+| 1b | **Motion** | Physical jumping: on/off, strength, speed, height source (lights / opposite / own wave / ripples / still), quiet mode, tiles at once | Display |
 | 2 | **Colours** | Palettes and presets shared by every mode | Style |
 | 3 | **Timer** | Top pixel row is the timer bar, second row a margin. Start/pause, presets | Display |
 | 4 | **Ambient** | Sun-through-the-day idle mode | Display |
@@ -144,3 +145,11 @@ Original next steps:
    - `server/` (Vapor package)
    - `firmware/` (Embedded Swift + pico-sdk toolchain)
 3. Build the Board tab with a live preview first, then the Dither settings.
+
+## 5. Connection model (rev 3)
+
+- Phone and Mac **send every change on every link that is up** (Bluetooth if connected, Wi-Fi via the server always); the board and the apps don't care which one a change arrived on.
+- Each change is stamped with a `Revision`; `StateSync` (in BoardKit, also used by the firmware) applies only newer revisions, so the same change arriving twice is applied once.
+- The format is `BoardMessage` in `shared/BoardKit/Sources/BoardKit/Wire.swift`; any change to a setting is a compile error in the apps, server and firmware together.
+- Updates are coalesced to about 30 per second so dragging a slider stays smooth over Bluetooth.
+- Remaining: real `BoardTransport`s (CoreBluetooth, WebSocket to the server), server switched to BoardKit + binary frames, Device screen showing link status.

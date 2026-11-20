@@ -15,6 +15,12 @@ struct QuickControls: View {
 			.toggleStyle(.button)
 			.accessibilityLabel(store.state.isOn ? "Turn board off" : "Turn board on")
 
+			Toggle(isOn: $store.state.motion.isEnabled) {
+				Image(systemName: "arrow.up.and.down")
+			}
+			.toggleStyle(.button)
+			.accessibilityLabel(store.state.motion.isEnabled ? "Stop tiles moving" : "Let tiles move")
+
 			Slider(value: $store.state.brightness, in: 0 ... 1) {
 				Text("Brightness")
 			} minimumValueLabel: {

@@ -1,10 +1,11 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 10)_
+_Last updated: 2026-11-20 (rev 11)_
 
 **CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
 **Budget (AUD):** brief says ≤ **AU$80** total component + material cost. The builder will go up to ~**AU$110** (≈ US$52 / US$72).
+**Size locked (rev 11): N = 4 tiles per side, k = 4 LEDs per tile side → 16 tiles, 256 LEDs, 16 × 16 pixels, ~18 cm square.**
 **Free from school:** Pico W, L298N drivers, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons, basic parts.
 **Rough total with those free (US$, before GST/shipping):** N=4 ≈ US$61 ≈ AU$93; N=5 ≈ US$85 ≈ AU$130. Still over; cuts TBD. The builder prefers **smaller tiles** (larger N).
 

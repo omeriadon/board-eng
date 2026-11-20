@@ -1,17 +1,17 @@
 import BoardKit
 import SwiftUI
 
-/// A live, to-scale preview of the board: every LED as a square, grouped into tiles,
-/// with each tile's height shown as a lift + shadow. Uses the same BoardKit renderer as the firmware.
+/// A live, to-scale preview of the board: every LED a square, grouped into tiles, each tile lifted and shadowed by
+/// its height. It runs the same `BoardRenderer` as the firmware, including the motion speed limit.
 struct BoardPreview: View {
 	var state: BoardState
 	var geometry: BoardGeometry
 
-	@State private var renderer = PreviewRenderer()
+	@State private var player = PreviewPlayer()
 
 	var body: some View {
-		TimelineView(.animation(minimumInterval: 1 / 30, paused: !state.isOn)) { context in
-			let frame = renderer.frame(at: context.date, state: state, geometry: geometry)
+		TimelineView(.animation(minimumInterval: 1 / 30, paused: !state.isOn && player.isSettled)) { context in
+			let frame = player.frame(at: context.date, state: state, geometry: geometry)
 			Canvas { ctx, size in
 				draw(frame, in: ctx, size: size)
 			}
@@ -23,53 +23,154 @@ struct BoardPreview: View {
 	private func draw(_ frame: BoardFrame, in ctx: GraphicsContext, size: CGSize) {
 		let g = frame.geometry
 		let border = size.width * 0.045
-		let tileGap = size.width * 0.006
+		let tileGap = size.width * 0.012
 		let grid = size.width - border * 2
 		let tilePitch = grid / CGFloat(g.tilesPerSide)
 		let tileSize = tilePitch - tileGap
 		let led = tileSize / CGFloat(g.ledsPerTileSide)
 		let wall = led * 0.09
 
-		ctx.fill(Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: size.width * 0.02), with: .color(.black))
+		ctx.fill(Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: size.width * 0.03), with: .color(.black))
 
-		for tr in 0 ..< g.tilesPerSide {
-			for tc in 0 ..< g.tilesPerSide {
-				let h = CGFloat(frame.height(tileColumn: tc, tileRow: tr)) / CGFloat(max(g.heightLevels - 1, 1))
-				let lift = h * tilePitch * 0.07
-				let origin = CGPoint(x: border + CGFloat(tc) * tilePitch + tileGap / 2 - lift,
-				                     y: border + CGFloat(tr) * tilePitch + tileGap / 2 - lift)
-				let tileRect = CGRect(origin: origin, size: CGSize(width: tileSize, height: tileSize))
-				// shadow grows as the tile rises
-				var shadow = ctx
-				shadow.addFilter(.shadow(color: .black.opacity(0.9), radius: 1 + lift * 1.5, x: lift, y: lift))
-				shadow.fill(Path(tileRect), with: .color(Color(white: 0.04)))
+		// Low tiles first, so a raised tile's shadow falls on the ones beside it.
+		let order = (0 ..< g.tileCount).sorted { frame.lift[$0] < frame.lift[$1] }
+		for index in order {
+			let tc = index % g.tilesPerSide, tr = index / g.tilesPerSide
+			let h = CGFloat(frame.lift[index])
+			let lift = h * tilePitch * 0.09
+			let origin = CGPoint(x: border + CGFloat(tc) * tilePitch + tileGap / 2 - lift,
+			                     y: border + CGFloat(tr) * tilePitch + tileGap / 2 - lift)
+			let tileRect = CGRect(origin: origin, size: CGSize(width: tileSize, height: tileSize))
 
-				for lr in 0 ..< g.ledsPerTileSide {
-					for lc in 0 ..< g.ledsPerTileSide {
-						let p = frame.pixel(column: tc * g.ledsPerTileSide + lc, row: tr * g.ledsPerTileSide + lr)
-						let rect = CGRect(x: origin.x + CGFloat(lc) * led + wall / 2,
-						                  y: origin.y + CGFloat(lr) * led + wall / 2,
-						                  width: led - wall, height: led - wall)
-						ctx.fill(Path(rect), with: .color(Color(red: Double(p.r) / 255, green: Double(p.g) / 255, blue: Double(p.b) / 255)))
-					}
+			var shadow = ctx
+			shadow.addFilter(.shadow(color: .black.opacity(0.9), radius: 1 + lift * 1.6, x: lift * 1.1, y: lift * 1.1))
+			shadow.fill(Path(tileRect), with: .color(Color(white: 0.04)))
+
+			for lr in 0 ..< g.ledsPerTileSide {
+				for lc in 0 ..< g.ledsPerTileSide {
+					let p = frame.pixel(column: tc * g.ledsPerTileSide + lc, row: tr * g.ledsPerTileSide + lr)
+					let rect = CGRect(x: origin.x + CGFloat(lc) * led + wall / 2, y: origin.y + CGFloat(lr) * led + wall / 2,
+					                  width: led - wall, height: led - wall)
+					ctx.fill(Path(rect), with: .color(Color(red: Double(p.r) / 255, green: Double(p.g) / 255, blue: Double(p.b) / 255)))
 				}
 			}
 		}
 	}
 }
 
-/// Integrates wave travel between frames so speed changes never jump.
+/// Steps a `BoardRenderer` with real elapsed time.
 @MainActor
-final class PreviewRenderer {
-	private let field = DitherField()
-	private var offset: (x: Float, y: Float) = (0, 0)
+final class PreviewPlayer {
+	private var renderer = BoardRenderer()
 	private var last: Date?
+	private(set) var isSettled = false
+	private var cached: BoardFrame?
 
 	func frame(at date: Date, state: BoardState, geometry: BoardGeometry) -> BoardFrame {
-		let dt = Float(min(last.map { date.timeIntervalSince($0) } ?? 0, 0.1))
+		let dt = Float(last.map { date.timeIntervalSince($0) } ?? 0)
 		last = date
-		offset = DitherField.advance(offset, seconds: dt, settings: state.dither)
-		let brightness: Float = state.isOn ? 0.25 + 0.75 * state.brightness : 0
-		return field.render(state.dither, geometry: geometry, offset: offset, brightness: brightness)
+		let frame = renderer.step(seconds: dt, state: state, geometry: geometry)
+		isSettled = !state.isOn && frame.lift.allSatisfy { $0 < 0.001 }
+		cached = frame
+		return frame
+	}
+}
+
+/// A small, live, light-only board for the preset grid.
+struct MiniBoard: View {
+	let settings: DitherSettings
+	var selected = false
+
+	@State private var player = PreviewPlayer()
+
+	var body: some View {
+		TimelineView(.animation(minimumInterval: 1 / 10)) { context in
+			var state = BoardState()
+			state.dither = settings
+			state.motion.isEnabled = false
+			let frame = player.frame(at: context.date, state: state, geometry: .standard)
+			return Canvas { ctx, size in
+				let side = frame.geometry.pixelsPerSide
+				let cell = size.width / CGFloat(side)
+				ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
+				for row in 0 ..< side {
+					for column in 0 ..< side {
+						let p = frame.pixel(column: column, row: row)
+						ctx.fill(Path(CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell, width: cell, height: cell).insetBy(dx: 0.2, dy: 0.2)),
+						         with: .color(Color(red: Double(p.r) / 255, green: Double(p.g) / 255, blue: Double(p.b) / 255)))
+					}
+				}
+			}
+		}
+		.frame(width: 84, height: 84)
+		.clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+		.overlay {
+			RoundedRectangle(cornerRadius: 10, style: .continuous)
+				.strokeBorder(selected ? AnyShapeStyle(.tint) : AnyShapeStyle(.white.opacity(0.18)), lineWidth: selected ? 2.5 : 1)
+		}
+		.shadow(color: .black.opacity(0.25), radius: 6, y: 3)
+		.allowsHitTesting(false)
+	}
+}
+
+/// The one live preview, pinned above the settings, with the connection state and (optionally) a save-as-preset button.
+struct PreviewHeader: View {
+	@Environment(BoardStore.self) private var store
+	var savesPresets = false
+
+	@State private var naming = false
+	@State private var name = ""
+	@State private var saved = 0
+
+	var body: some View {
+		BoardPreview(state: store.state, geometry: store.geometry)
+			.frame(maxWidth: 260)
+			.padding(.vertical, 12)
+			.frame(maxWidth: .infinity)
+			.overlay(alignment: .topLeading) { ConnectionBadge().padding(14) }
+			.overlay(alignment: .bottomTrailing) {
+				if savesPresets {
+					Button {
+						name = store.presets.suggestedName
+						naming = true
+					} label: {
+						HStack(spacing: 1) {
+							Image(systemName: "plus").font(.caption.bold())
+							Image(systemName: "heart.fill")
+						}
+						.padding(.vertical, 4)
+					}
+					.buttonStyle(.glass)
+					.accessibilityLabel("Save as Preset")
+					.padding(14)
+				}
+			}
+			.background(.bar, ignoresSafeAreaEdges: .top)
+			.sensoryFeedback(.success, trigger: saved)
+			.alert("Save as Preset", isPresented: $naming) {
+				TextField("Name", text: $name)
+				Button("Save") {
+					withAnimation(.smooth) { store.presets.add(name: name, settings: store.state.dither) }
+					saved += 1
+				}
+				Button("Cancel", role: .cancel) {}
+			} message: {
+				Text("Saves the current dither look. Touch and hold a preset to delete it.")
+			}
+	}
+}
+
+/// Which links to the board are up.
+struct ConnectionBadge: View {
+	@Environment(BoardStore.self) private var store
+
+	var body: some View {
+		let up = store.link.connected
+		Label(store.link.summary, systemImage: up.isEmpty ? "wifi.slash" : (up.contains(.bluetooth) ? "dot.radiowaves.left.and.right" : "wifi"))
+			.font(.caption2.weight(.medium))
+			.foregroundStyle(up.isEmpty ? .secondary : .primary)
+			.padding(.horizontal, 8).padding(.vertical, 4)
+			.background(.thinMaterial, in: Capsule())
+			.accessibilityLabel("Connection: \(store.link.summary)")
 	}
 }
