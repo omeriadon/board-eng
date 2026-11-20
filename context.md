@@ -1,0 +1,208 @@
+# Dither Board — Full Project Context
+
+_Last updated: 2026-11-20 (rev 5)_
+
+**Repo:** https://github.com/omeriadon/board-eng (public). This folder *is* the repo.
+**CAD:** `cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser SVGs and `blueprint_tile.svg`. `tile-design.html` is the earlier rough concept diagram (rev 1, superseded in details: the diffuser is now glued on the front, not in a lip; the end-stop pad is not felt).
+
+This file holds the full context of the planning conversation, so another agent or person can pick up the work without the original chat. It is updated as decisions change. The live parts list is in `ingredients.md`, in the same folder, and is also updated every turn.
+
+---
+
+## 1. Who / what
+
+- The builder is a student doing a school engineering project. They're very comfortable with **SwiftUI / Swift** (iOS + macOS apps) and consider the software side (BLE, Wi-Fi, apps, firmware logic) the easy part.
+- Their personal projects all use a distinctive **dither aesthetic**: square pixels, dithered gradients. There is an existing Xcode project in this library, `Dither Screen Saver/`, that shows the look.
+- The project: a **physical, mechanical, kinetic 3D version of that dither effect**. A wall or desk sculpture made of square pixels that move in and out and light up.
+
+## 2. Assignment requirements (official brief, received 2026-11-20)
+
+- Follow the **engineering design process** to produce a final prototype that fills a need found through research, with all documentation in a **design portfolio**.
+- **Microcontroller:** Raspberry Pi Pico, Arduino, ESP32 or another suitable one. **Pico chosen.**
+- Must include:
+  1. **3 inputs**
+  2. **3 outputs**, at least two driven from an automated input
+  3. **One form or translation from a mechanical drive system** (listed options include the **screw drive**, which the lead-screw micro steppers satisfy)
+- Listed sensors: ultrasonic, IR, LDR, NTC thermistor, colour. Listed outputs: DC motor, servo, stepper, LED, piezo. Anything else must be discussed with the teacher (client).
+- **Constraints:**
+  - ≤ 250 × 250 × 250 mm. The builder is choosing to ignore this, even though it's a "must".
+  - **≤ $80 total component and material cost.** The builder will go up to ~$110.
+  - Safe for any high-school student to operate.
+  - Aesthetically pleasing and/or meets the client's requirements.
+
+### I/O plan to satisfy the brief
+- **Inputs:**
+  - LDR: automated, sets LED brightness and night dimming.
+  - Presence sensor (IR/PIR/VL53L0X, hidden behind the border): automated, wakes or sleeps the tile motion.
+  - Bluetooth app input from the iPhone/Mac apps, including Mac activity and Claude Code status.
+  - Optional: colour sensor palette pick.
+- **Outputs:**
+  - WS2812 LEDs, driven by the LDR (automated)
+  - Stepper tiles, driven by presence (automated)
+  - **Status LED on the back**: very dim power-on indicator, can also show Bluetooth status. Builder request. **Piezo dropped** (builder said no piezo). The status LED is output #3; risk that the teacher counts it as the same type as the main LEDs.
+- **Mechanical drive:** screw drive (rotary → linear) in each tile actuator.
+- **Safety:** 5 V only (no mains inside), fused, current-limited, enclosed, low pinch force (~80 g thrust).
+- **The "no controls on the device" rule still holds:** sensors aren't controls.
+
+## 2b. Original requirements as first described
+
+- Must **solve a problem**. The engineering-design framing is: identify a problem, then design a solution.
+- Must have **multiple inputs and multiple outputs** (motors, actuators, buttons, sounds, lights, screens, knobs, colour sensors, etc.).
+- **Size limit ~25 × 25 × 25 cm** (the builder is fine going over, especially in depth).
+- Materials: **laser-cut acrylic (preferred: looks, durability, stability)**, thin laser-cut MDF (fallback), 3D-printed PLA, timber, screws.
+  - **Clear acrylic is allowed** for the back and structure (guide plates, motor plate, sides, back) so the mechanism shows. The builder says clear isn't a colour, so it doesn't break the all-black rule.
+  - The front bezel and tiles stay black.
+- **Status: the professor has approved the project.**
+
+## 3. Approved problem statement
+
+> During short, unpredictable waits in focused work, such as waiting for AI tools like Claude Code, builds, renders or exports, people reach for their phones and get pulled into doomscrolling. This project is a screen-free, tactile/visual, calming kinetic dither sculpture that gives idle attention something calm to rest on, so people stay in their work and return to it more easily.
+
+Supporting points:
+- The waiting gap is too short to switch tasks but long enough to pick up a phone.
+- Sensory and fidget objects are an established category; steady mechanical sound is a known focus and masking aid; slow, predictable motion is calming ("calm technology").
+- Wording is "reduces / offers an alternative", **not** "stops", because it has to be testable.
+- **Test plan idea:** 8–10 people, a 3–5 minute simulated wait under three conditions (board / phone / nothing). Measure phone pickups, self-rated calm (1–10), and ease of returning to the task.
+- **Likely professor objection:** "Everything is controlled from a phone app." Answer: the board itself is screen-free and runs ambiently. You configure it once, and the Mac automations make it fully hands-off.
+- Optional extra: a Mac companion app tells the board when a long task (e.g. Claude Code) is running, so it switches to a "waiting" pattern and settles when the task finishes.
+
+## 4. Firm design decisions and preferences
+
+- **The board is purely aesthetic as an object.** It is NOT combined with the MacBook-cooling idea. (That idea was only an example of the expected complexity. The builder explicitly rejected merging the two.)
+- **Square** board. **Everything is black except the lights**, so it doesn't clash with the colour presets.
+- **Square pixels and square LEDs, no round look.** The builder rejected round LEDs and premade boards (resistors, board colour, edge margins).
+- **No controls on the device.** One power switch only. Everything else runs from the apps.
+- **Power:** plugged in, not batteries.
+- **Connectivity:** BLE (and maybe Wi-Fi). No pairing and no security: there's only one device, so the app finds it and connects. A Wi-Fi server is maybe later, cost permitting.
+- **Apps:** iPhone + Mac SwiftUI apps for patterns, speed, density, colour, timers, "stop moving when inactive on Mac", Shortcuts-driven colour changes, and more.
+- **Mechanical sound** should be like a **mechanical keyboard** (soft, clicky), **not a typewriter** (too loud and bashy). Wanted: a **quiet mode**, through slower motion, eased acceleration, de-synced or staggered actuators, microstepping, and stopping short of hard end stops.
+- **Stand:** elegant, mounted at the centre of the back plate. A ball-and-socket joint is suggested; it should be **lockable** because the board may weigh 1–2 kg.
+- **Budget:** the brief says ≤ $80; the builder will spend up to ~$110.
+- **Free from school:** Raspberry Pi **Pico** (the builder wants **Pico only, no full Pi**, and will write **Swift** for it, i.e. Embedded Swift), a voltage regulator, "a bunch of" dual motor drivers ("work on the mini servos we have, two motors each"), 3D printing and laser cutting. **Paint is free** (dad's).
+
+## 5. How the core mechanical design evolved
+
+1. **Original idea:** 4 mm rods with a 1 mm gap (5 mm pitch) in 20 × 20 cm, so 40 × 40 = **1,600 actuators**. Rejected as infeasible on cost, wiring and space.
+2. **One micro servo (SG90) per pin with push-rods:** rejected by the builder as too strong, too big and too pricey.
+3. **8 mm micro linear slider steppers** (lead screw + slider nut), one per pin: the right actuator type, but 16 × 16 = 256 of them plus drivers cost ~$500–1,000. Too expensive.
+4. **Premade pin displays:** none affordable exist. Dot Pad is ~$6,000 and binary; MIT inFORM is research only; flip-dots flip rather than rise.
+5. **Lights-only:** kept as a worst-case fallback only. It loses the actuators (an assignment requirement), the sound and the 3D texture.
+6. **Scanning head** (shared carriage sets friction-held pins): cheap, but a full update takes 10–60 s. The builder requires a full screen update of **≤ 0.1 s**, so rejected.
+7. **CHOSEN: hybrid "super-pixel" tiles.**
+   - The board is an **N × N grid of moving tiles**. Each tile carries a **k × k block of square LEDs**.
+   - The **lights** give fine, high-resolution dither and update instantly (60 fps).
+   - The **tiles** give coarse, slower 3D height movement: roughly 0.3–1 s per full stroke, a "breathing" layer. Firmware can set each tile's height from the mean brightness of its LEDs.
+   - **One 8 mm micro slider stepper per tile.**
+   - The builder does **not** want a smaller-pixel-count board in general; the hybrid keeps light density high.
+   - N (2–6) and k (3–5) are **variables to decide after price optimisation**.
+
+## 6. Current technical architecture
+
+### Actuators
+- **8 mm 2-phase 4-wire micro linear stepper** with lead screw + slider (camera-lens / DVD-sled type).
+  Reference spec (VIC-TECH VSM08102, from a third-party listing): 8 mm diameter, 10 mm stroke, 18°/step (20 steps/rev), M2×0.4 lead screw (~0.02 mm/step), 3.3–5 V, 20 Ω/phase, ~80 g thrust at 500 pps.
+- At 500 pps a full 10 mm stroke takes ~1 s; test whether faster is possible without skipped steps.
+- Strokes of 15 / 20 / 34 mm also exist.
+- The lead screw **self-locks**, so tiles hold position unpowered. Idle motors can be de-energised: silent, and low power.
+- **Homing:** on power-up, drive every tile to its end stop. That gives a satisfying startup routine.
+- **Price:** AliExpress ~$1.10–4 each. Fruugo, eBay resellers and Newegg list the same parts at $20–48, so avoid them.
+- Sound: a stepper whir whose pitch follows speed, plus optional printed detents for a soft click per level, and soft end-stop pads (TPU / silicone / foam; **not felt**, per the builder).
+
+### Drivers
+- The school's driver is the **L298N dual H-bridge module** (red board). One L298N = one stepper, via IN1–IN4 with ENA/ENB jumpered.
+  - It has a ~2 V drop, so 5 V in gives the coils ~3 V. Test this; if it's too weak, feed the motor supply 7–7.5 V.
+  - Modules are ~43 × 43 mm and sit in the electronics bay.
+  - Need N² of them; quantity available is still unknown.
+  - The builder dislikes the L298N's inefficiency and bulk. Its bipolar transistors burn ~2 V as heat, ~0.4–0.5 W per energised motor; that's tolerable because idle motors are de-energised.
+  - **Plan:** prototype on the free L298N. For the final build, likely buy **MX1508** (~$0.30–0.50) or **DRV8833** (~$0.50–1) modules: small, MOSFET, almost no drop, one stepper each, ~$8–15 total.
+  - A later option is one custom driver PCB with shift registers + DRV8833 chips (JLCPCB).
+- If buying, the cheap options are the MX1508 (dual H-bridge, ~$0.10–0.40) or the A4988/DRV8825 (step/dir with microstepping, smoother and quieter).
+- ULN2003 **won't** work, because it's for unipolar steppers.
+- **Control:** 4 lines per motor via chained **74HC595** shift registers (1 chip per 2 motors), so the Pico uses about 3 pins for all motors.
+
+### LEDs
+- **Bare WS2812B-5050** addressable RGB LEDs (square 5 × 5 mm package, no resistor needed, 100 nF cap each), on a **custom black-soldermask tile PCB** sized edge-to-edge. The builder rejected premade 4 × 4 WS2812 boards and LED strip (cutting into squares needs too much soldering).
+- **Square pixel look:** a **black square-cell grid built into each printed tile body** over the LEDs, topped by a **smoked "dead-front" diffuser** (smoked/tinted black "LED acrylic", laser-cut squares, one per tile).
+  - It looks **black when off** (keeps the all-black rule); light shows through when on.
+  - The builder's question "shouldn't the diffuser be black?" is resolved this way: fully black blocks the light and white breaks the black look, so smoked is the compromise.
+  - Optional thin white diffuser under the smoked layer for evenness.
+  - Smoked material cuts brightness, so LEDs run brighter.
+  - Every tile needs its own grid + diffuser because tiles move independently. It's one printed part per tile (batch-printed), plus one laser job cutting all the acrylic squares. Fancier option: a single print that changes filament from translucent to black.
+- Tiles are daisy-chained with flexible silicone wire with slack for the travel.
+- **Level shifter** (74AHCT125) for the 3.3 V → 5 V data line, plus a 330–470 Ω series resistor and a 1000 µF bulk capacitor.
+
+### Controller
+- **Raspberry Pi Pico W / Pico 2 W only.** It needs wireless; if the school Pico is plain, buy a W or add a BLE module.
+- **Embedded Swift** runs on RP2040 / RP2350. BLE goes through the pico-sdk (BTstack) via C interop.
+- **PIO** drives WS2812 timing and can generate step / shift-register clocking.
+
+### Power
+- External **5 V brick**, sized from N and k. Probably 5 V 10 A.
+- LED brightness capped in firmware (~20–25%).
+- Limit how many motors move at once (staggering also helps quiet mode and peak current).
+- Barrel jack, one power switch, inline fuse.
+
+### Tile mechanical design (rev 2 — generated by `cad/tile.py`, drawn in `cad/out/blueprint_tile.svg`)
+- **Rev 2 change:** the light grid now starts at the front face (on the print bed when printed face-down), so no supports are needed. The smoked acrylic diffuser (HEAD − 0.2 mm square) is **glued flush onto the front**, not set into a lip. Head 38.8 × 38.8 × 11.6 mm; stem 20 mm square × 40 mm; guide holes 20.5 mm.
+
+Rev 1 notes (still mostly valid):
+Example numbers for N=5, k=4, 40 mm pitch:
+- **Tile head:** black PLA, 39 × 39 × 13 mm, printed face-down. Outer rim 1.2 mm; the k×k light grid (1 mm walls, 8 mm tall) is part of it, plus a 2 mm top lip that holds a 37.4 × 37.4 × 2 mm smoked acrylic diffuser.
+- **Tile PCB:** 37 × 37 mm, black, with square WS2812B-5050s facing forward and caps on the back. It is sandwiched between the head and the stem's floor plate.
+- **Stem:** black PLA, a floor plate (screwed into the head) with a 20 × 20 mm hollow square tube ~40 mm long.
+  - The square shape stops rotation; wires run inside and exit through a side slot.
+  - V-notches on one side make detents.
+  - A tab at the bottom takes an M2 screw into the micro stepper's slider nut.
+- **Soft end-stop pad** (TPU / silicone O-ring / foam, not felt) under the head: the head bottoms out on the front guide plate, giving a soft "thock" end stop.
+- **Frame, front to back:**
+  - Front guide plate (3 mm MDF, 20.6 mm square holes; leaves ~19 mm webs, so it's strong)
+  - Rear guide plate (~16 mm behind it; a detent flexure here clicks into the stem notches)
+  - Motor plate (micro steppers screw on)
+  - Electronics bay (L298Ns, 74HC595s, Pico W)
+  - Back plate (ball-joint stand mounts at the centre)
+- **Total depth ≈ 11 cm.** Retracted tiles sit flush with the 1 cm black border; extended tiles are +15 mm.
+- Tile height can follow the average brightness of its LEDs.
+
+### Structure
+- Laser-cut MDF layers (front, guide, motor, back plates and sides) painted matte black, plus black PLA tiles, grids and guides.
+- Grid ~20 × 20 cm with ~1 cm margin; depth ~7–12 cm.
+- Lockable ball-joint stand.
+
+## 7. Process / next steps
+
+1. **Ingredients list:** done. Kept current in `ingredients.md`, with quantities as functions of N and k.
+2. **Price optimisation**, then choose N and k (the builder wants to compare 2² / 3² / 4² / 5² / 6² tiles).
+3. **Single-tile prototype** (~$10–15): 2–3 steppers, LEDs for one tile, a school driver, a Pico.
+   - Test real motor width, top speed, sound, push force with tile weight, wire flex, and light quality.
+4. Then: tile PCB design, frame CAD, firmware (Embedded Swift on Pico), iOS / macOS apps.
+
+### Anti-collision / precision (Prusa MK4S)
+- Tiles are guided only by their stems in the guide plates, never by neighbours.
+- Head gap 1.0–1.5 mm. Stem clearance 0.2–0.3 mm per side. Guide plates far apart to minimise wobble.
+- Chamfer the first layer (elephant's foot). Print a 2×2 test coupon. Round the head edges. Dry lube.
+- Weak motors stall rather than crash; periodic re-homing fixes lost steps.
+
+### Pico wireless
+- **Decided: Pico W** (the builder will get one). Pico W / Pico 2 W both have Wi-Fi + Bluetooth built in (CYW43439), so no extra module.
+- **Range:** BLE is typically ~10 m indoors through a wall or two, and Wi-Fi is fine within a normal room or house. Plenty for a desk object.
+  - Keep the Pico's antenna end near an edge of the enclosure and away from the motors, L298N heatsinks and metal; acrylic and PLA don't block the signal.
+
+### Print accuracy (Prusa MK4S)
+- The builder plans to raise quality and lower speed. That helps surface finish and consistency, but **dimensional accuracy comes mostly from calibration**:
+  - The PrusaSlicer elephant-foot compensation setting (and the 0.4 mm chamfer in the CAD)
+  - XY size compensation
+  - Correct filament profile / flow
+- Print `test_clearance_coupon.stl` first (holes at 0.15 / 0.20 / 0.25 / 0.30 mm per side, with dimples marking 1–4) and pick the best fit before printing the full set.
+- Print all tiles in the same orientation with the same filament.
+
+## 8. Open questions
+
+- How many **L298N** modules the school can provide (need N²).
+- Is the school Pico a **W / 2 W** (wireless)?
+- N, k and stroke length.
+- Hand-solder or JLCPCB-assemble the tile PCBs.
+
+## 9. Housekeeping instructions from the builder
+
+- Keep **`ingredients.md`** updated **every turn** with the current parts list.
+- Keep this **`context.md`** updated with all context, so another agent can take over.

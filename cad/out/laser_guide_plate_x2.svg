@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220.00mm" height="220.00mm" viewBox="0 0 220.00 220.00">
+<!-- red hairline = cut. units: mm. Dither Board, rough rev 1 -->
+<g fill="none" stroke="#ff0000" stroke-width="0.1">
+<rect x="0.00" y="0.00" width="220.00" height="220.00"/>
+<rect x="19.75" y="19.75" width="20.50" height="20.50"/>
+<rect x="59.75" y="19.75" width="20.50" height="20.50"/>
+<rect x="99.75" y="19.75" width="20.50" height="20.50"/>
+<rect x="139.75" y="19.75" width="20.50" height="20.50"/>
+<rect x="179.75" y="19.75" width="20.50" height="20.50"/>
+<rect x="19.75" y="59.75" width="20.50" height="20.50"/>
+<rect x="59.75" y="59.75" width="20.50" height="20.50"/>
+<rect x="99.75" y="59.75" width="20.50" height="20.50"/>
+<rect x="139.75" y="59.75" width="20.50" height="20.50"/>
+<rect x="179.75" y="59.75" width="20.50" height="20.50"/>
+<rect x="19.75" y="99.75" width="20.50" height="20.50"/>
+<rect x="59.75" y="99.75" width="20.50" height="20.50"/>
+<rect x="99.75" y="99.75" width="20.50" height="20.50"/>
+<rect x="139.75" y="99.75" width="20.50" height="20.50"/>
+<rect x="179.75" y="99.75" width="20.50" height="20.50"/>
+<rect x="19.75" y="139.75" width="20.50" height="20.50"/>
+<rect x="59.75" y="139.75" width="20.50" height="20.50"/>
+<rect x="99.75" y="139.75" width="20.50" height="20.50"/>
+<rect x="139.75" y="139.75" width="20.50" height="20.50"/>
+<rect x="179.75" y="139.75" width="20.50" height="20.50"/>
+<rect x="19.75" y="179.75" width="20.50" height="20.50"/>
+<rect x="59.75" y="179.75" width="20.50" height="20.50"/>
+<rect x="99.75" y="179.75" width="20.50" height="20.50"/>
+<rect x="139.75" y="179.75" width="20.50" height="20.50"/>
+<rect x="179.75" y="179.75" width="20.50" height="20.50"/>
+<circle cx="5.00" cy="5.00" r="1.60"/>
+<circle cx="215.00" cy="5.00" r="1.60"/>
+<circle cx="5.00" cy="215.00" r="1.60"/>
+<circle cx="215.00" cy="215.00" r="1.60"/>
+</g>
+</svg>
