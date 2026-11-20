@@ -14,35 +14,73 @@
 		14BAAE633C7849CCED1571F9 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E3CC23DB37D9A195DDCB49 /* Controls.swift */; };
 		174068BC457640C773FE1EF3 /* AppSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E82C24EE179B28A37D3092 /* AppSection.swift */; };
 		2261C7C137746C3445010F7A /* BoardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA333DCC6B8A478E0952B377 /* BoardPreview.swift */; };
+		22BB1A660231ECCD9BED01CC /* ColoursView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF55A5E0472A73AFFF1C3949 /* ColoursView.swift */; };
 		28726157A26EE5285FCE012B /* QuickControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED7D91BE7B32C6EED965836 /* QuickControls.swift */; };
 		2CAB4FC18AD88197B7B175B2 /* BoardLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = B536879A50EC64D2A4949C3E /* BoardLink.swift */; };
 		2EABE1F6D2692D1DE69ABE1B /* BoardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173AF635EC82812352B474A8 /* BoardStore.swift */; };
 		3402D300950FAE218886CB84 /* DitherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A25C3D5B7A1ACD416BA460A /* DitherView.swift */; };
 		41979C177F75109C66C9E214 /* DitherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A25C3D5B7A1ACD416BA460A /* DitherView.swift */; };
+		47D7112C39CE00F0710A4DDD /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E20FD98E6A9E18D836350A /* DeviceView.swift */; };
+		4A08FACAB5E4A3FC2235D83D /* AmbientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81FB03D8C9ECF2A3389A872 /* AmbientView.swift */; };
+		516A8213022F1EA5FD059517 /* NowPlayingMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7D9760A1EB8A7A7FB46262 /* NowPlayingMonitor.swift */; };
+		5DE1D6C5A2079C8212AB10ED /* BluetoothTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74621E4721B481CD2C84F221 /* BluetoothTransport.swift */; };
+		5E29DBF3CE11F630AF4FC6C0 /* PresenceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D26596072E8A2C80A3ECC8B /* PresenceMonitor.swift */; };
+		5EC3C7AD9DDE8B0E0FA1E452 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D3436670FC978F95E88FB7 /* TimerView.swift */; };
 		652B462F06A016014C7D1C35 /* BoardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173AF635EC82812352B474A8 /* BoardStore.swift */; };
+		657253164543C60969922A62 /* AutomationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ECE618F4E4E91C086698AA /* AutomationsView.swift */; };
+		67E3FF499B55994198F5E58F /* AmbientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81FB03D8C9ECF2A3389A872 /* AmbientView.swift */; };
 		6D6E673F6DE1C5AFE64B21C8 /* QuickControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED7D91BE7B32C6EED965836 /* QuickControls.swift */; };
+		6DA40CEFC7F657EE84303684 /* MusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56752D6ECE13ADAC8D501342 /* MusicView.swift */; };
+		7DEB0B06F77E34803ED8BFD2 /* BluetoothTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74621E4721B481CD2C84F221 /* BluetoothTransport.swift */; };
+		851796233DD6FA3C4AD30809 /* WebSocketTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B7FA825B51232CA71D3955 /* WebSocketTransport.swift */; };
 		A26598A98E477ABD36219E2F /* AppSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E82C24EE179B28A37D3092 /* AppSection.swift */; };
+		A31BE26F9873B85A49CF2845 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07F1811B652121A645581E1C /* Assets.xcassets */; };
+		A350C9ACE72BE5FFEB11A0C6 /* ColoursView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF55A5E0472A73AFFF1C3949 /* ColoursView.swift */; };
 		A68E4F6F5D2D6983FC058CD1 /* MotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0447CBBC02F18B1427D02C /* MotionView.swift */; };
+		AC0DEEDD077916834D97367C /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF48229182E62FA617EB00F9 /* Intents.swift */; };
+		AD23F5AAB92DA83DC2777425 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07F1811B652121A645581E1C /* Assets.xcassets */; };
+		B28858EA5AA0797A62E6D2E0 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF48229182E62FA617EB00F9 /* Intents.swift */; };
 		B6C88558F7F9DCC9AE6F3C0D /* BoardLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = B536879A50EC64D2A4949C3E /* BoardLink.swift */; };
 		BB9EA28EF87E3D3E95986AB0 /* BoardKit in Frameworks */ = {isa = PBXBuildFile; productRef = A89B215A59E27CF533322D0E /* BoardKit */; };
+		BF76C8C1431302919EC36CF6 /* WebSocketTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B7FA825B51232CA71D3955 /* WebSocketTransport.swift */; };
+		C025111137865464C558DA69 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A2D6E30F8C327584D2FB65 /* ConnectionSettings.swift */; };
 		C33416CDBA3119C59B9C72B2 /* BoardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1C59B5D07757826C1EFED28E /* BoardKit */; };
 		CFB1A0025DBC861896EF9A20 /* BoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38A1F290F1E5A048D4F2729 /* BoardApp.swift */; };
+		CFB89082077F0421CC41C968 /* MusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56752D6ECE13ADAC8D501342 /* MusicView.swift */; };
+		E5095B7BEC75DCC73B6F8004 /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E20FD98E6A9E18D836350A /* DeviceView.swift */; };
+		F68434151E416C8C6F636595 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A2D6E30F8C327584D2FB65 /* ConnectionSettings.swift */; };
+		F9AD24A32FB209DE45A88E5C /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D3436670FC978F95E88FB7 /* TimerView.swift */; };
+		FA82EEEB0D3E0B26CEDCC9C8 /* AutomationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ECE618F4E4E91C086698AA /* AutomationsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		03A2D6E30F8C327584D2FB65 /* ConnectionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettings.swift; sourceTree = "<group>"; };
+		07F1811B652121A645581E1C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A25C3D5B7A1ACD416BA460A /* DitherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitherView.swift; sourceTree = "<group>"; };
+		0F7D9760A1EB8A7A7FB46262 /* NowPlayingMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingMonitor.swift; sourceTree = "<group>"; };
 		173AF635EC82812352B474A8 /* BoardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStore.swift; sourceTree = "<group>"; };
 		1EBE6F2969ED2956BF9CBCFC /* Board-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Board-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		26E20FD98E6A9E18D836350A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
+		27B7FA825B51232CA71D3955 /* WebSocketTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTransport.swift; sourceTree = "<group>"; };
 		3E9733225970EF786BC4BEE6 /* BoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardApp.swift; sourceTree = "<group>"; };
+		54ECE618F4E4E91C086698AA /* AutomationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomationsView.swift; sourceTree = "<group>"; };
+		56752D6ECE13ADAC8D501342 /* MusicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicView.swift; sourceTree = "<group>"; };
 		5747339792EF40B85CDE8657 /* Board-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Board-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		61E3CC23DB37D9A195DDCB49 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
+		6D26596072E8A2C80A3ECC8B /* PresenceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceMonitor.swift; sourceTree = "<group>"; };
+		74621E4721B481CD2C84F221 /* BluetoothTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothTransport.swift; sourceTree = "<group>"; };
 		7D0447CBBC02F18B1427D02C /* MotionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionView.swift; sourceTree = "<group>"; };
 		9B338A091C44DD38EADC6868 /* BoardKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BoardKit; path = ../shared/BoardKit; sourceTree = SOURCE_ROOT; };
 		AED7D91BE7B32C6EED965836 /* QuickControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickControls.swift; sourceTree = "<group>"; };
+		AF55A5E0472A73AFFF1C3949 /* ColoursView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoursView.swift; sourceTree = "<group>"; };
 		B38A1F290F1E5A048D4F2729 /* BoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardApp.swift; sourceTree = "<group>"; };
 		B536879A50EC64D2A4949C3E /* BoardLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardLink.swift; sourceTree = "<group>"; };
+		B6D3436670FC978F95E88FB7 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		DA333DCC6B8A478E0952B377 /* BoardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardPreview.swift; sourceTree = "<group>"; };
 		F3E82C24EE179B28A37D3092 /* AppSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSection.swift; sourceTree = "<group>"; };
+		F81FB03D8C9ECF2A3389A872 /* AmbientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientView.swift; sourceTree = "<group>"; };
+		F98F85B34ADFFB04A0271C36 /* Board.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Board.entitlements; sourceTree = "<group>"; };
+		FF48229182E62FA617EB00F9 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,9 +114,25 @@
 		10D0B0A00A0757623B7B82FE /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				F98F85B34ADFFB04A0271C36 /* Board.entitlements */,
 				3E9733225970EF786BC4BEE6 /* BoardApp.swift */,
+				0F7D9760A1EB8A7A7FB46262 /* NowPlayingMonitor.swift */,
+				6D26596072E8A2C80A3ECC8B /* PresenceMonitor.swift */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		12A6A000EE185D67AF92CE57 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				F81FB03D8C9ECF2A3389A872 /* AmbientView.swift */,
+				54ECE618F4E4E91C086698AA /* AutomationsView.swift */,
+				AF55A5E0472A73AFFF1C3949 /* ColoursView.swift */,
+				26E20FD98E6A9E18D836350A /* DeviceView.swift */,
+				56752D6ECE13ADAC8D501342 /* MusicView.swift */,
+				B6D3436670FC978F95E88FB7 /* TimerView.swift */,
+			);
+			path = Screens;
 			sourceTree = "<group>";
 		};
 		48650CD34AB1B691DD21C9BE /* Board */ = {
@@ -94,7 +148,10 @@
 		61EF7D2A71EB1FE86590B1D1 /* Link */ = {
 			isa = PBXGroup;
 			children = (
+				74621E4721B481CD2C84F221 /* BluetoothTransport.swift */,
 				B536879A50EC64D2A4949C3E /* BoardLink.swift */,
+				03A2D6E30F8C327584D2FB65 /* ConnectionSettings.swift */,
+				27B7FA825B51232CA71D3955 /* WebSocketTransport.swift */,
 			);
 			path = Link;
 			sourceTree = "<group>";
@@ -129,13 +186,16 @@
 			isa = PBXGroup;
 			children = (
 				F3E82C24EE179B28A37D3092 /* AppSection.swift */,
+				07F1811B652121A645581E1C /* Assets.xcassets */,
 				DA333DCC6B8A478E0952B377 /* BoardPreview.swift */,
 				173AF635EC82812352B474A8 /* BoardStore.swift */,
 				0A25C3D5B7A1ACD416BA460A /* DitherView.swift */,
+				FF48229182E62FA617EB00F9 /* Intents.swift */,
 				7D0447CBBC02F18B1427D02C /* MotionView.swift */,
 				AED7D91BE7B32C6EED965836 /* QuickControls.swift */,
 				04424433F1704843E34E1D66 /* Controls */,
 				61EF7D2A71EB1FE86590B1D1 /* Link */,
+				12A6A000EE185D67AF92CE57 /* Screens */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -156,6 +216,7 @@
 			buildConfigurationList = B34788224AA797D424F928DA /* Build configuration list for PBXNativeTarget "Board-macOS" */;
 			buildPhases = (
 				3A71F34FBA4FBCF011ED94A8 /* Sources */,
+				8163FD6749E1360710A4183A /* Resources */,
 				DE5DECA3381D9CB3F725AA45 /* Frameworks */,
 			);
 			buildRules = (
@@ -175,6 +236,7 @@
 			buildConfigurationList = 1F3B602AF046C9240105AF6E /* Build configuration list for PBXNativeTarget "Board-iOS" */;
 			buildPhases = (
 				B89FE7F023E71CD96603272F /* Sources */,
+				98B4C89BF31DD6A41297F8F3 /* Resources */,
 				782B9B405C8765C9C0E7E549 /* Frameworks */,
 			);
 			buildRules = (
@@ -231,20 +293,51 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		8163FD6749E1360710A4183A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD23F5AAB92DA83DC2777425 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98B4C89BF31DD6A41297F8F3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A31BE26F9873B85A49CF2845 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		3A71F34FBA4FBCF011ED94A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67E3FF499B55994198F5E58F /* AmbientView.swift in Sources */,
 				174068BC457640C773FE1EF3 /* AppSection.swift in Sources */,
+				657253164543C60969922A62 /* AutomationsView.swift in Sources */,
+				7DEB0B06F77E34803ED8BFD2 /* BluetoothTransport.swift in Sources */,
 				08284F8A815ED5950DE8F759 /* BoardApp.swift in Sources */,
 				2CAB4FC18AD88197B7B175B2 /* BoardLink.swift in Sources */,
 				11F3DD5C7C92396986952BC5 /* BoardPreview.swift in Sources */,
 				2EABE1F6D2692D1DE69ABE1B /* BoardStore.swift in Sources */,
+				A350C9ACE72BE5FFEB11A0C6 /* ColoursView.swift in Sources */,
+				F68434151E416C8C6F636595 /* ConnectionSettings.swift in Sources */,
 				0D39286D99616685CAF7D385 /* Controls.swift in Sources */,
+				47D7112C39CE00F0710A4DDD /* DeviceView.swift in Sources */,
 				3402D300950FAE218886CB84 /* DitherView.swift in Sources */,
+				AC0DEEDD077916834D97367C /* Intents.swift in Sources */,
 				06D6C9594901A819B78D5A97 /* MotionView.swift in Sources */,
+				CFB89082077F0421CC41C968 /* MusicView.swift in Sources */,
+				516A8213022F1EA5FD059517 /* NowPlayingMonitor.swift in Sources */,
+				5E29DBF3CE11F630AF4FC6C0 /* PresenceMonitor.swift in Sources */,
 				28726157A26EE5285FCE012B /* QuickControls.swift in Sources */,
+				5EC3C7AD9DDE8B0E0FA1E452 /* TimerView.swift in Sources */,
+				BF76C8C1431302919EC36CF6 /* WebSocketTransport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,15 +345,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A08FACAB5E4A3FC2235D83D /* AmbientView.swift in Sources */,
 				A26598A98E477ABD36219E2F /* AppSection.swift in Sources */,
+				FA82EEEB0D3E0B26CEDCC9C8 /* AutomationsView.swift in Sources */,
+				5DE1D6C5A2079C8212AB10ED /* BluetoothTransport.swift in Sources */,
 				CFB1A0025DBC861896EF9A20 /* BoardApp.swift in Sources */,
 				B6C88558F7F9DCC9AE6F3C0D /* BoardLink.swift in Sources */,
 				2261C7C137746C3445010F7A /* BoardPreview.swift in Sources */,
 				652B462F06A016014C7D1C35 /* BoardStore.swift in Sources */,
+				22BB1A660231ECCD9BED01CC /* ColoursView.swift in Sources */,
+				C025111137865464C558DA69 /* ConnectionSettings.swift in Sources */,
 				14BAAE633C7849CCED1571F9 /* Controls.swift in Sources */,
+				E5095B7BEC75DCC73B6F8004 /* DeviceView.swift in Sources */,
 				41979C177F75109C66C9E214 /* DitherView.swift in Sources */,
+				B28858EA5AA0797A62E6D2E0 /* Intents.swift in Sources */,
 				A68E4F6F5D2D6983FC058CD1 /* MotionView.swift in Sources */,
+				6DA40CEFC7F657EE84303684 /* MusicView.swift in Sources */,
 				6D6E673F6DE1C5AFE64B21C8 /* QuickControls.swift in Sources */,
+				F9AD24A32FB209DE45A88E5C /* TimerView.swift in Sources */,
+				851796233DD6FA3C4AD30809 /* WebSocketTransport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +374,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -335,10 +439,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Board/macOS/Board.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Board reads what's playing in Music and Spotify to mirror album art on your board.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Board uses Bluetooth to find and control your dither board.";
@@ -396,10 +500,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Board/macOS/Board.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Board reads what's playing in Music and Spotify to mirror album art on your board.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Board uses Bluetooth to find and control your dither board.";
@@ -417,6 +521,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

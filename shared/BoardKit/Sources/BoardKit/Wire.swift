@@ -300,7 +300,8 @@ public enum BoardMessage: Hashable, Sendable {
 				message = .time(unixMillis: r.u64(), utcOffsetSeconds: Int32(bitPattern: r.u32()))
 			case 5:
 				let id = r.u32(), side = Int(r.u8())
-				guard side > 0, side <= 64 else { return nil }
+				// Side 0 is "no artwork": it clears the last picture.
+				guard side <= 64 else { return nil }
 				var pixels: [Pixel] = []
 				pixels.reserveCapacity(side * side)
 				for _ in 0 ..< side * side { let red = r.u8(), green = r.u8(), blue = r.u8(); pixels.append(Pixel(r: red, g: green, b: blue)) }

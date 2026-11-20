@@ -5,7 +5,7 @@ public struct BoardGeometry: Hashable, Sendable {
 	/// Number of discrete heights a tile can sit at (0 = fully retracted).
 	public var heightLevels: Int
 
-	public init(tilesPerSide: Int = 4, ledsPerTileSide: Int = 4, heightLevels: Int = 10) {
+	public init(tilesPerSide: Int = 4, ledsPerTileSide: Int = 6, heightLevels: Int = 10) {
 		self.tilesPerSide = max(1, tilesPerSide)
 		self.ledsPerTileSide = max(1, ledsPerTileSide)
 		self.heightLevels = max(2, heightLevels)

@@ -5,6 +5,7 @@ import SwiftUI
 struct DitherView: View {
 	@Environment(BoardStore.self) private var store
 	@State private var confirmingReset = false
+	@State private var isScrolling = false
 
 	var body: some View {
 		@Bindable var store = store
@@ -12,6 +13,8 @@ struct DitherView: View {
 		let s = store.state.dither
 
 		Form {
+			ModeBanner(mode: .dither)
+
 			PresetSection(current: s) { preset in
 				withAnimation(.smooth) { store.state.dither = preset.settings }
 			}
@@ -79,6 +82,8 @@ struct DitherView: View {
 			}
 		}
 		.formStyle(.grouped)
+		.environment(\.isScrolling, isScrolling)
+		.onScrollPhaseChange { _, phase in isScrolling = phase.isScrolling }
 		.safeAreaInset(edge: .top, spacing: 0) { PreviewHeader(savesPresets: true) }
 		.navigationTitle("Dither")
 		.confirmationDialog("Reset all dither settings?", isPresented: $confirmingReset, titleVisibility: .visible) {
@@ -210,6 +215,27 @@ private struct PaletteSection: View {
 			Text("Palette")
 		} footer: {
 			Text("With two or more colours, brighter parts of the wave use later colours. Spread blends the palette across the board instead. With one or none, the wave colour is used.")
+		}
+	}
+}
+
+
+/// "Show this on the board": every mode's screen starts with it, since the mode picker isn't on the iPhone tab bar.
+struct ModeBanner: View {
+	@Environment(BoardStore.self) private var store
+	let mode: BoardMode
+
+	var body: some View {
+		Section {
+			if store.state.mode == mode {
+				Label("Showing on the board", systemImage: "checkmark.circle.fill").foregroundStyle(.tint)
+			} else {
+				Button {
+					withAnimation(.smooth) { store.state.mode = mode }
+				} label: {
+					Label("Show \(mode.title) on the Board", systemImage: "play.circle.fill")
+				}
+			}
 		}
 	}
 }

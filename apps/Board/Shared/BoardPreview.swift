@@ -7,11 +7,13 @@ struct BoardPreview: View {
 	var state: BoardState
 	var geometry: BoardGeometry
 
+	@Environment(BoardStore.self) private var store
 	@State private var player = PreviewPlayer()
 
 	var body: some View {
 		TimelineView(.animation(minimumInterval: 1 / 30, paused: !state.isOn && player.isSettled)) { context in
-			let frame = player.frame(at: context.date, state: state, geometry: geometry)
+			let frame = player.frame(at: context.date, state: state, geometry: geometry,
+			                         artwork: store.artwork, ambientLight: store.link.status?.ambientLight ?? 1)
 			Canvas { ctx, size in
 				draw(frame, in: ctx, size: size)
 			}
@@ -66,10 +68,13 @@ final class PreviewPlayer {
 	private(set) var isSettled = false
 	private var cached: BoardFrame?
 
-	func frame(at date: Date, state: BoardState, geometry: BoardGeometry) -> BoardFrame {
+	func frame(at date: Date, state: BoardState, geometry: BoardGeometry, artwork: Artwork? = nil, ambientLight: Float = 1) -> BoardFrame {
 		let dt = Float(last.map { date.timeIntervalSince($0) } ?? 0)
 		last = date
-		let frame = renderer.step(seconds: dt, state: state, geometry: geometry)
+		renderer.artwork = artwork
+		let context = RenderContext(unixMillis: UInt64(date.timeIntervalSince1970 * 1000),
+		                            utcOffsetSeconds: Int32(TimeZone.current.secondsFromGMT(for: date)), ambientLight: ambientLight)
+		let frame = renderer.step(seconds: dt, state: state, geometry: geometry, context: context)
 		isSettled = !state.isOn && frame.lift.allSatisfy { $0 < 0.001 }
 		cached = frame
 		return frame
@@ -81,10 +86,12 @@ struct MiniBoard: View {
 	let settings: DitherSettings
 	var selected = false
 
+	@Environment(\.isScrolling) private var isScrolling
 	@State private var player = PreviewPlayer()
 
 	var body: some View {
-		TimelineView(.animation(minimumInterval: 1 / 10)) { context in
+		// Paused while the list scrolls (the minis are the expensive part), and slow: they only need to look alive.
+		TimelineView(.animation(minimumInterval: 1 / 6, paused: isScrolling)) { context in
 			var state = BoardState()
 			state.dither = settings
 			state.motion.isEnabled = false
@@ -172,5 +179,16 @@ struct ConnectionBadge: View {
 			.padding(.horizontal, 8).padding(.vertical, 4)
 			.background(.thinMaterial, in: Capsule())
 			.accessibilityLabel("Connection: \(store.link.summary)")
+	}
+}
+
+
+private struct IsScrollingKey: EnvironmentKey { static let defaultValue = false }
+
+extension EnvironmentValues {
+	/// True while the surrounding list is scrolling; heavy live views pause themselves.
+	var isScrolling: Bool {
+		get { self[IsScrollingKey.self] }
+		set { self[IsScrollingKey.self] = newValue }
 	}
 }

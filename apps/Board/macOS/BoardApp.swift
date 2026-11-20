@@ -2,12 +2,19 @@ import SwiftUI
 
 @main
 struct BoardApp: App {
-	@State private var store = BoardStore()
+	@State private var store = BoardStore.shared
+	@State private var nowPlaying = NowPlayingMonitor()
+	@State private var presence = PresenceMonitor()
 
 	var body: some Scene {
 		Window("Board", id: "main") {
 			RootSplitView()
 				.environment(store)
+				.environment(nowPlaying)
+				.task {
+					nowPlaying.start(store: store)
+					presence.start(store: store)
+				}
 		}
 		.defaultSize(width: 960, height: 680)
 

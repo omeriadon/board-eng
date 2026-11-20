@@ -7,6 +7,7 @@ enum LinkKind: String, CaseIterable {
 	case bluetooth, wifi
 
 	var title: String { self == .bluetooth ? "Bluetooth" : "Wi-Fi" }
+	var symbol: String { self == .bluetooth ? "dot.radiowaves.left.and.right" : "wifi" }
 }
 
 @MainActor
@@ -15,6 +16,8 @@ protocol BoardTransport: AnyObject {
 	var isConnected: Bool { get }
 	/// Called with each complete message the transport receives.
 	var onReceive: (([UInt8]) -> Void)? { get set }
+	/// Called whenever `isConnected` changes.
+	var onConnectionChange: (() -> Void)? { get set }
 	func send(_ bytes: [UInt8])
 }
 
@@ -25,8 +28,12 @@ final class BoardLink {
 	private(set) var transports: [any BoardTransport] = []
 	/// The board's last report: temperature, light, firmware.
 	private(set) var status: BoardStatus?
+	/// Bumped when any link comes up or goes down, so views that read `connected` refresh.
+	private var tick = 0
 
 	@ObservationIgnored var onMessage: ((BoardMessage) -> Void)?
+	/// A link just came up: the store re-sends its state so a stale board or server catches up.
+	@ObservationIgnored var onLinkUp: (() -> Void)?
 	@ObservationIgnored private var pending: BoardMessage?
 	@ObservationIgnored private var flushTask: Task<Void, Never>?
 
@@ -38,10 +45,21 @@ final class BoardLink {
 			guard let message = BoardMessage(decoding: bytes) else { return }
 			self?.receive(message)
 		}
+		transport.onConnectionChange = { [weak self, weak transport] in
+			guard let self else { return }
+			tick += 1
+			if transport?.isConnected == true { onLinkUp?() }
+			if connected.isEmpty { status = nil }
+		}
 		transports.append(transport)
 	}
 
-	var connected: [LinkKind] { LinkKind.allCases.filter { kind in transports.contains { $0.kind == kind && $0.isConnected } } }
+	func transport(_ kind: LinkKind) -> (any BoardTransport)? { transports.first { $0.kind == kind } }
+
+	var connected: [LinkKind] {
+		_ = tick
+		return LinkKind.allCases.filter { kind in transports.contains { $0.kind == kind && $0.isConnected } }
+	}
 
 	var summary: String {
 		let up = connected
@@ -54,12 +72,11 @@ final class BoardLink {
 		pending = message
 		guard flushTask == nil else { return }
 		flushTask = Task { [weak self] in
-			// First change goes straight out; later ones in the burst wait for the next slot.
 			self?.flush()
 			try? await Task.sleep(for: Self.minimumInterval)
 			guard let self else { return }
 			flushTask = nil
-			if pending != nil { send(pending!) }
+			if let next = pending { send(next) }
 		}
 	}
 

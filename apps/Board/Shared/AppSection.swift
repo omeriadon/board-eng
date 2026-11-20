@@ -64,12 +64,12 @@ struct SectionDetail: View {
 		switch section {
 			case .dither: DitherView()
 			case .motion: MotionView()
-			case .colors: PlaceholderView(section: section, summary: "Palettes shared by every mode: dither palette, sun colours, timer bar. Shortcuts can switch them.")
-			case .timer: PlaceholderView(section: section, summary: "Timer bar across the top pixel row (second row stays dark as a margin). Start, pause, presets.")
-			case .ambient: PlaceholderView(section: section, summary: "Idle mode: the sun crosses the board through the day, colours follow sunrise and sunset.")
-			case .music: PlaceholderView(section: section, summary: "Mirror the current album art. Bottom two rows show playback progress; tiles can jump to the beat.")
-			case .automations: PlaceholderView(section: section, summary: "Schedules, presence (keyboard/mouse on Mac, location on iPhone), ambient light, Shortcuts.")
-			case .device: PlaceholderView(section: section, summary: "Connection, motion & quiet mode, tile calibration, diagnostics, firmware.")
+			case .colors: ColoursView()
+			case .timer: TimerView()
+			case .ambient: AmbientView()
+			case .music: MusicView()
+			case .automations: AutomationsView()
+			case .device: DeviceView()
 		}
 	}
 }

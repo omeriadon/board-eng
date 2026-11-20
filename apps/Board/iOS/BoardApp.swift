@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct BoardApp: App {
-	@State private var store = BoardStore()
+	@State private var store = BoardStore.shared
 
 	var body: some Scene {
 		WindowGroup {
