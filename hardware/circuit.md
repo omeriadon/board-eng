@@ -117,6 +117,26 @@ Notes:
 
 So the firmware should limit **LED current**, not just brightness: add up the red, green and blue values of the frame (about 20 mA per channel at full) and scale the whole frame down if the total passes the budget (about 5.5 A for a 10 A brick). Dither art averages far below full white, so you will rarely feel the limit. The old "25 % ≈ 9 A" figure would overload a 10 A brick once the motors and logic run.
 
+### 3.3 Fewer amps with a higher voltage (12 V option)
+
+Yes, but note what it does: **volts × amps = watts stays the same, so a higher voltage lowers the current, not the power.** What it buys is thinner wire, smaller fuses, less voltage drop, and an easy supply to buy (a 12 V 5 A plug-in brick is a standard item; a 5 V 10 A enclosed one is not).
+
+| | 5 V design (above) | 12 V design |
+|---|---|---|
+| LED budget (same light) | ~27 W = 5.5 A | 27 W = **2.3 A** |
+| Motors + logic (still need 5 V) | ~15 W = 3 A | 12 V → **5 V buck module** (~90 % efficient), ~1.7 A from 12 V |
+| Total from the supply | ~8.5 A | **~3.7 A**, so a 12 V 5 A brick (60 W) |
+| Per tile-row feed at the cap | ~1.3 A | ~0.55 A (fuses ~1 A hold, main fuse 5 A) |
+
+What changes in the circuit:
+
+- **LEDs:** 12 V WS2815 (6-pin 5050: VDD, DI, DO, GND, plus a backup data pair BI/BO) instead of WS2812B. Per the datasheets each channel is about 10–12 mA, so a pixel can draw ~0.36–0.43 W (a bit more than a WS2812B's 0.3 W). That is why the firmware cap should be in watts, not a percentage.
+- **Motors, 74HCT245 and the Pico** run from a 12 V → 5 V **buck module** (an LM2596-type 3 A one is enough). Not the 7805: from 12 V it would turn 58 % of the power into heat.
+- Everything in §4 stays the same, but the logic rail and motor rail come from the buck, and the LED rows come straight from the 12 V bus.
+- **Unverified, check before ordering:** that bare WS2815 5050 chips are sold in small quantities at a sensible price, what voltage their data input needs (the 74HCT245 outputs 5 V, which should be fine), and how to wire BI/BO (tie BI to the data line, or follow the datasheet). Order ~20 as a test tile first.
+
+**Cost reality:** a new 12 V 5 A brick is about **AU$46** (e.g. Mean Well GST60A12 at Core Electronics, Australian-approved), plus ~AU$5 for the buck. A smaller 12 V 3 A plug-pack costs less and works if the LED cap is lowered to ~15 W. This is on top of the ~AU$93 total, which assumed a free supply.
+
 ---
 
 ## 4. Blocks
@@ -183,11 +203,11 @@ What to do depends on the supply the school gives you:
 
 | Supply | Plan |
 |---|---|
-| **5 V, ≥ 10 A** (best) | Circuit above. No 7805. |
+| **5 V, ≥ 10 A** | Circuit above. No 7805. Hard to find as a safe plug-in brick. |
 | **9–12 V, a few amps** | Add a 5 V buck module (e.g. LM2596-type for 3 A, or an 8 A one) for the LED/motor rails, and optionally the 7805 for the logic rail only (replacing F7 + D1). |
 | **5 V, 2–3 A** (phone-charger sized) | LED cap drops to ~1 A, i.e. dim; fine for a desk piece but not 600 LEDs bright. |
 
-**I need the school supply's actual voltage and current rating to finish this section.** It changes §3, not the pin map.
+The builder has decided the supply will be **bought**, since the school's is unknown and the constraint is heavy. The choice is between a 5 V brick (§3.1) and the 12 V option (§3.3). It changes §3 only, not the pin map.
 
 ---
 
