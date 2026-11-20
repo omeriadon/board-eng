@@ -11,7 +11,7 @@ A school engineering-design project: a **mechanical, kinetic 3D version of a dit
 | [`docs/`](docs) | [`context.md`](docs/context.md) (all decisions and history), [`app-plan.md`](docs/app-plan.md) (features, navigation, architecture), [`prospectful.md`](docs/prospectful.md) (ideas for later) |
 | [`hardware/`](hardware) | [`ingredients.md`](hardware/ingredients.md) (parts list), [`BUILD-NOTES.md`](hardware/BUILD-NOTES.md) (print/laser checklist), [`cad/`](hardware/cad) (parametric generator + STL/PDF outputs) |
 | [`firmware/`](firmware) | Pico W code, Embedded Swift (not started) |
-| [`server/`](server) | Swift + Vapor server (not started) |
+| [`server/`](server) | Swift + Vapor server (cloud, Docker Compose on Dokploy, mirrored to `BoardServerDeploy`) |
 | [`apps/`](apps) | SwiftUI iOS + macOS clients, maybe watchOS (not started) |
 | [`shared/`](shared) | `BoardKit` Swift package shared by everything (not started) |
 

@@ -1,6 +1,6 @@
 # Dither Board — Full Project Context
 
-_Last updated: 2026-11-20 (rev 9)_
+_Last updated: 2026-11-20 (rev 10)_
 
 **Repo:** https://github.com/omeriadon/board-eng (public), a **monorepo**: `docs/` (this file, `app-plan.md`, `prospectful.md`), `hardware/` (`ingredients.md`, `BUILD-NOTES.md`, `cad/`), `firmware/` (Pico W, Embedded Swift), `server/` (Swift Vapor), `apps/` (SwiftUI iOS + macOS, maybe watchOS), `shared/` (`BoardKit`). The local folder is `~/Documents/Xcode_App_Library/Board`.
 **CAD:** `hardware/cad/tile.py`, a parametric Python generator (manifold3d + trimesh) → `cad/out/` STLs, laser PDFs (1:1 mm) and `blueprint_tile.svg`. **Repo rule (from the builder): no HTML or SVG in the repo, only PDF (plus STL and the `cad/*.py` config/generator scripts).** Intermediate files must not be committed (`.gitignore` blocks `*.svg` and `*.html`). The old concept diagram (`tile-design.html`) was removed; a board-layout PDF will replace it.
@@ -77,8 +77,9 @@ Supporting points:
 - **Apps:** iPhone + Mac SwiftUI apps for patterns, speed, density, colour, timers, "stop moving when inactive on Mac", Shortcuts-driven colour changes, and more.
 - **Mechanical sound** should be like a **mechanical keyboard** (soft, clicky), **not a typewriter** (too loud and bashy). Wanted: a **quiet mode**, through slower motion, eased acceleration, de-synced or staggered actuators, microstepping, and stopping short of hard end stops.
 - **Stand:** elegant, mounted at the centre of the back plate. A ball-and-socket joint is suggested; it should be **lockable** because the board may weigh 1–2 kg.
-- **Budget:** the brief says ≤ $80; the builder will spend up to ~$110.
+- **Budget:** the brief says ≤ $80; the builder will spend up to ~$110. **All in AUD** (confirmed rev 10), so ≈ US$52 / US$72. `components.md` prices are in USD.
 - **Free from school:** Raspberry Pi **Pico** (the builder wants **Pico only, no full Pi**, and will write **Swift** for it, i.e. Embedded Swift), a voltage regulator, "a bunch of" dual motor drivers ("work on the mini servos we have, two motors each"), 3D printing and laser cutting. **Paint is free** (dad's).
+- **Also free from school (confirmed rev 10):** Pico W, L298N drivers, acrylic, a power supply, wires, breadboards, resistors, capacitors, screws, buttons, round LEDs (not used: we use square) and other basic parts.
 
 ## 5. How the core mechanical design evolved
 
@@ -304,7 +305,7 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - The builder installed **Shapr3D**; it's the main CAD from now on. `hardware/cad/tile.py` stays as a parametric reference and for quick STL/PDF generation.
 
 ### Electronics
-- Perfboard for the final build. **No custom PCB** (builder said no). The builder wants help drawing the perfboard **schematics** later.
+- ~~Perfboard for the final build.~~ **Superseded (rev 10): the builder will most likely use a breadboard with cut-to-length wires (~1 cm thick in total).** OK for logic; the 5 V LED/motor current must not go through breadboard rails (see §16). **No custom PCB** (builder said no). The builder wants help drawing the perfboard **schematics** later.
 
 ### Presence sensor: hardware sensor dropped (for now)
 - The builder thinks a pointed ToF sensor would be unreliable. That's correct: ToF has a narrow cone and needs line of sight, and PIR misses people sitting still.
@@ -369,8 +370,35 @@ Example numbers for N=5, k=4, 40 mm pitch:
 - Neither N=4 nor N=5 fits the $80 brief. **Lean N=4 ≈ US$106** (≈ $96 if the school L298Ns count), roughly $112 with GST. Lean N=5 ≈ $136.
 - Corrections: real motor price ~$1.70–3.35 (the $1.10 was a new-buyer deal). The bare lead-screw motor (SINONING, ~$0.60–1.10, no nut) supports designing the screw drive yourself. Thrust is ~30 gf, not 80 g. Use 74HCT595, the DC-022D 10 A jack, an enclosed plug-in PSU, and JST-XH.
 - Premade 4×4 WS2812 module (~7.5 mm pitch, $0.96/tile) vs hand-wired bare 5050s at 9.1 mm: **undecided** (the builder previously preferred bare square LEDs; the CAD cell would change to match whichever).
-- **Open questions for the builder:**
-  - Is the budget in USD or AUD?
-  - Which parts are truly free (Pico W, how many L298Ns, acrylic, PSU)?
-  - N=4 or N=5?
-  - Which PSU, and does it need testing/tagging for school?
+- Open questions from this section were answered in §16.
+
+## 16. Decisions (2026-11-20, night)
+
+### Budget and free parts
+- Budget is **AUD**: brief ≤ AU$80, stretch ~AU$110 (≈ US$52 / US$72 at ~1.53 AUD per USD).
+- Free from school: Pico W, L298Ns, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons and basic parts.
+- Rough re-cost (from `components.md` §3, lean + free L298Ns, minus PSU, wire, caps, resistors/status LED, perfboard, headers, screws): **N=4 ≈ US$61 ≈ AU$93**, **N=5 ≈ US$85 ≈ AU$130**, before GST/shipping. Cuts still needed; the builder said "we'll see, don't overreact".
+- PSU **doesn't need testing/tagging** (builder).
+
+### Tile size
+- The builder **wants smaller tiles** (more tiles per side, e.g. N=5 or 6), knowing that's more motors. Each extra tile is roughly US$2.50–3 (motor + LED module + driver + connectors).
+- Note: with the premade 30 mm 4×4 module, the smallest tile pitch is ~33–34 mm (30 mm block + 1.2 mm rim each side + gap). So N=6 on a 200 mm board (33.3 mm pitch) is too tight for the module; smaller tiles than that would need k=3 or bare LEDs at a smaller pitch.
+
+### Circuit
+- Breadboard + cut wires instead of perfboard (see §14 note). Rules: signals (595s, drivers' inputs, LED data) on the breadboard; **5 V power for LEDs and motors on a separate bus** (terminal blocks/Wago or soldered bus wire), never through breadboard rails (~1 A each). Secure the jumpers (hot glue / tape) because the motors vibrate.
+
+### LED power to moving tiles (restated)
+- Each tile gets 5 V, GND, DIN (and DOUT back out) over thin, floppy 26–28 AWG silicone wire with a service loop for the travel, plugged in with JST-XH.
+- Rows get power injection from an 18–20 AWG bus behind the motor plate. Brightness capped in firmware (16 LEDs ≈ 1 A at full white per tile).
+- Wire drag now matters: thrust is only ~30 gf, so the service loop must not pull on the tile. The first test tile checks this.
+
+### Mechanical drive
+- Still **open** ("not yet").
+
+### Server deployment (done)
+- Mirrors Ergo exactly: workflow `.github/workflows/mirror-server.yml` copies `server/` to the **public** repo `omeriadon/BoardServerDeploy` on every push touching `server/**`, then calls Dokploy's `compose.deploy`.
+- Differences from Ergo: pushes with a **write deploy key** (secret `SERVER_MIRROR_KEY`) instead of a PAT; the compose ID is the repo variable `DOKPLOY_COMPOSE_ID` (deploy step skipped until set).
+- Secrets set in board-eng: `SERVER_MIRROR_KEY`, `DOKPLOY_API_KEY` (verified against dokploy.jdqc.dev).
+- Dokploy app: compose, repo `omeriadon/BoardServerDeploy`, branch `main`, compose path `server/compose.yaml`, env `BOARD_API_TOKEN`, domain → service `board-server` port 8080.
+- `BOARD_API_TOKEN` is a password the builder makes up (`openssl rand -hex 32`); the apps and firmware send it as `Authorization: Bearer …`.
+- The Docker image has **never been built** yet; the first Dokploy deploy is the first build.

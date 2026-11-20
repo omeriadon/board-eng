@@ -1,15 +1,16 @@
 # Dither Board — Ingredients List
 
-_Last updated: 2026-11-20 (rev 9)_
+_Last updated: 2026-11-20 (rev 10)_
 
 **CAD / blueprints:** `hardware/cad/tile.py` (parametric) generates `hardware/cad/out/`: tile head + stem STLs, clearance test coupon, laser PDFs (1:1 mm) (diffusers, front bezel, guide plates) and `blueprint_tile.svg`. Repo: github.com/omeriadon/board-eng
 
-**Budget:** brief says ≤ **$80** total component + material cost. The builder will go up to ~**$110**.
-**Rough total at N=5, k=4 (25 tiles, 400 LEDs):** ~$95–110, with the Pico W and drivers free. **At N=4:** ~$80–90. Shipping is the main risk.
+**Budget (AUD):** brief says ≤ **AU$80** total component + material cost. The builder will go up to ~**AU$110** (≈ US$52 / US$72).
+**Free from school:** Pico W, L298N drivers, acrylic, PSU, wires, breadboards, resistors, capacitors, screws, buttons, basic parts.
+**Rough total with those free (US$, before GST/shipping):** N=4 ≈ US$61 ≈ AU$93; N=5 ≈ US$85 ≈ AU$130. Still over; cuts TBD. The builder prefers **smaller tiles** (larger N).
 
-**Mechanical drive requirement:** met by the **screw drive** (lead screw + slider nut in each micro stepper), which the brief lists by name.
+**Mechanical drive requirement:** still open. The screw inside a bought motor doesn't count; candidates are a self-designed tile screw drive (bare lead-screw motor + printed nut carrier) or an automated sleep-tilt worm drive.
 
-**Rough tile design:** see `tile-design.html` (exploded tile, board section, front view).
+**Rough tile design:** see `hardware/cad/out/blueprint_tile.pdf`.
 
 This is the full parts list. Grid size is still a variable, so quantities are written in terms of these:
 
@@ -25,7 +26,9 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 - **Motor thrust:** the slider listing says ~30 gf, not 80 g. Keep tiles light and test early.
 - **74HCT595**, not 74HC595 (or power the 595s from 3.3 V). The Pico's 3.3 V signals aren't reliable for 5 V HC logic.
 - **Barrel jack:** DC-022D (10 A), not DC-022B (3 A). **PSU:** a fully enclosed plug-in 5 V 10 A brick (~$16), not an open-terminal metal-case unit.
-- **Connectors:** JST-XH (perfboard-friendly), not SH/ZH.
+- **Connectors:** JST-XH (breadboard/perfboard-friendly), not SH/ZH.
+- **Circuit board (rev 10):** breadboard + cut wires instead of perfboard (school supplies breadboards). Power for LEDs/motors on a separate bus, not the breadboard rails.
+- **PSU (rev 10):** school supplies one; no test-and-tag needed.
 - **Totals (USD, before GST/shipping):** N=4 lean ≈ $106 ($96 with free L298Ns); N=5 lean ≈ $136 ($122). **Neither fits $80**; N=4 is near the $110 stretch.
 
 ---
@@ -126,7 +129,9 @@ Prices are rough estimates for later optimisation. "Free" means the school or ho
 
 ## 5. Open questions affecting this list
 
-- Can the school give a **Pico W / Pico 2 W**? (Builder will ask.)
+- ~~Can the school give a Pico W?~~ Yes (rev 10).
+- **N** (builder wants smaller tiles) and how to cut the remaining AUD overrun.
+- LED route: premade 4×4 module (`components.md` §1.5) vs bare 5050s.
 - Final driver: keep the free L298N, or buy MX1508/DRV8833 (decide after the prototype).
 
 - Exact **model and quantity of the school's motor drivers** (decides whether 1.2 is free for all N² tiles).

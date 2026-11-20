@@ -69,3 +69,14 @@ To try it without a proxy, run `docker run -p 8080:8080 -e BOARD_API_TOKEN=dev b
 - Push notifications.
 - Weather / sunrise data for the Ambient mode.
 - Run the Docker build on a Linux host (not yet verified on Linux).
+
+## Deploying (Dokploy)
+
+Same setup as Ergo. `.github/workflows/mirror-server.yml` (repo root) copies this folder to the public repo
+[`omeriadon/BoardServerDeploy`](https://github.com/omeriadon/BoardServerDeploy) on every push to `main` that touches
+`server/**`, then asks Dokploy to redeploy.
+
+- Secrets in `board-eng`: `SERVER_MIRROR_KEY` (write deploy key on the mirror) and `DOKPLOY_API_KEY`.
+- Repo variable `DOKPLOY_COMPOSE_ID`: the Dokploy compose app's ID. Until it's set, the workflow only mirrors.
+- Dokploy compose app: repo `omeriadon/BoardServerDeploy`, branch `main`, compose path `server/compose.yaml`,
+  environment `BOARD_API_TOKEN=<openssl rand -hex 32>`, domain → service `board-server`, port `8080`.
