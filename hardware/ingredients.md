@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 20). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 21). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build:** 4 × 4 tiles, 6 × 6 LEDs per tile (576) + a 24-LED status bar = **600 LEDs**, 16 stepper motors, Pico W. Power is the builder's own three chargers (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A) plus two buck modules. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
@@ -8,27 +8,39 @@ Confidence tags: **[P]** page opened and read, **[C]** search-result card only, 
 
 ---
 
-## A. BUY LIST (what you must purchase)
+## A. BUY LIST (rev 21: servo actuators + premade 5 × 5 LED modules; supersedes the stepper / bare-LED list in rev 16-20)
+
+Electropeak page prices are shown in AUD; the page's own metadata holds the USD list price and the shop multiplies by 1.44. Shipping is "FOB Shenzhen" (no customs), DHL base cost "$35", free over "$100" (currency not labelled), tracked economy 12-15 days. All A1-A3 can come from one Electropeak order.
 
 | # | Item | Qty | Model / spec | Where | Price (AUD) | Conf. |
 |---|---|---|---|---|---|---|
-| A1 | **Stepper motor, 8 mm, 2-phase 4-wire, bare lead screw** | 18 (16 + 2 spare). **Order 3 first** as a pilot. | SINONING "Mini 8 mm precision stepper motor 2-phase 4-wire, long linear screw shaft" (2 mm screw, 28 mm, no nut) | sinoning.com (links in `components.md` §1.1) | 18 × 1.58 = **28.40** + postage ~8 | [P] price, [E] postage |
-| A2 | **M2 brass nuts** | 100 | Pitch unverified (probably M2 × 0.4); test one on a pilot motor | AliExpress | **2.20** | [E] |
-| A3 | **Motor driver module MX1508** (dual H-bridge, 2–10 V, 1.5 A per channel, MOSFET) | 18 (2 packs of 10) | One per motor; 4 inputs IN1–IN4 | AliExpress "MX1508 10 pcs" | **13.80** | [C] |
-| A4 | **WS2815-family RGB LED, 5050 SMD, 12 V, addressable** | 630 (600 + 5 % spare) | **Worldsemi WS2815F**, LCSC **C22371533** (SMD5050-6P, 12 V, 800 kbit/s; stock 12,130). Price tiers (USD): 100+ 0.056, **300+ 0.0489**, 1000+ 0.0435. **Fallback: WS2815B-V1, C5446699** (stock 406k; 150+ 0.0738, 1000+ 0.0658). **Check the F datasheet pinout vs the B before drawing the PCB** (pin order may differ; I could not open the F datasheet) | LCSC (full reel is 1000, but partial quantities are sold at the 300+ tier) | 630 × US$0.0489 = US$30.8 = **44.60** + shipping ~25 | [P] price tiers read from LCSC's product API on 2026-11-21, [E] shipping, [C] F pinout |
-| A5 | **100 nF capacitor, 0805** (one per LED) | 650 | **Builder may already have SMD 100 nF at school (0805 = 2.0 × 1.25 mm; 0603 also fine; ≥ 16 V, 25 V preferred); if so, drop this line (−AU$6.60).** Decoupling. YAGEO CC0805KRX7R9BB104, LCSC C49678 (US$0.007 at 600+, in the same order as the LEDs) | LCSC | 650 × US$0.007 = US$4.55 = **6.60** | [P] |
-| A6 | ~~Tile PCBs (JLCPCB)~~ | | **REMOVED rev 19 at the builder's request** (no custom PCBs; logic stays on the two provided breadboards). **Open consequence:** bare SMD LEDs (A4) and their capacitors (A5) have nothing to sit on. Decide the LED carrier: see §I (soft-sheet concept) | | **0** | |
-| A7 | **74HC595N, DIP-16** | 10 (8 + 2 spare), one pack | Powered from 3.3 V, so plain HC is fine | AliExpress 10-pack (AU$1–3) | **2.00** | [C] |
-| A8 | **74HCT245, DIP-20** (level shifter for the five LED data lines) | 5 (1 + spares) | Must be **HCT**, not HC or LS (needs 5 V logic with a 3.3 V input threshold) | AliExpress / eBay "SN74HCT245N" | **4.00** | [E] |
-| A9 | **Buck module XL4016-class, 8 A, adjustable** ("XH-M404" style) | 3 (2 + 1 spare) | Used at ≤ 5 A with your aluminium heatsink: **12.0 V** from 20 V, **5.0 V** from 16 V | AliExpress / eBay (one eBay sale AU$5.78 + postage) | **18.00** | [E] |
-| A10 | **JST-XH 4-pin connector sets** (housing + header) | ~50 pairs | Tile ↔ harness for the LED chain and the motor | AliExpress | **10.00** | [E] |
-| | **Subtotal, ex-GST** | | | | **≈ 163** | |
-| | **+10 % GST on imports (rough)** | | | | **≈ 16** | |
-| | **Total to buy** | | | | **≈ AU$179** (with bare LEDs A4/A5 but no carrier; §I replaces A4/A5) | |
+| A1 | **Micro servo, metal gear** | 18 (16 + 2) | TowerPro **MG90S** 9 g, 4.8-6 V, 1.8 kg·cm at 4.8 V / 2.2 at 6 V, 0.1 s per 60°, ~180°, 22.5 × 12 × 22.5 mm (body). Page says gears "metal and plastic (optional)": check on arrival. **Cheaper fallback: SG90** (A$1.0368 each, plastic, 1.2 kg·cm listed) | electropeak.com/towerpro-mg90s-9g-metal-gear-servo | 18 × 1.80 = **32.40** (SG90: 18.66) | [P] |
+| A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 (1 + spare) | Drives all 16 servos from 2 Pico pins (GP16 SDA, GP17 SCL) | electropeak.com/16-channel-12-bit-pwm-servo-driver | 2 × 4.032 = **8.06** | [P] |
+| A3 | **WS2812B 5 × 5 RGB LED square module** (25 LEDs, 5050, 4-7 V) | 18 (16 + 2) | ELC-02-099. Page says "3.9x3.9mm": almost certainly **39 mm**, since 25 5050 LEDs cannot fit in 3.9 mm. Pad layout and pitch are NOT on the page: ask the seller / check on arrival | electropeak.com/16-bit-square-ws2812-5050-rgb-led (URL says 16-bit; the product shown is the 25-bit one) | 18 × 1.80 = **32.40** | [P] price, [E] size |
+| A4 | **Status bar, 20-24 LEDs** | 1 | 3 × "8-Bit straight module" (ELC-02-097, price not on the page) or 14 cm of 144 LED/m strip | Electropeak / any | **~3** | [E] |
+| A5 | **74HCT245, DIP-20** (level shifter for the LED data lines) | 5 | Must be HCT | AliExpress / eBay | **4.00** | [E] |
+| A6 | **Buck module XL4016-class 8 A** | 3 (2 + 1 spare) | 5 V for LEDs (from the 20 V charger, cap ~5 A) and 5 V for servos + Pico (from the 16 V charger) | AliExpress / eBay | **18.00** | [E] |
+| A7 | **JST-XH 3-pin sets** (module power + data) and a few Dupont leads | ~40 | | AliExpress | **8.00** | [E] |
+| | Shipping (Electropeak, if under the free threshold) | | | | **~25** | [E] |
+| | **Subtotal, ex-GST** | | | | **≈ 131** | |
+| | **+10 % GST on imports (rough)** | | | | **≈ 13** | |
+| | **Total to buy** | | | | **≈ AU$144** (was ≈ 223 on rev 17) | |
 
-The LEDs (A4) are now about 22 % of it (rev 17: cheaper part, correct price tier; the earlier AU$88 used a stale 5-piece price). The 12 V part costs the same as the 5 V WS2812B at LCSC (150+ tier: WS2815B 0.0738, WS2812B 0.0741), so the voltage is not a cost lever. The only 5 V part that is meaningfully cheaper is the XINGLIGHT XL-5050RGBC-2812B (C2843785, 300+ 0.0411, 630 = ~AU$37.50), saving only ~AU$7 and forcing a 5 V LED supply (90 W of LEDs at 5 V is ~18 A), so **not recommended**. Each 100 LEDs fewer saves only ~AU$8, so cutting to 5 × 5 per tile would save ~AU$20 and is not worth it.
+Removed in rev 21: stepper motors, M2 nuts, MX1508 drivers, all eight 74HC595, tile PCBs, bare WS2815 LEDs and capacitors, the 12 V LED plan.
 
----
+**Consequences to resolve before printing:** the 39 mm module needs a tile inner width of ~39.6 mm (head ≈ 42, pitch ≈ 43, board ≈ 192 mm square, vs 38.8 / 40 / 180 now); pixel count becomes 20 × 20 + bar (apps' `pixelsPerSide` 24 → 20); mechanism changes from screw/nut to a servo scotch-yoke or crank (the stem, guide plates and soft pad stay). Servo supply: six moving at once ≈ 2 A at 5 V.
+
+### Brightness limit (all LEDs full white at the limit; estimates)
+
+WS2812B: ~60 mA per LED at full white; white ≈ 2.15 cd per LED (datasheet typical R 600 + G 1250 + B 300 mcd, recalled, not re-read). 400 + 20 = 420 LEDs → 25 A at 100 %. Pixel pitch 7.8 mm → 6.1e-5 m² → ~35,000 nits at 100 % before the diffuser; assume 25 % through the grid and a thin printed diffuser (untested, range 0.6-1.6x).
+
+| Current limit | Duty | Full-screen white |
+|---|---|---|
+| 3 A | 12 % | ≈ 1,000 nits |
+| **5 A** | **20 %** | **≈ 1,750 nits** |
+| 8 A | 32 % | ≈ 2,800 nits |
+
+For reference: a laptop 300-500 nits, a phone maximum 1,000-2,000 nits. Normal room use (100-300 nits) needs only ~1 A.
 
 ## B. PROVIDED FREE (confirmed by the builder, 2026-11-20)
 
@@ -159,3 +171,7 @@ The earlier SG90-per-pin rejection (`context.md` §6) was for 5 mm-pitch rods. A
 A positional servo turns only 180°, so a conventional fine screw is out. Two ways: a **high-lead printed screw** (4-start, ~30 mm lead: 180° = 15 mm, a true screw drive, efficiency ~70 %, not self-locking) or a **crank / scotch yoke** (simpler, dead-centre self-locks at both ends; whether it counts as the brief's mechanical drive must be checked). Servo supply: 5–6 V; six moving at once ≈ 2–3 A.
 
 **Power:** three chargers draw at most ~205 W / 230 V ≈ 0.9 A from the wall (the sum of output amps at different voltages is meaningless); nowhere near a 10 A circuit. With 5 V LEDs and servos only two chargers (20 V and 16 V, each through a buck) are needed.
+
+### J3. Rev 21 decisions (2026-11-21)
+
+Builder: servo route accepted ("if it's the same price and gives these benefits, absolutely"), worries are performance and cost only (wiring complexity is irrelevant, so wiring is not an argument), their SG90s were "more than strong enough" and finger push is only a just-in-case, so no slip clutch is needed. A scotch yoke / crank counts as the mechanical drive. Self-locking: a 30 mm-lead, 8 mm screw has a 50° lead angle against a ~11-17° friction angle, so it back-drives; only fine threads (the stepper's 0.4 mm lead = 4°) lock. A 27 g tile needs only ~0.02 kg·cm at the horn, far below a servo's gear friction, so a servo holds it unpowered; a crank also locks at both dead centres. Recommended mechanism: pin on the servo horn at 7.5 mm radius riding in a slot in the stem tail (stroke 15 mm, ~0.3 s).
