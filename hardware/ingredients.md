@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 18). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 19). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build:** 4 × 4 tiles, 6 × 6 LEDs per tile (576) + a 24-LED status bar = **600 LEDs**, 16 stepper motors, Pico W. Power is the builder's own three chargers (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A) plus two buck modules. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
@@ -17,14 +17,14 @@ Confidence tags: **[P]** page opened and read, **[C]** search-result card only, 
 | A3 | **Motor driver module MX1508** (dual H-bridge, 2–10 V, 1.5 A per channel, MOSFET) | 18 (2 packs of 10) | One per motor; 4 inputs IN1–IN4 | AliExpress "MX1508 10 pcs" | **13.80** | [C] |
 | A4 | **WS2815-family RGB LED, 5050 SMD, 12 V, addressable** | 630 (600 + 5 % spare) | **Worldsemi WS2815F**, LCSC **C22371533** (SMD5050-6P, 12 V, 800 kbit/s; stock 12,130). Price tiers (USD): 100+ 0.056, **300+ 0.0489**, 1000+ 0.0435. **Fallback: WS2815B-V1, C5446699** (stock 406k; 150+ 0.0738, 1000+ 0.0658). **Check the F datasheet pinout vs the B before drawing the PCB** (pin order may differ; I could not open the F datasheet) | LCSC (full reel is 1000, but partial quantities are sold at the 300+ tier) | 630 × US$0.0489 = US$30.8 = **44.60** + shipping ~25 | [P] price tiers read from LCSC's product API on 2026-11-21, [E] shipping, [C] F pinout |
 | A5 | **100 nF capacitor, 0805** (one per LED) | 650 | **Builder may already have SMD 100 nF at school (0805 = 2.0 × 1.25 mm; 0603 also fine; ≥ 16 V, 25 V preferred); if so, drop this line (−AU$6.60).** Decoupling. YAGEO CC0805KRX7R9BB104, LCSC C49678 (US$0.007 at 600+, in the same order as the LEDs) | LCSC | 650 × US$0.007 = US$4.55 = **6.60** | [P] |
-| A6 | **Tile PCBs**, 2 layers, **black** solder mask: 16 tile boards (36 LEDs each at 6.07 mm pitch, 4 pads: +12 V, GND, DIN, DOUT) + the 24-LED bar board | 5 panels of 2 × 2 tiles (20 tiles) + 5 bar boards (need 2) | **Not designed yet.** Two designs, each "from US$2 for 5 pcs" (≤ 100 × 100 mm) | JLCPCB | **~40.00** incl. shipping | [E] |
+| A6 | ~~Tile PCBs (JLCPCB)~~ | | **REMOVED rev 19 at the builder's request** (no custom PCBs; logic stays on the two provided breadboards). **Open consequence:** bare SMD LEDs (A4) and their capacitors (A5) have nothing to sit on. Decide the LED carrier: see §I (soft-sheet concept) | | **0** | |
 | A7 | **74HC595N, DIP-16** | 10 (8 + 2 spare), one pack | Powered from 3.3 V, so plain HC is fine | AliExpress 10-pack (AU$1–3) | **2.00** | [C] |
 | A8 | **74HCT245, DIP-20** (level shifter for the five LED data lines) | 5 (1 + spares) | Must be **HCT**, not HC or LS (needs 5 V logic with a 3.3 V input threshold) | AliExpress / eBay "SN74HCT245N" | **4.00** | [E] |
 | A9 | **Buck module XL4016-class, 8 A, adjustable** ("XH-M404" style) | 3 (2 + 1 spare) | Used at ≤ 5 A with your aluminium heatsink: **12.0 V** from 20 V, **5.0 V** from 16 V | AliExpress / eBay (one eBay sale AU$5.78 + postage) | **18.00** | [E] |
 | A10 | **JST-XH 4-pin connector sets** (housing + header) | ~50 pairs | Tile ↔ harness for the LED chain and the motor | AliExpress | **10.00** | [E] |
-| | **Subtotal, ex-GST** | | | | **≈ 203** | |
-| | **+10 % GST on imports (rough)** | | | | **≈ 20** | |
-| | **Total to buy** | | | | **≈ AU$223** | |
+| | **Subtotal, ex-GST** | | | | **≈ 163** | |
+| | **+10 % GST on imports (rough)** | | | | **≈ 16** | |
+| | **Total to buy** | | | | **≈ AU$179** (with bare LEDs A4/A5 but no carrier; §I replaces A4/A5) | |
 
 The LEDs (A4) are now about 22 % of it (rev 17: cheaper part, correct price tier; the earlier AU$88 used a stale 5-piece price). The 12 V part costs the same as the 5 V WS2812B at LCSC (150+ tier: WS2815B 0.0738, WS2812B 0.0741), so the voltage is not a cost lever. The only 5 V part that is meaningfully cheaper is the XINGLIGHT XL-5050RGBC-2812B (C2843785, 300+ 0.0411, 630 = ~AU$37.50), saving only ~AU$7 and forcing a 5 V LED supply (90 W of LEDs at 5 V is ~18 A), so **not recommended**. Each 100 LEDs fewer saves only ~AU$8, so cutting to 5 × 5 per tile would save ~AU$20 and is not worth it.
 
@@ -104,3 +104,20 @@ Mechanism per tile (motor 1.58 + postage share 0.45 + nut 0.14 + driver 0.77 + J
 | LCSC freight folded into the JLCPCB order | up to AU$25 [E] | Only works if JLCPCB assembly or parts-with-board shipping is used; not verified |
 
 Not a lever: switching the actuator (servo + crank is no cheaper), 5 V LEDs (clone saves ~AU$7 and breaks the power plan), smaller LED packages (dearer).
+
+## I. Concept B (rev 19, 2026-11-21, not decided): LEDs on a soft sheet, motors push sticks
+
+Builder's idea: put the LEDs on a soft, fabric-like sheet; each motor drives a stick that pushes the sheet up at that point. No tiles, heads, guide plates, stems or tile PCBs. Prices AUD ex-GST, [E] unless stated.
+
+| Part | Qty | Price | Note |
+|---|---|---|---|
+| Motors (A1), MX1508 (A3), nuts (A2), 595/245 (A7/A8), JST, bucks: unchanged | | ≈ 86 | The same AU$86 that remains of the current list once A4, A5 and A6 are removed |
+| Stretch fabric (lycra / spandex, thin, black or white) | ~0.5 m | 5–10 | Hardware shop / Spotlight |
+| LED option 1: **flexible 16 × 16 WS2812B matrix** (160 × 160 mm, 10 mm pitch, 256 LEDs, 5 V) | 1 | 25–40 | Listings seen: EUR 12.90 to 22.99; confirm the chip (some say SK6812). Fits the 4 × 4 pin grid exactly. 16 × 16 pixels, not 24 × 24 (the apps use 24: `BoardGeometry`) |
+| LED option 2: **WS2812B 144 LED/m strip** in 24 rows of 24 LEDs (≈ 3.5 m) | 3.5 m | 40–105 | AU retail A$29.82/m ex-GST (Core Electronics); AliExpress is far cheaper (≈ AU$12/m, [E]); rows run in sewn sleeves so they can slide as the sheet bulges |
+| Printed sticks + nut carriers + one guide board | 16 | ~0 | The 20 mm tolerance-critical stem is replaced by a ~3 mm square stick in a loose guide |
+| **Estimated total** | | **≈ AU$120–130 ex-GST (≈ AU$135–145 with GST)** | vs ≈ 223 for the current tile design |
+
+**Power consequence:** the LED plane becomes 5 V (WS2812B), so the 12 V WS2815 plan, buck 1 and the 12 V rails go; the LED supply must be 5 V (cap brightness in firmware; 256 LEDs is ~15 A at full white, 576 is ~35 A).
+
+**Mechanics (numbers [E]):** stick + nut ≈ 3 g instead of a 27 g tile, so thrust margin improves from ~3 gf to ~20 gf provided the sheet pushes back under ~25 gf (a lycra membrane at ≤ 8 N/m tension). Neighbouring pins 15 mm apart over 40 mm stretch the surface ~7 %: lycra can, a flat flexible PCB cannot (it wrinkles; keep neighbour height differences ≤ 5 mm), strips in sleeves can slide. Retraction needs the stick tip attached to the sheet (glued button) or a tensioned sheet. Unproven; prototype with 3 motors, 0.5 m lycra and 1 m of strip before choosing.
