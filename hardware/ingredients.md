@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 19). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 20). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build:** 4 × 4 tiles, 6 × 6 LEDs per tile (576) + a 24-LED status bar = **600 LEDs**, 16 stepper motors, Pico W. Power is the builder's own three chargers (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A) plus two buck modules. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
@@ -121,3 +121,41 @@ Builder's idea: put the LEDs on a soft, fabric-like sheet; each motor drives a s
 **Power consequence:** the LED plane becomes 5 V (WS2812B), so the 12 V WS2815 plan, buck 1 and the 12 V rails go; the LED supply must be 5 V (cap brightness in firmware; 256 LEDs is ~15 A at full white, 576 is ~35 A).
 
 **Mechanics (numbers [E]):** stick + nut ≈ 3 g instead of a 27 g tile, so thrust margin improves from ~3 gf to ~20 gf provided the sheet pushes back under ~25 gf (a lycra membrane at ≤ 8 N/m tension). Neighbouring pins 15 mm apart over 40 mm stretch the surface ~7 %: lycra can, a flat flexible PCB cannot (it wrinkles; keep neighbour height differences ≤ 5 mm), strips in sleeves can slide. Retraction needs the stick tip attached to the sheet (glued button) or a tensioned sheet. Unproven; prototype with 3 motors, 0.5 m lycra and 1 m of strip before choosing.
+
+## J. Rev 20 (2026-11-21): tile design confirmed; LED carrier and actuator options
+
+**Decided by the builder:** the tile design stays (the soft-sheet concept in §I is shelved: LED viewing angle changes on a tilting sheet, thin lycra limits the height range). **No custom PCBs** (rev 19).
+
+### J1. LED carrier: premade 4 × 4 WS2812B modules (recommended, not yet confirmed by the builder)
+
+The earlier research (`components.md` §2) found premade modules: 30 × 30 mm, 16 × SMD 5050 WS2812B, 7.5 mm pitch, 5 V. They were rejected early for board colour, edge margins and the 7.5 mm pitch, but the margins and colour hide behind the printed rim and diffuser, and with a 7.5 mm pitch a 1.0 mm wall leaves a 6.5 mm opening for a 5.0 mm LED (0.75 mm a side, so the K = 6 clash disappears). No premade 5 × 5 or 6 × 6 module was found.
+
+| | Bare 5050 on custom PCB (old A4 + A5 + A6) | Premade 4 × 4 modules |
+|---|---|---|
+| Pixels | 24 × 24 = 576 (+24 bar) | **16 × 16 = 256 (+16 bar)**; the apps' `pixelsPerSide` (24) must become 16 |
+| LED parts | 630 LEDs + 650 caps ≈ AU$51 + LCSC freight 25 | 18 modules ≈ **AU$29–55** (Core Electronics GlowBit 4×4 AU$1.59 ex-GST each, size unchecked; 30 × 30 mm module listings 1.5–4.95 EUR; earlier AliExpress estimate US$0.96 each) |
+| Custom PCB | AU$40 | none |
+| Soldering | 1,320 SMD joints | 3 wires per module (5 V, GND, DIN; DOUT to the next) |
+| Supply | 12 V WS2815 | **5 V** WS2812B: 272 LEDs is ~16 A at full white; cap brightness (~5 A) |
+| Status bar | 24 LEDs | 16 LEDs, e.g. 11 cm of 144 LED/m strip (AU$3–5) |
+| Tile pitch | 40 mm | 40 mm still fine (module 30 mm inside a 36.4 mm opening); could shrink to ~34 mm |
+
+Buying the modules instead of A4, A5 and A6 would put the total near **AU$125–150 ex-GST** (86 for the rest + 29–55 modules + ~4 bar), versus ≈ 223 for the old LED path. It changes the pixel count, so the builder must confirm K = 4.
+
+### J2. Actuator: servo + printed screw instead of the bare stepper (assessment, not decided)
+
+The earlier SG90-per-pin rejection (`context.md` §6) was for 5 mm-pitch rods. At 40 mm pitch a 23 × 12 mm micro servo fits.
+
+| Per tile | Bare stepper + MX1508 (now) | MG90S/SG90 servo + printed screw or crank |
+|---|---|---|
+| Parts | motor 1.58 + postage 0.45 + nut 0.14 + MX1508 0.77 + share of 595/JST ≈ **AU$3.3** | servo **≈ AU$2–4 [E, unverified]** (AU retail AU$13 each; pack prices not found) + PCA9685 share (AU$6–8 for all 16) ≈ **AU$2.5–4.5** |
+| Wiring | 4 wires per motor: 8 × 74HC595, 16 × MX1508, 64 jumpers | 3 wires per servo to one PCA9685 (I2C, 2 Pico pins): no 595s, no drivers, no jumpers |
+| Force | ~0.3 N (30 gf, borrowed) | ~2 kg·cm = 0.2 N·m: ≈ 29 N through a 30 mm-lead screw, ≈ 26 N through a 7.5 mm crank (100 × the stepper) |
+| Stroke time | 1.5 s at 500 pps | ≈ 0.3–0.5 s |
+| Hold | self-locking, 0 W | powered hold (servo hum, ~10–50 mA each) or friction / crank dead-centre at the ends |
+| Finger push | strips the 2 mm nut | back-drives the servo gears (plastic SG90 strips; metal MG90S survives better); needs a slip clutch or compliant link |
+| Travel | screw 28 mm, firmware-limited to 15 | set by crank radius or screw lead: any stroke |
+
+A positional servo turns only 180°, so a conventional fine screw is out. Two ways: a **high-lead printed screw** (4-start, ~30 mm lead: 180° = 15 mm, a true screw drive, efficiency ~70 %, not self-locking) or a **crank / scotch yoke** (simpler, dead-centre self-locks at both ends; whether it counts as the brief's mechanical drive must be checked). Servo supply: 5–6 V; six moving at once ≈ 2–3 A.
+
+**Power:** three chargers draw at most ~205 W / 230 V ≈ 0.9 A from the wall (the sum of output amps at different voltages is meaningless); nowhere near a 10 A circuit. With 5 V LEDs and servos only two chargers (20 V and 16 V, each through a buck) are needed.

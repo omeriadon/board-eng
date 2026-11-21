@@ -102,7 +102,7 @@ struct BomPart { let n: Int; let name: String; let qty: String; let spec: String
 let bom: [BomPart] = [
 	BomPart(n: 1, name: "Diffuser sheet", qty: "16", spec: "3D-printed translucent sheet, ~0.8 mm (thickness not tested), glued flush on the head face", status: "PROPOSED"),
 	BomPart(n: 2, name: "Tile head + light grid", qty: "16", spec: "Black PLA, 38.8 × 38.8 × 11.6; rim 1.2, grid walls 1.0 × 8 deep, 6 × 6 cells; printed face-down", status: "DECIDED"),
-	BomPart(n: 3, name: "Tile PCB, 36 LEDs", qty: "16", spec: "2-layer, black mask, 36.4 × 36.4 × 1.6; 36 × WS2815F + 36 × 100 nF 0805; 4 pads +12 V GND DIN DOUT (pinout unverified)", status: "NOT DESIGNED"),
+	BomPart(n: 3, name: "LED carrier (open)", qty: "16", spec: "Custom tile PCB REMOVED (rev 19). Proposed: premade 4 × 4 WS2812B module, 30 × 30 mm, 7.5 mm pitch, 5 V (K = 4); K = 6 cell clash then disappears. Not confirmed", status: "PROPOSED"),
 	BomPart(n: 4, name: "Stem (floor plate + tube)", qty: "16", spec: "Black PLA; 20 × 20 square tube, 1.6 wall, 40 long; floor plate 2 thick presses into the head; V-notches every 1.5 mm", status: "DECIDED"),
 	BomPart(n: 5, name: "Nut carrier", qty: "16", spec: "Printed plug at the tube tip, 4 thick; holds the M2 nut; M2 clearance hole for the screw", status: "NOT DESIGNED"),
 	BomPart(n: 6, name: "M2 brass nut", qty: "16", spec: "Pitch unverified (M2 × 0.4 assumed); test on a pilot motor", status: "DECIDED"),
@@ -570,7 +570,7 @@ func dpOpen(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	let items = [
 		"Nut carrier (5): a printed plug in the stem tip holding an M2 nut. How the nut is trapped and kept from turning is open.",
 		"Motor retention (10): an 8 mm bare cylinder in an 8.1 mm hole needs a clamp, glue or a printed cradle.",
-		"Tile PCB (3): 36 LEDs at 6.07 mm pitch, 4 pads. WS2815F pinout is unverified (its datasheet would not load).",
+		"LED carrier (3): custom tile PCB removed; a premade 4 × 4 module (7.5 mm pitch) is proposed, which also needs the pixel count changed from 24 to 16.",
 		"Detents: V-notches every 1.5 mm on the stem and a flexure in plate 9. Adds friction against a thrust margin that is already thin.",
 		"Diffuser (1): a printed translucent sheet, thickness and evenness untested; test print before the tile heads.",
 		"Homing and soft limits: no limit switch. Firmware re-homes against the end stop; stalls are silent.",
