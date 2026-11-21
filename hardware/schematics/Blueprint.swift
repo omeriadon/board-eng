@@ -6,7 +6,8 @@ import CoreGraphics
 import Foundation
 
 let BW: CGFloat = 3000, BH: CGFloat = 1600
-let cMag = rgb(0.78, 0.1, 0.5), cBrown = rgb(0.6, 0.4, 0.1), cPico = rgb(0.88, 0.96, 0.9)
+var cMag = rgb(0.78, 0.1, 0.5), cBrown = rgb(0.6, 0.4, 0.1), cPico = rgb(0.88, 0.96, 0.9)
+func applyBlueprintThemeExtras() { cMag = rgb(1, 0.58, 0.82); cBrown = rgb(0.92, 0.74, 0.46) }
 
 /// A net label: short stub from (x, y) and a white box with the net name. dir: 0 up, 1 right, 2 left, 3 down.
 func flag(_ x: CGFloat, _ y: CGFloat, _ label: String, _ c: CGColor, dir: Int) {
@@ -38,6 +39,7 @@ func openBlueprint(_ path: String) {
 	ctx.scaleBy(x: 1, y: -1)
 	ctx.setFillColor(cWhite)
 	ctx.fill(CGRect(x: 0, y: 0, width: BW, height: BH))
+	if themed { blueprintGrid(BW, BH) }
 }
 
 func closeBlueprint() {
@@ -270,7 +272,7 @@ func bpTiles() {
 			tag(x - 29, (pinY[0] + pinY[3]) / 2, "T\(t)", cBlack, fill: cYellow, r: 11, size: 7.5)
 			// Motor
 			let mc = CGPoint(x: x + 250, y: (pinY[0] + pinY[3]) / 2)
-			dot(mc.x, mc.y, 40, fill: rgb(1, 0.97, 0.9), stroke: cBlack, lw: 1.2)
+			dot(mc.x, mc.y, 40, fill: themedFill(rgb(1, 0.97, 0.9)), stroke: cBlack, lw: 1.2)
 			text("M\(t)", mc.x, mc.y - 4, size: 10, bold: true, align: 1)
 			text("stepper", mc.x, mc.y + 8, size: 7, color: cGray, align: 1)
 			for k in 0 ..< 4 {

@@ -6,9 +6,46 @@ import Foundation
 let PW: CGFloat = 842, PH: CGFloat = 595
 let cs = CGColorSpaceCreateDeviceRGB()
 func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ a: CGFloat = 1) -> CGColor { CGColor(colorSpace: cs, components: [r, g, b, a])! }
-let cBlack = rgb(0.08, 0.08, 0.1), cGray = rgb(0.45, 0.45, 0.5), cLight = rgb(0.9, 0.9, 0.92), cWhite = rgb(1, 1, 1)
-let cRed = rgb(0.85, 0.15, 0.12), cOrange = rgb(0.95, 0.55, 0.05), cBlue = rgb(0.1, 0.35, 0.85), cGreen = rgb(0.1, 0.6, 0.25)
-let cPurple = rgb(0.55, 0.2, 0.75), cYellow = rgb(0.98, 0.93, 0.6), cBoard = rgb(0.96, 0.95, 0.9), cTeal = rgb(0.05, 0.55, 0.6)
+// Palette. The A4 schematics use these as-is (ink on white). applyBlueprintTheme() swaps them for light ink on blue.
+var cBlack = rgb(0.08, 0.08, 0.1), cGray = rgb(0.45, 0.45, 0.5), cLight = rgb(0.9, 0.9, 0.92), cWhite = rgb(1, 1, 1)
+var cRed = rgb(0.85, 0.15, 0.12), cOrange = rgb(0.95, 0.55, 0.05), cBlue = rgb(0.1, 0.35, 0.85), cGreen = rgb(0.1, 0.6, 0.25)
+var cPurple = rgb(0.55, 0.2, 0.75), cYellow = rgb(0.98, 0.93, 0.6), cBoard = rgb(0.96, 0.95, 0.9), cTeal = rgb(0.05, 0.55, 0.6)
+var fontRegular = "Helvetica", fontBold = "Helvetica-Bold"
+var themed = false
+let blueprintBG = rgb(0.043, 0.235, 0.545)
+
+/// Blueprint look: blue paper, white ink, SF Pro. Call after the white A4 pages are drawn.
+func applyBlueprintTheme() {
+	themed = true
+	fontRegular = "SFProText-Regular"; fontBold = "SFProText-Semibold"
+	cWhite = blueprintBG; cBlack = rgb(0.97, 0.98, 1); cGray = rgb(0.72, 0.84, 0.97); cLight = rgb(0.10, 0.31, 0.66)
+	cRed = rgb(1, 0.56, 0.5); cOrange = rgb(1, 0.77, 0.36); cBlue = rgb(0.55, 0.82, 1); cGreen = rgb(0.5, 0.95, 0.62)
+	cPurple = rgb(0.83, 0.66, 1); cYellow = rgb(1, 0.93, 0.55); cBoard = rgb(0.09, 0.28, 0.62); cTeal = rgb(0.45, 0.95, 0.95)
+}
+
+/// On the blue theme a pastel fill becomes a faint tint of its hue mixed into the paper colour (opaque, so it still hides lines under it).
+func themedFill(_ c: CGColor) -> CGColor {
+	guard themed, let comp = c.components, comp.count >= 3 else { return c }
+	let (r, g, b) = (comp[0], comp[1], comp[2])
+	if r > 0.999 && g > 0.999 && b > 0.999 { return blueprintBG }
+	let mx = max(r, g, b), mn = min(r, g, b)
+	var h: [CGFloat] = [1, 1, 1]
+	if mx - mn > 0.03 { h = [(r - mn) / (mx - mn), (g - mn) / (mx - mn), (b - mn) / (mx - mn)] }
+	let bg = blueprintBG.components!
+	let k: CGFloat = mx - mn > 0.03 ? 0.2 : 0.1
+	return rgb(bg[0] * (1 - k) + h[0] * k, bg[1] * (1 - k) + h[1] * k, bg[2] * (1 - k) + h[2] * k)
+}
+
+/// Faint blueprint grid: 20 pt minor, 100 pt major.
+func blueprintGrid(_ w: CGFloat, _ h: CGFloat) {
+	ctx.saveGState()
+	ctx.setLineWidth(0.4)
+	var x: CGFloat = 0
+	while x <= w { ctx.setStrokeColor(rgb(1, 1, 1, Int(x) % 100 == 0 ? 0.14 : 0.06)); ctx.move(to: CGPoint(x: x, y: 0)); ctx.addLine(to: CGPoint(x: x, y: h)); ctx.strokePath(); x += 20 }
+	var y: CGFloat = 0
+	while y <= h { ctx.setStrokeColor(rgb(1, 1, 1, Int(y) % 100 == 0 ? 0.14 : 0.06)); ctx.move(to: CGPoint(x: 0, y: y)); ctx.addLine(to: CGPoint(x: w, y: y)); ctx.strokePath(); y += 20 }
+	ctx.restoreGState()
+}
 
 var ctx: CGContext!
 var pageNumber = 0
@@ -84,14 +121,14 @@ func endPage() {
 }
 
 func measure(_ s: String, size: CGFloat, bold: Bool) -> CGFloat {
-	let font = CTFontCreateWithName((bold ? "Helvetica-Bold" : "Helvetica") as CFString, size, nil)
+	let font = CTFontCreateWithName((bold ? fontBold : fontRegular) as CFString, size, nil)
 	let attr = NSAttributedString(string: s, attributes: [NSAttributedString.Key(kCTFontAttributeName as String): font])
 	return CTLineGetTypographicBounds(CTLineCreateWithAttributedString(attr), nil, nil, nil)
 }
 
 /// align: 0 left, 1 centre, 2 right. `rotated` draws bottom-to-top, anchored at (x, y) as the start (or end for align 2).
 func text(_ s: String, _ x: CGFloat, _ y: CGFloat, size: CGFloat = 8, bold: Bool = false, color: CGColor = cBlack, align: Int = 0, rotated: Bool = false) {
-	let font = CTFontCreateWithName((bold ? "Helvetica-Bold" : "Helvetica") as CFString, size, nil)
+	let font = CTFontCreateWithName((bold ? fontBold : fontRegular) as CFString, size, nil)
 	let attr = NSAttributedString(string: s, attributes: [
 		NSAttributedString.Key(kCTFontAttributeName as String): font,
 		NSAttributedString.Key(kCTForegroundColorAttributeName as String): color,
@@ -144,11 +181,11 @@ func poly(_ pts: [(CGFloat, CGFloat)], _ w: CGFloat = 1, _ c: CGColor = cBlack, 
 	ctx.restoreGState()
 }
 
-func rect(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat, _ h: CGFloat, fill: CGColor? = nil, stroke: CGColor? = cBlack, lw: CGFloat = 1, r: CGFloat = 0, dash: [CGFloat] = []) {
+func rect(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat, _ h: CGFloat, fill: CGColor? = nil, stroke: CGColor? = cBlack, lw: CGFloat = 1, r: CGFloat = 0, dash: [CGFloat] = [], bright: Bool = false) {
 	let rr = CGRect(x: x, y: y, width: w, height: h)
 	let path = CGPath(roundedRect: rr, cornerWidth: r, cornerHeight: r, transform: nil)
 	ctx.saveGState()
-	if let f = fill { ctx.setFillColor(f); ctx.addPath(path); ctx.fillPath() }
+	if let f = fill { ctx.setFillColor(bright ? f : themedFill(f)); ctx.addPath(path); ctx.fillPath() }
 	if let s = stroke { ctx.setStrokeColor(s); ctx.setLineWidth(lw); ctx.setLineDash(phase: 0, lengths: dash); ctx.addPath(path); ctx.strokePath() }
 	ctx.restoreGState()
 }

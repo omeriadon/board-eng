@@ -1,5 +1,5 @@
 // Generates dither-board-schematics.pdf (A4 landscape pages) and, with a second argument, dither-board-poster.pdf (all pages on one big sheet).
-// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift Blueprint.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf dither-board-poster.pdf dither-board-blueprint.pdf   (use - to skip the poster)
+// Usage: swiftc -O -parse-as-library Lib.swift Breadboard.swift Pages.swift Blueprint.swift Mech.swift make_schematics.swift -o /tmp/mkschem && /tmp/mkschem dither-board-schematics.pdf - dither-board-blueprint.pdf dither-board-design-blueprint.pdf   (use - to skip the poster or a blueprint)
 import CoreGraphics
 import Foundation
 
@@ -126,10 +126,6 @@ struct Main {
 		allPages()
 		ctx.closePDF()
 		print("wrote", out)
-		if CommandLine.arguments.count > 3 {
-			drawBlueprint(CommandLine.arguments[3])
-			print("wrote", CommandLine.arguments[3])
-		}
 		if CommandLine.arguments.count > 2, CommandLine.arguments[2] != "-" {
 			// One big sheet with everything: 4 columns x 3 rows, in page order 1...12.
 			let poster = CommandLine.arguments[2]
@@ -140,6 +136,17 @@ struct Main {
 			allPages()
 			closePoster()
 			print("wrote", poster)
+		}
+		// Blueprints use the blue theme (SF Pro, white ink), so they are drawn after the white pages.
+		if CommandLine.arguments.count > 3, CommandLine.arguments[3] != "-" {
+			applyBlueprintTheme(); applyBlueprintThemeExtras()
+			drawBlueprint(CommandLine.arguments[3])
+			print("wrote", CommandLine.arguments[3])
+		}
+		if CommandLine.arguments.count > 4 {
+			applyBlueprintTheme(); applyBlueprintThemeExtras()
+			drawDesignBlueprint(CommandLine.arguments[4])
+			print("wrote", CommandLine.arguments[4])
 		}
 	}
 }
