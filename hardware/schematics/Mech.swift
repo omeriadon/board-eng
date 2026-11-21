@@ -19,7 +19,7 @@ let dStem: CGFloat = 20, dStemWall: CGFloat = 1.6, dStemLen: CGFloat = 40, dHole
 let dStroke: CGFloat = 15, dPad: CGFloat = 1.0
 let zG1: CGFloat = 12.6, zG2: CGFloat = 30, dPlate: CGFloat = 3     // guide plates (front faces)
 let zTail: CGFloat = 51.6                                           // stem end cap back face, retracted
-let zServo0: CGFloat = 57.4, zServo1: CGFloat = 69.8, zShaft: CGFloat = 63.6   // servo case along z, shaft
+let zServo0: CGFloat = 57.7, zServo1: CGFloat = 69.5, zShaft: CGFloat = 63.6   // servo case along z, shaft
 let zFoot0: CGFloat = 72.6, zFoot1: CGFloat = 75.1                  // bracket foot
 let zBack: CGFloat = 75.1                                           // back plate front face
 let dR: CGFloat = 7.76                                              // crank radius
@@ -111,7 +111,7 @@ let bom: [BomPart] = [
 	BomPart(n: 5, name: "Yoke", qty: "25", spec: "Printed PLA: flange screwed to the end cap + 3 mm blade with an 8.75 × 2.3 slot (pin 2.0); printed on its side", status: "DECIDED"),
 	BomPart(n: 6, name: "Crank pin + horn", qty: "25", spec: "Servo horn trimmed to one 11 mm arm; M2 screw or 2 mm steel pin at R = 7.76 mm riding in the slot", status: "DECIDED"),
 	BomPart(n: 7, name: "Micro servo", qty: "25", spec: "SG90 (5 provided, 20 to buy; plastic gears; 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V per the spec sheet, 1.2 on another listing). Swing ±75°, ~0.25 s", status: "DECIDED"),
-	BomPart(n: 8, name: "Servo bracket", qty: "25", spec: "Printed: wall with a 23.3 × 12.9 cutout (ears rest on it) + foot, 2 × M3 to the back plate. Ear plane and hole spacing from memory [E]", status: "PROPOSED"),
+	BomPart(n: 8, name: "Servo bracket", qty: "25", spec: "Printed: wall with a 22.7 × 12.3 cutout (ears rest on it) + foot, 2 × M3 to the back plate. Ear plane and hole spacing are typical SG90 values [E]", status: "PROPOSED"),
 	BomPart(n: 9, name: "Front guide plate", qty: "1", spec: "3 mm clear acrylic, laser-cut, 235 × 250; 20.5 mm square holes, 43 pitch; head rests on it via the pad", status: "DECIDED"),
 	BomPart(n: 10, name: "Rear guide plate", qty: "1", spec: "3 mm clear acrylic; same holes, 17.4 mm behind plate 9 (centre to centre)", status: "DECIDED"),
 	BomPart(n: 11, name: "Back plate", qty: "1", spec: "3 mm clear acrylic; bracket foot holes, cable slots, ball-head mount at centre; Pico antenna at the top edge", status: "DECIDED"),
@@ -149,13 +149,13 @@ func drawDesignBlueprint(_ path: String) {
 
 	text("Dither Board: design blueprint", 40, 62, size: 44, bold: true)
 	text("Mechanism, structure, parts and system on one sheet. 5 × 5 tiles · 5 × 5 LEDs per tile (premade modules) = 25 × 25 pixels + 25-LED bar = 650 LEDs · 25 servo scotch yokes · Pico W · units mm unless stated · vector, zoom in", 40, 92, size: 15, color: cGray)
-	text("Solid line = decided.   Dashed light blue = proposed, not designed.   Amber = risk or open.   Numbered circles match the parts list (panel I).   Figures marked [E] are my estimates; servo outline numbers are from memory of the SG90 datasheet.", 40, 114, size: 13, color: cGray)
+	text("Solid line = decided.   Dashed light blue = proposed, not designed.   Amber = risk or open.   Numbered circles match the parts list (panel I).   Figures marked [E] are my estimates; the servo body 22.2 × 11.8 mm is from your SG90 spec.", 40, 114, size: 13, color: cGray)
 	// title block
 	rect(2150, 30, 610, 88, fill: nil, stroke: cBlack, lw: 1.4)
 	line(2150, 62, 2760, 62, 1, cBlack); line(2150, 90, 2760, 90, 1, cBlack); line(2420, 62, 2420, 118, 1, cBlack)
 	text("DITHER BOARD · DESIGN BLUEPRINT", 2165, 52, size: 16, bold: true)
-	text("Rev 25 · 2026-11-21", 2165, 82, size: 12); text("Sheet 1 / 1 · A0-style, vector", 2435, 82, size: 12)
-	text("Drawn from tile.py rev 25 (K = 5, N = 5)", 2165, 108, size: 12); text("Prototype: nothing tested on hardware", 2435, 108, size: 12, color: cOrange)
+	text("Rev 27 · 2026-11-21", 2165, 82, size: 12); text("Sheet 1 / 1 · A0-style, vector", 2435, 82, size: 12)
+	text("Drawn from tile.py rev 27 (K = 5, N = 5)", 2165, 108, size: 12); text("Prototype: nothing tested on hardware", 2435, 108, size: 12, color: cOrange)
 	line(40, 126, MW - 40, 126, 1.2, cGray)
 
 	dpFront(40, 140, 640, 620)
@@ -277,7 +277,7 @@ func dpSection(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 		rect(X(zFoot0 - 18), Y(c - 17.5), 18 * S, 36 * S, fill: nil, stroke: cGray, lw: 0.8, dash: [3, 2])   // bracket wall, beyond the cut
 		rect(X(zFoot0), Y(c - 17.5), 2.5 * S, 36 * S, fill: nil, stroke: cGray, lw: 0.8, dash: [3, 2])        // foot
 		cut(X(zServo0), Y(c - 15.74), (zServo1 - zServo0) * S, 32.5 * S, spacing: 3.2, fill: rgb(0.16, 0.38, 0.72))
-		rect(X(zServo0), Y(c - 10.89), (zServo1 - zServo0) * S, 22.8 * S, fill: nil, stroke: cBlack, lw: 0.7)
+		rect(X(zServo0), Y(c - 10.89), (zServo1 - zServo0) * S, 22.2 * S, fill: nil, stroke: cBlack, lw: 0.7)
 		dot(X(zShaft), Y(c - 4.89), 2.6, fill: cWhite, stroke: cBlack, lw: 0.8)
 		text("servo", X(zServo0 + 1.2), Y(c + 9), size: 9, color: cBlack)
 	}
@@ -290,7 +290,7 @@ func dpSection(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	dimH(X(zG2), X(zG2 + dPlate), dy, "3", size: 8)
 	dimH(X(zG1 + dPlate), X(zG2), dy - 16, "14.4 gap", size: 8)
 	dimH(X(dHeadH), X(zTail), dy - 32, "stem 40", size: 8)
-	dimH(X(zServo0), X(zServo1), dy - 16, "12.4", size: 8)
+	dimH(X(zServo0), X(zServo1), dy - 16, "11.8", size: 8)
 	dimH(X(zBack), X(zBack + dPlate), dy - 16, "3", size: 8)
 	dimH(X(0), X(zBack + dPlate), dy - 48, "front of head to back plate 78.1 (+0.8 diffuser) retracted · 94 with a tile out", size: 9)
 	dimH(X(-dStroke), X(0), Y(vBot) + 14, "stroke 15", c: cOrange)
@@ -348,7 +348,7 @@ func dpExploded(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	let parts: [E] = [
 		E(n: 11, w: 56, h: 56, d: 3, proposed: false, kind: 0),    // back plate patch (no hole)
 		E(n: 8, w: 22, h: 36, d: 20, proposed: true, kind: 12),    // bracket
-		E(n: 7, w: 12.4, h: 22.8, d: 22.8, proposed: false, kind: 13), // servo
+		E(n: 7, w: 11.8, h: 22.2, d: 22.7, proposed: false, kind: 13), // servo
 		E(n: 6, w: 3, h: 3, d: 9, proposed: false, kind: 14),      // pin
 		E(n: 5, w: 16, h: 17, d: 22.7, proposed: false, kind: 15), // yoke
 		E(n: 10, w: 56, h: 56, d: 3, proposed: false, kind: 1),    // rear guide
@@ -512,7 +512,7 @@ func dpChecks(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 		("Guide wobble, 0.15 mm", "±(29 × 0.3 / 17.4 + 0.15) ≈ ±0.65 mm; set by the clearance coupon", "OK if achieved", 0),
 		("Torque vs weight", "tile ≈ 30 g [E]: head 6 g, stem 10 g, yoke 2 g, module ≈ 8 g, diffuser, wire. 0.047 kg·cm needed against 1.2–1.8 listed", "OK, 25–38×", 0),
 		("Cell clearance", "6.8 mm opening − 5.0 mm LED = 0.9 mm a side", "OK", 0),
-		("Servo outline", "model case 22.8 × 12.4 (spec: 22.2 × 11.8 × 31, the 31 probably includes the horn hub); ear plane and hole spacing from memory. Yoke blade moves out with the horn: fits spline stacks of 4.5–8 mm", "MEASURE the servo", 1),
+		("Servo outline", "case 22.2 × 11.8 from your spec (22.2 × 11.8 × 31, the 31 includes the horn hub); ear plane and hole spacing are typical SG90 values. Yoke blade moves out with the horn: fits spline stacks of 4.5–8 mm", "from your spec", 1),
 		("Depth", "−0.8 front to 78.1 back = 78.9 mm retracted; ≈ 94 mm with a tile out (was 89.8 / 105)", "7.9 to 9.4 cm", 0),
 	]
 	let wC: CGFloat = 130, wR: CGFloat = 400, wV: CGFloat = 130
@@ -539,14 +539,14 @@ func dpOpen(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	panel(px, py, pw, ph, "G", "Open and unmeasured", "dashed in panels B and C, or flagged [E]")
 	var y = py + 70
 	let items = [
-		"Servo bracket (8): ear plane and hole spacing are from memory; print the cutout wall once and fit the real servo before printing 16.",
+		"Servo bracket (8): ear plane and hole spacing are typical SG90 values; print the cutout wall once and fit a real servo before printing 25.",
 		"LED module (3): pad layout, board thickness and the 39 mm size (listed '3.9') are not on the page; ask the seller or check on arrival. Chains of 25 need power and data wires per module.",
 		"Yoke slot wear: PLA slot, steel pin; a dab of grease. Check after 10,000 cycles.",
 		"Diffuser (1): a printed translucent sheet, thickness and evenness untested; brightness figures (≈ 2,250 nits full-screen at 10 A, ≈ 1,130 at 5 A) assume 25 % transmission.",
 		"Horn: trimmed to one arm; pin hole at R = 7.76 mm drilled or the pin pressed into a printed collar.",
 		"Homing: none needed, servo angles are absolute; calibrate two end angles per tile in the app.",
 		"Wire loom: module power + data and servo lead per tile with a service loop for 15 mm of travel; routing through the floor plate hole is not drawn.",
-		"New stand for a ≈ 2.1 kg, 235 × 250 board (24), back plate cut file, M3 rod spacers (13). Wiring PDFs not yet redrawn for 25 tiles.",
+		"New stand for a ≈ 2.1 kg, 235 × 250 board (24), back plate cut file, M3 rod spacers (13).",
 	]
 	for s in items { y = paragraph("• " + s, px + 18, y, width: pw - 36, size: 11) + 5 }
 }
@@ -554,7 +554,7 @@ func dpOpen(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 // MARK: H. System block diagram
 
 func dpSystem(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
-	panel(px, py, pw, ph, "H", "System block diagram", "details and pin numbers: dither-board-blueprint.pdf and dither-board-schematics.pdf (their wiring still shows the old stepper plan)")
+	panel(px, py, pw, ph, "H", "System block diagram", "details and pin numbers: dither-board-blueprint.pdf and dither-board-schematics.pdf (wiring redrawn for 25 servos, rev 26)")
 	func b(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat, _ h: CGFloat, _ t1: String, _ t2: String = "", fill: CGColor = cLight, num: Int? = nil, dashed: Bool = false) {
 		rect(px + x, py + y, w, h, fill: fill, stroke: dashed ? cGray : cBlack, lw: 1.1, r: 4, dash: dashed ? [4, 3] : [])
 		text(t1, px + x + w / 2, py + y + (t2.isEmpty ? h / 2 + 4 : 16), size: 10.5, bold: true, align: 1)

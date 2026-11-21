@@ -115,7 +115,7 @@ func buildNetlist() {
 	addWire(pico(21), sdaNode, kSignal, "GP16 → I2C0 SDA")
 	addWire(pico(22), sclNode, kSignal, "GP17 → I2C0 SCL")
 	addWire(pico(17), oeNode, kSignal, "GP13 → PCA9685 OE (active low)")
-	addPart("R", "4.7 kΩ", a: sdaNode, b: rail(1, "3V3", 42), tag: gapTagUpper(1, 42), "SDA pull-up (leave out if your PCA9685 boards already have one)")
+	addPart("R", "4.7 kΩ", a: sdaNode, b: rail(1, "3V3", 42), tag: gapTagUpper(1, 42), "SDA pull-up (leave out if the PCA9685 boards you buy already have one)")
 	addPart("R", "4.7 kΩ", a: sclNode, b: rail(1, "3V3", 44), tag: gapTagUpper(1, 44), "SCL pull-up (same)")
 	addPart("R", "1 kΩ", a: oeNode, b: rail(1, "3V3", 46), tag: gapTagUpper(1, 46), "OE pull-up: servos stay off until the firmware lets go. 1 kΩ beats any pull-down on the board")
 	addWire(upperStrip(1, 42, "SDA node, 2nd hole", row: rowB), ext("PCA9685 #0 and #1, SDA pin (both boards in parallel)"), kSignal, "Off-board, one short cable")

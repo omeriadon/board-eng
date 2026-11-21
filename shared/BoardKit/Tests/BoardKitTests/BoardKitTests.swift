@@ -30,6 +30,59 @@ import Foundation
 		#expect(frame.tileLevels.allSatisfy { $0 >= 0 && $0 <= 1 })
 	}
 
+	@Test func limiterLeavesLightLoadsAlone() {
+		#expect(PowerLimiter.limited([0.1, 0.2, 0], budget: 1) == [0.1, 0.2, 0])
+		#expect(PowerLimiter.scale(total: 3, budget: 3) == 1)
+	}
+
+	@Test func limiterScalesEveryLEDByTheSameFactor() {
+		let out = PowerLimiter.limited([0.4, 0.2, 0, 0.4], budget: 0.5)
+		#expect(abs(out.reduce(0, +) - 0.5) < 1e-6)
+		#expect(out[2] == 0)
+		#expect(abs(out[0] / out[1] - 2) < 1e-5)
+	}
+
+	@Test func limiterZeroBudgetIsBlack() {
+		#expect(PowerLimiter.limited([0.1, 0.2], budget: 0) == [0, 0])
+	}
+
+	@Test func darkPicturesKeepFullBrightness() {
+		// One lit LED on an otherwise black board: nothing may be dimmed.
+		var frame = BoardFrame(geometry: .standard)
+		frame.pixels[100] = Pixel(r: 255, g: 255, b: 255)
+		#expect(PowerLimiter.limit(&frame) == 1)
+		#expect(frame.pixels[100] == Pixel(r: 255, g: 255, b: 255))
+	}
+
+	@Test func allWhiteIsDimmedToTheBusLimit() {
+		let g = BoardGeometry.standard
+		var frame = BoardFrame(geometry: g)
+		for i in 0 ..< frame.pixels.count { frame.pixels[i] = Pixel(r: 255, g: 255, b: 255) }
+		for i in 0 ..< frame.bar.count { frame.bar[i] = Pixel(r: 255, g: 255, b: 255) }
+		let k = PowerLimiter.limit(&frame)
+		#expect(k > 0.1 && k < 0.3)
+		// Neither bus goes over 5 A.
+		var a: Float = Float(g.totalLEDCount / 2) * PowerLimiter.idleAmpsPerLED
+		var b = a
+		let side = g.pixelsPerSide
+		for i in 0 ..< frame.pixels.count {
+			let t = g.tile(forPixelColumn: i % side, row: i / side)
+			if g.ledBus(ofTile: t.row * g.tilesPerSide + t.column) == 0 { a += PowerLimiter.amps(frame.pixels[i]) }
+			else { b += PowerLimiter.amps(frame.pixels[i]) }
+		}
+		for p in frame.bar { b += PowerLimiter.amps(p) }
+		#expect(a <= 5 && b <= 5)
+		// Uniform scale: the colours stay neutral grey.
+		#expect(frame.pixels.allSatisfy { $0.r == $0.g && $0.g == $0.b })
+	}
+
+	@Test func theBusSplitIsEven() {
+		let g = BoardGeometry.standard
+		let first = (0 ..< g.tileCount).filter { g.ledBus(ofTile: $0) == 0 }.count
+		#expect(first == 13)
+		#expect(g.tileCount - first == 12)  // plus the 25-LED bar = 325 LEDs, the same as bus 0
+	}
+
 	@Test func zeroBrightnessIsBlack() {
 		let frame = DitherField().render(DitherSettings(), geometry: .standard, offset: (0, 0), brightness: 0)
 		#expect(frame.pixels.allSatisfy { $0 == .off })

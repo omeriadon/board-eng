@@ -1,6 +1,6 @@
 # Dither Board: Pico W pin map and circuit
 
-_Rev 26, 2026-11-21. Geometry: 5 × 5 moving tiles, each with a premade 5 × 5 WS2812B module (25 × 25 = 625 pixels) plus a fixed 25-LED status bar under the grid = **650 LEDs**, and 25 SG90 servos (scotch-yoke drive, 15 mm stroke) on two PCA9685 boards. Supply: the builder's 20 V and 16 V chargers through three 5 V bucks (the 12 V charger is a spare). See `ingredients.md` for parts and `docs/context.md` for decisions. The drawn versions are `schematics/dither-board-schematics.pdf` and `dither-board-blueprint.pdf`, both redrawn for this design at rev 26._
+_Rev 27, 2026-11-21. Geometry: 5 × 5 moving tiles, each with a premade 5 × 5 WS2812B module (25 × 25 = 625 pixels) plus a fixed 25-LED status bar under the grid = **650 LEDs**, and 25 SG90 servos (scotch-yoke drive, 15 mm stroke) on two PCA9685 boards. Supply: the builder's 20 V and 16 V chargers through three 5 V bucks (the 12 V charger is a spare). See `ingredients.md` for parts and `docs/context.md` for decisions. The drawn versions are `schematics/dither-board-schematics.pdf` and `dither-board-blueprint.pdf`, both redrawn for this design at rev 26._
 
 Pin numbers are **physical pin numbers** (1–40, USB at the top) and GPIO names. GP23, GP24, GP25 and GP29 talk to the Wi-Fi/Bluetooth chip and are not available (official Pico W datasheet).
 
@@ -170,6 +170,6 @@ Feed both from 3V3(OUT), never from 5 V (the ADC is 3.3 V only). The NTC sits in
 Each moving tile has 7 wires in two cables and travels 15 mm; the service loop must not pull on the tile. Test on the first tile.
 
 ### Not done yet
-- Module pad order and thickness (the Alibaba modules have not arrived); the real SG90 outline; the status-bar part; the new stand.
-- Whether the PCA9685 boards you receive carry SDA/SCL pull-ups, an OE pull-down, and which pin is V+; the buck module rating.
-- The firmware power limiter (per bus) and the diffuser brightness test.
+- Module pad order and thickness (the Alibaba modules have not arrived); the status-bar part (only seen on Electropeak); the new stand (idea: a V hinged at the middle of the back, legs open for the desk and fold flat for the wall).
+- Whether the PCA9685 boards you buy (none owned yet) carry SDA/SCL pull-ups, an OE pull-down, and which pin is V+; the buck module rating. The servos themselves need no resistors.
+- The firmware that calls the power limiter each frame (the limiter itself is `BoardKit.PowerLimiter`: one scale factor, 5 A per bus, the tighter bus decides) and the diffuser brightness test.

@@ -341,7 +341,7 @@ func bpNotes() {
 	text("WHAT IS VERIFIED AND WHAT IS NOT", 40, y, size: 12, bold: true); y += 16
 	for l in ["Verified by arithmetic only: the power budget and fuse values. Nothing has been tested on hardware.",
 	          "From the standard datasheets, not checked against your parts: the 74HCT245 pin numbers and the PCA9685 board pinout.",
-	          "Provisional: the LED module pad order and thickness (not received), the SG90 outline, the XL4016 buck module rating, whether the PCA9685 boards already have SDA/SCL pull-ups.",
+	          "Provisional: the LED module pad order and thickness (not received), the XL4016 buck module rating, whether the PCA9685 boards you buy already have SDA/SCL pull-ups.",
 	          "Not decided: the new stand. The firmware power limiter (per bus, 5 A each, about 1 A per module) is not built.",
 	          "Servos: 50 Hz, 1 to 2 ms = ±90°, only ±75° used (stroke 15 mm); at most 6 moving at once."] {
 		y = paragraph("• " + l, 48, y, width: 590, size: 8.5)

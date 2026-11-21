@@ -31,6 +31,12 @@ public struct BoardGeometry: Hashable, Sendable {
 
 	/// The planned LED current limit: two 5 A buck converters, one for each half of the LED area.
 	public static let ledLimitAmps: Double = 10
+	/// Each of those bucks on its own.
+	public static let ledBusLimitAmps: Float = 5
+
+	/// Which LED power bus feeds a tile: the first half of the tiles (in row-major order) hang on bus 0, the rest and
+	/// the status bar on bus 1. For the 5 × 5 board that is tiles 0-12 and tiles 13-24 + the bar, 325 LEDs each.
+	public func ledBus(ofTile tile: Int) -> Int { tile < (tileCount + 1) / 2 ? 0 : 1 }
 
 	/// The limits the layout steppers allow in the apps.
 	public static let tileRange = 2 ... 8

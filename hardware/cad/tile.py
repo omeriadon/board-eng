@@ -9,11 +9,11 @@ Change the PARAMETERS block, then run:
 
 Outputs go to cad/out/ (STL + PDF only). All units are millimetres.
 
-Status: rev 25 (2026-11-21). 5 x 5 tiles, one premade 5 x 5 WS2812B module (39 mm,
+Status: rev 27 (2026-11-21). 5 x 5 tiles, one premade 5 x 5 WS2812B module (39 mm,
 7.8 mm LED pitch) per tile, one micro servo per tile driving the stem through a
 scotch yoke (pin on the servo horn riding in a slot in a printed yoke on the
 stem tail). `assembly()` checks the whole stroke for collisions. Servo outline
-numbers are from memory of the SG90 / MG90S datasheets: measure the real servo.
+body 22.2 x 11.8 mm is from the builder-supplied SG90 spec (ears, boss and spline are typical SG90 values).
 """
 from pathlib import Path
 import math
@@ -57,7 +57,7 @@ TOTAL_ROT = 150.0     # degrees of servo swing used (+-75), of the ~180 availabl
 R_CRANK = (STROKE / 2) / math.sin(math.radians(TOTAL_ROT / 2))   # 7.76 mm
 PIN_D = 2.0           # steel pin / M2 screw shank
 SLOT_W = PIN_D + 0.3
-SERVO_L, SERVO_W, SERVO_H = 22.8, 12.4, 22.8   # body: along y, along z, along shaft (x)  [MG90S ~22.8x12.2x28.5]
+SERVO_L, SERVO_W, SERVO_H = 22.2, 11.8, 22.7   # body from the builder-supplied SG90 spec (22.2 x 11.8 x 31; the 31 includes the horn hub): along y, along z, along shaft (x)
 SERVO_SHAFT_FROM_END = 6.0
 EAR_SPAN, EAR_T, EAR_BELOW_TOP = 32.5, 2.5, 3.0 + 2.5          # ears: tip to tip; plane 5.5 below the top face [E]
 SERVO_XF = -5.0       # x of the servo's top face (horn side), relative to the stem axis
@@ -184,7 +184,7 @@ def servo_bracket() -> Manifold:
 
 
 def servo_body() -> Manifold:
-    """Dummy servo outline (SG90 / MG90S class): case, ears, boss and spline. Measure the real servo."""
+    """Servo outline (SG90): case 22.2 x 11.8 from the supplied spec, plus typical ears, boss and spline."""
     body = bx(SERVO_XF, SERVO_XF + SERVO_H, BODY_Y0, BODY_Y0 + SERVO_L, ZC - SERVO_W / 2, ZC + SERVO_W / 2)
     ear_y = (EAR_SPAN - SERVO_L) / 2
     ears = bx(SERVO_XF + EAR_BELOW_TOP - EAR_T, SERVO_XF + EAR_BELOW_TOP, BODY_Y0 - ear_y, BODY_Y0 + SERVO_L + ear_y,

@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 25). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 27). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build (rev 25, DECIDED by the builder):** **5 × 5 tiles**, 5 × 5 LEDs per tile (premade 5 × 5 modules) = **25 × 25 = 625 pixels** + a 25-LED status bar = **650 LEDs**, 25 SG90 servos with scotch-yoke drive, Pico W. Board 235 × 250 mm, depth 78.9 mm retracted. Power is the builder's own 20 V and 16 V chargers through 5 V bucks (12 V charger spare). A new stand is needed (board ≈ 2.1 kg [E]). Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/) (redrawn for this design at rev 26: one breadboard, 2 × PCA9685, two LED bucks).
 
@@ -15,9 +15,9 @@ Source: **Alibaba.com** for the modules (A$1.08 each, free shipping capped at A$
 | # | Item | Qty | Model / spec | Where | Price (AUD) | Conf. |
 |---|---|---|---|---|---|---|
 | A1 | **Micro servo SG90** | 25 (5 provided, **20 to buy**) | 9 g, 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V (spec the builder sent), 1-2 ms = ±90°. Electropeak lists SG90 at A$1.0368 each; Alibaba likely about the same [E]. Builder: surely not more than A$3 each | Alibaba / Electropeak | 20 × 1.0-1.5 = **20-30** (worst case 60) | [E] |
-| A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 | 25 servos need 2 boards (16 + 9); addresses 0x40 / 0x41; GP16 SDA, GP17 SCL. Electropeak price A$4.032 each | Alibaba / Electropeak | 2 × 4 = **8.06** | [P] |
+| A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 | **Not owned, to buy.** 25 servos need 2 boards (16 + 9; the Pico has too few free pins to drive 25 servos directly); addresses 0x40 / 0x41; GP16 SDA, GP17 SCL. Electropeak price A$4.032 each | Alibaba / Electropeak | 2 × 4 = **8.06** | [P] |
 | A3 | **WS2812B 5 × 5 RGB LED module** (25 LEDs, 5050, 4-7 V, 38.9 mm) | 26 (25 + 1 spare) | Alibaba "WS2812B 5*5 Digit 5050 RGB LED Full-color Driver 25 Bit Color Light Development Board", Shenzhen Jingmaoyuan, 5.0 (2 reviews), 60 sold. A$1.08 each at 2-99 pcs. Pads unconfirmed: ask the seller | Alibaba | 26 × 1.08 = **28.08** | [P] |
-| A4 | **Status bar sticks** (8 × WS2812B each, 54 × 10 mm) | 5 (4 + 1 spare) | 4 sticks = 32 LEDs, 216 mm, 25 used. Electropeak ELC-02-097 is A$0.3888 each; shipping makes that pointless, so find it on Alibaba | Alibaba | **≈ 2.5** | [E] |
+| A4 | **Status bar sticks** (8 × WS2812B each, 54 × 10 mm) | 5 (4 + 1 spare) | 4 sticks = 32 LEDs, 216 mm, 25 used. These single LED sticks were only ever found on **Electropeak** (ELC-02-097, A$0.3888 each), not on Alibaba; the builder is unsure where they were from. Shipping makes an Electropeak order pointless, so search Alibaba for an 8-LED WS2812B stick and screenshot it | Alibaba | **≈ 2.5** | [E] |
 | A5 | **74HCT245, DIP-20** (level shifter, 6 LED data lines) | 5 | Must be HCT | AliExpress / eBay | **4.00** | [E] |
 | A6 | **Buck module XL4016-class 8 A** | 4 (3 + 1 spare) | Two 20 V → 5 V for the LEDs (5 A each, one per half of the board, 10 A total), one 16 V → 5 V for servos + Pico. Builder: "just 8 dollars" each, so budget 6-8 | AliExpress / eBay | **24-32** | [E] |
 | A7 | **JST-XH 3/4-pin sets + Dupont leads** | ~75 | Module power + data and servo leads for 25 tiles | AliExpress | **12.00** | [E] |
@@ -227,3 +227,11 @@ Money is not the issue (roughly +A$14); print time, mass and the stand are.
 ### J7. Rev 25 (2026-11-21): 5 × 5 tiles decided
 
 The builder chose **5 × 5 tiles** (25 tiles, 625 pixels): board size is fine, 1,130 nits at 5 A is "still really bright", printing time is not a concern, a new stand is fine, one more buck converter is wanted (so two 5 A LED bucks = 10 A, ≈ 2,260 nits), and servo cost is fine "even if we only get 5 provided" (≤ A$3 each). `tile.py` N = 5 (sweep still 0.000 mm³; laser bezel / plates 235 × 250 with the bar slot), app default geometry 5 × 5 tiles with 10 A as the nits limit, design blueprint redrawn (front view, BOM quantities, system diagram with two LED bucks and two PCA9685). Wiring PDFs (`dither-board-blueprint.pdf`, `dither-board-schematics.pdf`) still show the old stepper plan. The stand is not designed.
+
+## K. Rev 27 notes (2026-11-21)
+
+- **SG90 outline:** the builder's supplied body 22.2 × 11.8 mm is now used in `tile.py` (it was 22.8 × 12.4 from memory) and in the design blueprint; the 9-position collision sweep is still 0.000 mm³. Ear plane, hole spacing and the horn are typical SG90 values, so print one bracket and test-fit a real servo before printing all 25.
+- **No resistors for the servos.** A servo plugs straight into a PCA9685 channel (signal, V+, GND). The 330 Ω / 10 kΩ / 4.7 kΩ / 1 kΩ in the passives line belong to the LED data lines, the I2C bus and the OE line.
+- **PCA9685 boards are not owned**: they are on the buy list (A2). The Pico cannot drive 25 servos itself (only 26 usable GPIO, six already used for LEDs, I2C, OE and sensors), hence two I2C boards. The 5 servos on hand can be wired straight to the Pico for a first bench test.
+- **Power limiter written** (`shared/BoardKit/Sources/BoardKit/PowerLimiter.swift`): input is every LED's absolute current draw (amps, 60 mA at full white); if a bus total is over its budget (5 A per buck, idle draw of 1 mA per LED taken off first) every LED is multiplied by the same factor, so contrast and colours are kept and black LEDs leave their share to the bright ones. The factor is the smaller of the two buses, so both halves dim equally (no step across the board). The firmware that calls it each frame is not written yet.
+- **Stand (idea, not designed):** a V-shaped support whose vertex hinges at the middle of the back; for the desk the two legs open and rest on the table, for the wall the legs fold flat against the back and the board hangs from them. Simple and sturdy: nothing complicated or flimsy. Details later.

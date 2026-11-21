@@ -137,7 +137,7 @@ func pageModels() {
 		["Buck 1, 2, 3", "XL4016-class adjustable step-down module (the 'XH-M404' style board); 4 to buy (3 + 1 spare)", "The XL4016 chip is rated 8 A switching, input 8 to 40 V on the chip datasheet listings; seller listings for the module quote 5 A continuous and an input range from 5 V. Check the revision on YOUR module. Treated here as 5 A continuous with a heatsink."],
 		["Microcontroller", "Raspberry Pi Pico W", "GP23, GP24, GP25 and GP29 belong to the radio. Pin map from the Pico W datasheet."],
 		["Level shifter", "74HCT245 (DIP-20)", "Six lines used (A1 to A6). Pin numbers from the standard datasheet pinout; check yours."],
-		["Servo drivers", "2 × PCA9685 16-channel PWM board (I2C)", "Addresses 0x40 and 0x41 (solder bridge A0 on the second). Check whether your boards already carry SDA/SCL pull-ups and an OE pull-down, and which pin is V+."],
+		["Servo drivers", "2 × PCA9685 16-channel PWM board (I2C)", "Addresses 0x40 and 0x41 (solder bridge A0 on the second). Boards to buy (none owned yet). Check whether the ones you get carry SDA/SCL pull-ups and an OE pull-down, and which pin is V+."],
 		["Servos", "25 × SG90 micro servo (5 provided, 20 to buy)", "1.2 to 1.8 kgf·cm listed, torque margin 25 to 38×. Real outline and horn not measured yet."],
 		["LED modules", "26 × premade WS2812B 5 × 5 module (25 LEDs, 5 V), Alibaba", "Pad order and thickness NOT confirmed. 25 used for tiles, 1 spare; the status bar is a separate 25-LED strip or module."],
 		["Diode", "1N5819 Schottky", "Charger-to-Pico VSYS."],
@@ -158,7 +158,7 @@ func pageModels() {
 	for l in checks { y = paragraph("• " + l, 36, y, width: 750, size: 8.5) }
 	y += 6
 	y = paragraph("Not decided yet", 28, y, width: 380, size: 10, bold: true) + 2
-	for l in ["The module pad layout and thickness (not received yet), the real SG90 outline, the status bar part, the new stand. The firmware power limiter (per bus, 5 A each, about 1 A per module) is not built."] {
+	for l in ["The module pad layout and thickness (not received yet), the status bar part (Alibaba price not found), the new stand (a folding V, see circuit.md). The power limiter is written (BoardKit PowerLimiter: one scale factor for every LED so each 5 A bus stays in budget) but the firmware that calls it is not."] {
 		y = paragraph("• " + l, 36, y, width: 750, size: 8.5)
 	}
 	endPage()
