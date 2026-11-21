@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 23). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 24). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build (rev 22):** 4 × 4 tiles, 5 × 5 LEDs per tile (premade Electropeak modules) = 20 × 20 = 400 + a 20-LED status bar = **420 LEDs**, 16 SG90 servos (provided) with scotch-yoke drive, Pico W. Power is the builder's own chargers (20 V and 16 V through 5 V bucks; the 12 V one is spare) plus bucks. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
@@ -201,3 +201,28 @@ Builder: servo route accepted ("if it's the same price and gives these benefits,
 **Blueprint:** `schematics/dither-board-design-blueprint.pdf` redrawn for rev 22/23 (servo yoke, 5 × 5 module, 43 mm pitch, new BOM, power plan). `dither-board-blueprint.pdf` (wiring) and `dither-board-schematics.pdf` still show the old stepper / 595 / MX1508 wiring.
 
 **App:** Device tab, section "Board Layout": steppers for tiles per side (2-8) and LEDs per tile side (2-8), presets, and live counts (pixels, motors, LEDs, full-white amps, full-screen nits at 5 A). Stored in UserDefaults; `BoardGeometry.standard` is now 4 × 4 × 5 (20 × 20).
+
+### J6. Rev 24 (2026-11-21): Alibaba module source, SG90 spec, 4 or 5 tiles per side
+
+**Cheaper module source (builder's screenshot, Alibaba.com, AUD):** "WS2812B 5*5 Digit 5050 RGB LED Full-color Driver 25 Bit Color Light Development Board", Shenzhen Jingmaoyuan Electronics, 5.0 (2 reviews), 60 sold. **A$1.08 each** for 2-99 pieces (A$1.22 before the 11 % sale, ends Dec 31), A$1.02 at 100+; 17 pieces = **A$18.36, free shipping** (capped at A$30), Alibaba Logistics guaranteed delivery **30 Nov - 22 Dec**. The product photo is dimensioned **38.9 × 38.9 mm** (confirms the 39 mm module) and shows four white holes or pads between LEDs (purpose not confirmed). Versus Electropeak: 16 modules A$28.80 + A$21.53 shipping = A$50.33 against Alibaba A$17.28-18.36 shipped, but slower (up to 31 days against 12-15). Everything on this page is AUD (item subtotal 17 × 1.08 = 18.36). The Electropeak status-bar sticks and PCA9685 are not worth A$21.53 of shipping on their own: source them on Alibaba too (not priced, [E] A$0.4-0.6 per stick, A$2-4 per PCA9685).
+
+**SG90 spec the builder supplied:** 22.2 × 11.8 × 31 mm (31 probably includes the horn hub), 9 g, stall torque **1.8 kgf·cm** at 4.8 V, 0.1 s / 60°, dead band 10 µs, pulse 1-2 ms = ±90° (5.6 µs per degree). Torque margin of the yoke is therefore 25-38× (1.2 on the Electropeak listing, 1.8 here). Resolution: 150° ≈ 830 µs ≈ 170 PCA9685 counts, ≈ 0.12 mm per count, dead band ≈ 0.2 mm, against 1.5 mm per height level. `tile.py` now derives the yoke blade position from the spline stack height and still clears (0.000 mm³ sweep, blade 1.5 mm inside the cell edge) for stacks of 4.5, 6 and 8 mm.
+
+**4 tiles per side or 5 (5 LEDs per tile either way):**
+
+| | 4 × 4 tiles | 5 × 5 tiles |
+|---|---|---|
+| Pixels | 20 × 20 = 400 (+20 bar) = 420 LEDs | 25 × 25 = 625 (+25 bar) = 650 LEDs |
+| Modules (Alibaba, +1 spare) | 17 × 1.08 = 18.36 | 26 × 1.08 = 28.08 |
+| Servos (SG90) | 16 | 25 (provided? unknown; A$1.04 each if bought) |
+| PCA9685 boards (16 channels each) | 1 | 2 |
+| Status-bar sticks (8 LEDs) | 3 (+1) | 4 (+1) |
+| Buy list, approx. | ≈ AU$53-60 [E] | ≈ AU$67-75 [E] (+9 for 9 servos if not provided) |
+| Board size | 192 mm wide, ≈ 206 tall | 235 wide, ≈ 249 tall |
+| Full-white current | 25 A | 39 A |
+| Full-screen nits at a 5 A limit | ≈ 1,750 | ≈ 1,130 |
+| Moving parts to print | 16 tiles | 25 tiles (≈ +40 h of printing [E]) |
+| Estimated mass | ≈ 1.4 kg [E] | ≈ 2.1 kg [E] (above the mini ball head's 1-1.5 kg) |
+| Centre pixel / tile | none | yes (symmetric patterns, ripples) |
+
+Money is not the issue (roughly +A$14); print time, mass and the stand are.

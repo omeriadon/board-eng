@@ -63,8 +63,10 @@ EAR_SPAN, EAR_T, EAR_BELOW_TOP = 32.5, 2.5, 3.0 + 2.5          # ears: tip to ti
 SERVO_XF = -5.0       # x of the servo's top face (horn side), relative to the stem axis
 SPLINE_H, HORN_T = 4.5, 2.0
 PIN_LEN = 4.0
-BLADE_X0, BLADE_T = -16.5, 3.0                 # yoke blade outer face and thickness (x)
+BLADE_T = 3.0                                  # yoke blade thickness (x)
+BLADE_GAP = 2.0                                # clear space between the horn arm and the blade
 WALL_T, FOOT_T = 2.5, 2.5                      # servo bracket thicknesses
+BLADE_X0 = SERVO_XF - SPLINE_H - HORN_T - BLADE_GAP - BLADE_T   # yoke blade outer face (-16.5 for a 4.5 mm spline stack)
 SERVO_W0 = 12.0       # shaft position along the stem axis, measured back from the stem end cap (w)
 
 MARGIN = 10.0         # black border around the grid

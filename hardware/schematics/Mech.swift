@@ -110,7 +110,7 @@ let bom: [BomPart] = [
 	BomPart(n: 4, name: "Stem (floor plate + tube + cap)", qty: "16", spec: "Black PLA; 20 × 20 tube, 1.6 wall, 40 long; floor plate 2 presses into the head; end cap with 2 × M2 pilots", status: "DECIDED"),
 	BomPart(n: 5, name: "Yoke", qty: "16", spec: "Printed PLA: flange screwed to the end cap + 3 mm blade with an 8.75 × 2.3 slot (pin 2.0); printed on its side", status: "DECIDED"),
 	BomPart(n: 6, name: "Crank pin + horn", qty: "16", spec: "Servo horn trimmed to one 11 mm arm; M2 screw or 2 mm steel pin at R = 7.76 mm riding in the slot", status: "DECIDED"),
-	BomPart(n: 7, name: "Micro servo", qty: "16", spec: "SG90 (provided; plastic gears, 1.2 kg·cm listed); MG90S metal-gear fallback A$1.80. Swing ±75°, ~0.25 s", status: "DECIDED"),
+	BomPart(n: 7, name: "Micro servo", qty: "16", spec: "SG90 (provided; plastic gears; 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V per the spec sheet, 1.2 on another listing); MG90S fallback A$1.80. Swing ±75°, ~0.25 s", status: "DECIDED"),
 	BomPart(n: 8, name: "Servo bracket", qty: "16", spec: "Printed: wall with a 23.3 × 12.9 cutout (ears rest on it) + foot, 2 × M3 to the back plate. Ear plane and hole spacing from memory [E]", status: "PROPOSED"),
 	BomPart(n: 9, name: "Front guide plate", qty: "1", spec: "3 mm clear acrylic, laser-cut; 20.5 mm square holes, 43 pitch; head rests on it via the pad", status: "DECIDED"),
 	BomPart(n: 10, name: "Rear guide plate", qty: "1", spec: "3 mm clear acrylic; same holes, 17.4 mm behind plate 9 (centre to centre)", status: "DECIDED"),
@@ -464,8 +464,8 @@ func dpDrive(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	let sx = px + 560, sy = py + 215
 	text("VIEW ALONG THE SERVO SHAFT", sx, py + 120, size: 10.5, bold: true, align: 1)
 	let stemAxisY = sy + 4.89 * S
-	line(sx - 120, stemAxisY, sx + 120, stemAxisY, 0.7, cBlue, dash: [10, 3, 2, 3])
-	text("stem axis", sx - 118, stemAxisY - 4, size: 9, color: cBlue)
+	line(sx - 100, stemAxisY, sx + 100, stemAxisY, 0.7, cBlue, dash: [10, 3, 2, 3])
+	text("stem axis", sx + 70, stemAxisY + 14 + 4.375 * S, size: 9, color: cBlue)
 	let circle = CGRect(x: sx - dR * S, y: sy - dR * S, width: 2 * dR * S, height: 2 * dR * S)
 	ctx.saveGState(); ctx.setStrokeColor(cGray); ctx.setLineWidth(0.8); ctx.setLineDash(phase: 0, lengths: [4, 3]); ctx.strokeEllipse(in: circle); ctx.restoreGState()
 	dot(sx, sy, 3, fill: cWhite, stroke: cBlack, lw: 1)
@@ -484,17 +484,17 @@ func dpDrive(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	text("R 7.76", sx + 8, sy - 8, size: 9)
 	text("stroke 15 = 2 R sin 75° · pin y ±2.88 of the slot's ±4.4", sx, ly0 + 18, size: 9, color: cGray, align: 1)
 	let lines = [
-		"PCA9685 gives the servo a 50 Hz pulse in 4.9 µs counts: 150° of swing ≈ 340 counts, so about 0.06 mm of tile travel per count at worst, against 10 height levels needed.",
+		"SG90 spec: 1–2 ms pulse = ±90° (5.6 µs per degree), dead band 10 µs. 150° of swing ≈ 830 µs ≈ 170 PCA9685 counts (4.9 µs each): ≈ 0.12 mm of tile travel per count at worst and ≈ 0.2 mm dead band, against 1.5 mm per height level.",
 		"Crank R = 7.76 mm, swing ±75° of the servo's ±90°: tile position = R sin θ, stroke 2 R sin 75° = 15.0 mm. Ends are slow and precise, the middle fast; 150° at 0.1 s per 60° ≈ 0.25 s unloaded.",
-		"Torque needed: tile ≈ 30 g [E] (0.3 N) + guide friction ≈ 0.3 N [E] = 0.6 N × 7.76 mm = 4.7 mN·m = 0.047 kg·cm, against 1.2 kg·cm listed for the SG90 at 4.8 V: about 25×. A servo's torque is the same at every angle, so using 150° of 180° costs nothing.",
-		"Force at the pin if the servo stalls: 1.2 kg·cm / 7.76 mm ≈ 15 N, 25× the load.",
+		"Torque needed: tile ≈ 30 g [E] (0.3 N) + guide friction ≈ 0.3 N [E] = 0.6 N × 7.76 mm = 4.7 mN·m = 0.047 kg·cm, against 1.2–1.8 kgf·cm listed for the SG90 at 4.8 V: about 25–38×. A servo's torque is the same at every angle, so using 150° of 180° costs nothing.",
+		"Force at the pin if the servo stalls: 1.2–1.8 kg·cm / 7.76 mm ≈ 15–23 N, 25–38× the load.",
 		"Holding unpowered: the yoke lever is R cos θ, 2.0 mm at the ends and 7.76 mm mid-travel, so the tile's weight loads the horn with at most 0.02 kg·cm. A servo gearbox resists back-driving far more, so it holds with the pulse off (stop the pulse to remove hold hum).",
 	]
 	var y = py + 124
 	for l in lines { y = paragraph(l, px + 18, y, width: 440, size: 10.5) + 4 }
 	y = py + ph - 52
 	text("MARGIN", px + 18, y, size: 12, bold: true, color: cGreen)
-	_ = paragraph("About 25× on torque even derated for a weak supply. Not measured: borrowed listing figures (SG90 1.2 kg·cm) and an estimated tile mass. The 3-tile pilot should weigh a finished tile and pull it with a scale.", px + 18, y + 14, width: pw - 36, size: 10)
+	_ = paragraph("About 25× on torque even at the lower listing figure and a weak supply. Not measured: listing figures (SG90 1.2–1.8 kg·cm) and an estimated tile mass. The 3-tile pilot should weigh a finished tile and pull it with a scale.", px + 18, y + 14, width: pw - 36, size: 10)
 }
 
 // MARK: F. Checks
@@ -508,9 +508,9 @@ func dpChecks(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 		("Servo vs stem tail", "retracted: servo case front z 57.4, end cap z 51.6, flange z 53.6, bracket wall z 54.6", "OK, 1.0 mm", 0),
 		("Guide wobble, 0.25 mm", "plate centres 17.4 mm apart; head front 29 mm out when extended: ±(29 × 0.5 / 17.4 + 0.25) ≈ ±1.1 mm", "MARGINAL vs 1.0 gap", 1),
 		("Guide wobble, 0.15 mm", "±(29 × 0.3 / 17.4 + 0.15) ≈ ±0.65 mm; set by the clearance coupon", "OK if achieved", 0),
-		("Torque vs weight", "tile ≈ 30 g [E]: head 6 g, stem 10 g, yoke 2 g, module ≈ 8 g, diffuser, wire. 0.047 kg·cm needed against 1.2 listed", "OK, ≈ 25×", 0),
+		("Torque vs weight", "tile ≈ 30 g [E]: head 6 g, stem 10 g, yoke 2 g, module ≈ 8 g, diffuser, wire. 0.047 kg·cm needed against 1.2–1.8 listed", "OK, 25–38×", 0),
 		("Cell clearance", "6.8 mm opening − 5.0 mm LED = 0.9 mm a side", "OK", 0),
-		("Servo outline", "case 22.8 × 12.4, ear plane 5.5 below the top face, hole spacing 27.8: all from memory of the SG90 datasheet", "MEASURE the servo", 1),
+		("Servo outline", "model case 22.8 × 12.4 (spec: 22.2 × 11.8 × 31, the 31 probably includes the horn hub); ear plane and hole spacing from memory. Yoke blade moves out with the horn: fits spline stacks of 4.5–8 mm", "MEASURE the servo", 1),
 		("Depth", "−0.8 front to 78.1 back = 78.9 mm retracted; ≈ 94 mm with a tile out (was 89.8 / 105)", "7.9 to 9.4 cm", 0),
 	]
 	let wC: CGFloat = 130, wR: CGFloat = 400, wV: CGFloat = 130
