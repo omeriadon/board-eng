@@ -1,6 +1,6 @@
 # Dither Board — Component Research and Costing
 
-> **Rev 16 note:** the current, consolidated list is [`ingredients.md`](ingredients.md). Where this research conflicts with it (LED module, 5 V PSU, barrel jack, fuse holder, N = 5, USD totals), `ingredients.md` wins: the design is now 600 WS2815 LEDs on custom tile PCBs, three chargers + two bucks, MX1508 drivers, prices in AUD. This file is kept for the research and source links.
+> **Rev 16 note:** the current, consolidated list is [`ingredients.md`](ingredients.md). Where this research conflicts with it (LED module, 5 V PSU, barrel jack, fuse holder, N = 5, USD totals), `ingredients.md` wins: the design is now 600 WS2815 LEDs on custom tile PCBs, three chargers + two bucks, MX1508 drivers, prices in AUD. This file is kept for the research and source links. **Rev 26:** the stepper, MX1508, 74HC595, WS2815 and per-tile-board material below is superseded by the servo / PCA9685 / 5 × 5 module design.
 
 _Researched 2026-11-20. Companion to `ingredients.md` (parts list) and `docs/context.md` (decisions)._
 _Scope: concrete models, real listings, honest prices, N = 4 vs N = 5 with k = 4._

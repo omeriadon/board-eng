@@ -2,7 +2,7 @@
 
 _Last updated: 2026-11-21 (rev 25). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
-**Build (rev 25, DECIDED by the builder):** **5 × 5 tiles**, 5 × 5 LEDs per tile (premade 5 × 5 modules) = **25 × 25 = 625 pixels** + a 25-LED status bar = **650 LEDs**, 25 SG90 servos with scotch-yoke drive, Pico W. Board 235 × 250 mm, depth 78.9 mm retracted. Power is the builder's own 20 V and 16 V chargers through 5 V bucks (12 V charger spare). A new stand is needed (board ≈ 2.1 kg [E]). Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/) (still the old stepper plan).
+**Build (rev 25, DECIDED by the builder):** **5 × 5 tiles**, 5 × 5 LEDs per tile (premade 5 × 5 modules) = **25 × 25 = 625 pixels** + a 25-LED status bar = **650 LEDs**, 25 SG90 servos with scotch-yoke drive, Pico W. Board 235 × 250 mm, depth 78.9 mm retracted. Power is the builder's own 20 V and 16 V chargers through 5 V bucks (12 V charger spare). A new stand is needed (board ≈ 2.1 kg [E]). Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/) (redrawn for this design at rev 26: one breadboard, 2 × PCA9685, two LED bucks).
 
 Confidence tags: **[P]** page opened and read, **[C]** search-result card only, **[E]** my estimate, nothing checked.
 
@@ -46,16 +46,16 @@ For reference: a laptop 300-500 nits, a phone maximum 1,000-2,000 nits. Normal r
 | Item | Detail from the blueprint |
 |---|---|
 | **Pico W** | Wi-Fi/BLE version |
-| **Basic passives** | 330 Ω × 5, 10 kΩ × 8, 4.7 kΩ × 1, 100 nF × ~15 (decoupling), 100 µF × 5, **1000 µF 25 V × 2**, **470 µF 16 V × 1**, 1N5819 Schottky × 1, LDR (GL5528-type) × 1, NTC 10 kΩ (β 3950) × 1, red LED × 1 |
-| **2 breadboards + jumper wires** | Two large (~60 column) boards |
+| **Basic passives** | 330 Ω × 6, 10 kΩ × 9, 4.7 kΩ × 3, 1 kΩ × 1, 100 nF × ~15 (decoupling), 100 µF × 5, **1000 µF 10 V+ × 2** (LED buses), **470 µF 16 V × 3** (servo bus + one at each PCA9685), 1N5819 Schottky × 1, LDR (GL5528-type) × 1, NTC 10 kΩ (β 3950) × 1, red LED × 1 |
+| **Breadboard + jumper wires** | One large (~60 column) board is enough since rev 26 (the 74HC595s are gone); the second is spare |
 | **Wire and connectors** | Hookup wire, 18–20 AWG power wire, terminal blocks / Wago, Dupont leads, 3–4 core silicone wire for the tile flex |
 | **Screws, nuts, threaded rod** | M2 and M3 screws, nuts, standoffs, 4 × M3 rod (~150 mm) |
-| **Switch, DC plugs, fuses** | One rocker switch (power board), three DC sockets matching the charger plugs, **10 resettable PTC fuses**: F1 4 A, F2 3 A, F3 3 A, F4 3 A, F5 3 A, F6 3 A, F7 1 A, F8 2 A, F9 5 A, F10 1 A |
+| **Switch, DC plugs, fuses** | One rocker switch (power board), two DC sockets matching the 20 V and 16 V charger plugs, **7 resettable PTC fuses** (rev 26): F1 F2 2 A (20 V side of the two LED bucks), F3 F4 5 A (LED buses), F5 2 A (16 V side), F6 5 A (servo rail), F7 1 A (logic) |
 | **Black + clear acrylic, laser cut** | 3 mm: front bezel (black), guide plates, motor plate, sides, back (clear) |
 | **Diffuser** | A thin **3D-printed sheet** (the school does not supply smoked acrylic) |
 | **PLA + 3D printer** | Prusa MK4S, black PLA: tile heads, grids, guides, stand parts |
 | **Soldering kit + multimeter** | Plus aluminium for the buck heatsinks |
-| **The three chargers** | 12 V 4 A, 20 V 3.33 A, 16 V 3.75 A |
+| **The chargers** | 20 V 3.33 A and 16 V 3.75 A are used; 12 V 4 A is a spare, not wired |
 | **Stand timber / paint** | From home |
 
 ---

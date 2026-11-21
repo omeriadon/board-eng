@@ -27,4 +27,4 @@ Slower speed and higher quality settings help surface finish and consistency. **
 
 - Glue the diffusers flush on the tile heads with an acrylic-safe glue that won't fog it. Test on scrap first: CA (superglue) can frost clear acrylic.
 - Dry-lube the stems with PTFE spray or graphite.
-- Check every tile slides freely in both guide plates before attaching the motors.
+- Check every tile slides freely in both guide plates before attaching the servos.
