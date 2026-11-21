@@ -46,6 +46,7 @@ STEM = 20.0           # square stem outer width
 STEM_WALL = 1.6
 STEM_LEN = 40.0
 STEM_CLEAR = 0.25     # stem <-> guide hole clearance per side
+END_CAP = 4.0         # stem end cap thickness (rev 27: was 2; the M2 yoke screws need 3 mm of thread)
 STROKE = 15.0         # tile travel
 LEVELS = 10           # detent levels (notch pitch = STROKE / LEVELS)
 NOTCH_D = 0.5         # detent notch depth
@@ -126,13 +127,13 @@ def tile_stem() -> Manifold:
     # wire pass-through from the LED module back into the stem
     plate -= box(10, 6, FLOOR_T + 2).translate([0, 0, -1])
     tube = box(STEM, STEM, STEM_LEN).translate([0, 0, FLOOR_T])
-    tube -= box(STEM - 2 * STEM_WALL, STEM - 2 * STEM_WALL, STEM_LEN - 2).translate([0, 0, FLOOR_T - 0.01])
+    tube -= box(STEM - 2 * STEM_WALL, STEM - 2 * STEM_WALL, STEM_LEN - END_CAP).translate([0, 0, FLOOR_T - 0.01])
     stem = plate + tube
-    # two M2 pilot holes in the end cap for the yoke (self-tapping, 6 mm screws)
+    # two M2 pilot holes in the end cap for the yoke (self-tapping M2 x 5): 3 mm deep from the back face of the cap
     for sy in (-5.5, 5.5):
         stem -= Manifold.cylinder(4, M2_PILOT / 2, circular_segments=24).translate([-6.0, sy, FLOOR_T + STEM_LEN - 3])
     # wire exit slot near the bottom on +X face
-    stem -= box(4, 8, 8).translate([STEM / 2, 0, FLOOR_T + STEM_LEN - 12])
+    stem -= box(4, 8, 8).translate([STEM / 2, 0, FLOOR_T + STEM_LEN - END_CAP - 8])
     return stem
 
 
@@ -143,6 +144,8 @@ Y_S = -R_CRANK * (1 + math.cos(math.radians(TOTAL_ROT / 2))) / 2          # serv
 SLOT_LEN = R_CRANK * (1 - math.cos(math.radians(TOTAL_ROT / 2))) + PIN_D + 1.0
 BODY_Y0 = Y_S - SERVO_SHAFT_FROM_END
 ZC = TAIL_Z + SERVO_W0                                                     # shaft z when the stem is retracted
+CABLE_X0, CABLE_X1, CABLE_Y1 = 3.5, 10.5, -11.5                        # cable notch in the bracket foot / slot in the back plate (x range, y end)
+FOOT_HOLES = [(14.5, -13.0), (14.5, 14.0)]                                # bracket foot M3 holes, tile frame (x right, y down)
 GUIDE_Z = [(HEAD_H + 1.0, PLATE_T), (HEAD_H + 18.4, PLATE_T)]              # front plate (behind the pad), rear plate
 
 
@@ -180,6 +183,8 @@ def servo_bracket() -> Manifold:
     foot = bx(xw0, 20.0, -17.5, 18.5, TAIL_Z + 21, TAIL_Z + 21 + FOOT_T)
     for hy in (-13.0, 14.0):
         foot -= Manifold.cylinder(FOOT_T + 2, M3_HOLE / 2, circular_segments=24).translate([14.5, hy, TAIL_Z + 20])
+    # rev 27: cable notch in the foot so the module cable and the servo lead can run back past it
+    foot -= bx(CABLE_X0, CABLE_X1, -17.5 - 1, CABLE_Y1, TAIL_Z + 20, TAIL_Z + 21 + FOOT_T + 1)
     return wall + foot
 
 
@@ -312,13 +317,38 @@ def circ(x, y, d):
     return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{d/2:.2f}"/>\n'
 
 
+OUTER_W = N * PITCH + 2 * MARGIN         # plate width, 235
+BAR_ZONE = 15.0                           # 5 mm gap + 10 mm status-bar window under the grid
+OUTER_H = OUTER_W + BAR_ZONE              # plate height, 250
+BEZEL_T = 3.0                             # bezel thickness; its front face is flush with the diffuser when retracted
+
+
+def rod_points():
+    """The 8 M3 bolt positions (plate frame: origin top-left seen from the FRONT, x right, y down): 4 corners and the
+    4 edge mid-points, all in the 10 mm border, 5 mm from the edges."""
+    xs = (MARGIN / 2, OUTER_W / 2, OUTER_W - MARGIN / 2)
+    ys = (MARGIN / 2, OUTER_H / 2, OUTER_H - MARGIN / 2)
+    return [(x, y) for y in ys for x in xs if not (x == OUTER_W / 2 and y == OUTER_H / 2)]
+
+
+def cell_centre(r, c):
+    return (MARGIN + c * PITCH + PITCH / 2, MARGIN + r * PITCH + PITCH / 2)
+
+
+def stack():
+    """z positions (mm, 0 = the head front face, +z into the board) of every plate when the tiles are retracted."""
+    bez = (-DIFFUSER_T, -DIFFUSER_T + BEZEL_T)
+    g1 = (GUIDE_Z[0][0], GUIDE_Z[0][0] + PLATE_T)
+    g2 = (GUIDE_Z[1][0], GUIDE_Z[1][0] + PLATE_T)
+    back0 = TAIL_Z + 21 + FOOT_T
+    back = (back0, back0 + PLATE_T)
+    return dict(bezel=bez, guide1=g1, guide2=g2, back=back,
+                spacers=(g1[0] - bez[1], g2[0] - g1[1], back[0] - g2[1]), total=back[1] - bez[0])
+
+
 def laser_parts():
-    outer = N * PITCH + 2 * MARGIN
-    bar_zone = 15.0                      # 5 mm gap + 10 mm status-bar window under the grid
-    tall = outer + bar_zone
-    corners = [(MARGIN / 2, MARGIN / 2), (outer - MARGIN / 2, MARGIN / 2),
-               (MARGIN / 2, tall - MARGIN / 2), (outer - MARGIN / 2, tall - MARGIN / 2)]
-    mount = "".join(circ(x, y, M3_HOLE) for x, y in corners)
+    outer, tall = OUTER_W, OUTER_H
+    mount = "".join(circ(x, y, M3_HOLE) for x, y in rod_points())
 
     # front bezel: opening = full grid (each tile already has GAP/2 each side) + a slot for the 4 x 8-LED sticks (216 mm)
     bar = rect((outer - 216) / 2, MARGIN + N * PITCH + 5, 216, 10)
@@ -332,6 +362,16 @@ def laser_parts():
         for r in range(N) for c in range(N))
     body = rect(0, 0, outer, tall) + holes + mount
     svg("laser_guide_plate_x2.pdf", outer, tall, body)
+
+    # back plate (rev 27, seen from the FRONT): 8 bolt holes, per tile 2 x M3 for the bracket foot + a cable slot
+    tiles = ""
+    for r in range(N):
+        for c in range(N):
+            cx, cy = cell_centre(r, c)
+            for hx, hy in FOOT_HOLES:
+                tiles += circ(cx + hx, cy + hy, M3_HOLE)
+            tiles += rect(cx + CABLE_X0, cy - 17.5, CABLE_X1 - CABLE_X0, 17.5 + CABLE_Y1)
+    svg("laser_back_plate.pdf", outer, tall, rect(0, 0, outer, tall) + mount + tiles)
 
 
 # --------------------------------------------------------- blueprint drawing

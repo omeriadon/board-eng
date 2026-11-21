@@ -116,7 +116,7 @@ let bom: [BomPart] = [
 	BomPart(n: 10, name: "Rear guide plate", qty: "1", spec: "3 mm clear acrylic; same holes, 17.4 mm behind plate 9 (centre to centre)", status: "DECIDED"),
 	BomPart(n: 11, name: "Back plate", qty: "1", spec: "3 mm clear acrylic; bracket foot holes, cable slots, ball-head mount at centre; Pico antenna at the top edge", status: "DECIDED"),
 	BomPart(n: 12, name: "Front bezel", qty: "1", spec: "3 mm black acrylic, 235 × 250, grid window + bar slot; LDR + sensor holes in the top border", status: "DECIDED"),
-	BomPart(n: 13, name: "M3 rods + spacers", qty: "4", spec: "~150 mm threaded rod through the corner holes; printed spacers set every gap", status: "DECIDED"),
+	BomPart(n: 13, name: "M3 bolts + spacers", qty: "8", spec: "M3 × 90 countersunk bolts through the bolt holes, with printed spacer tubes 10.4 / 14.4 / 42.1 mm, nut and washer", status: "DECIDED"),
 	BomPart(n: 14, name: "Soft end-stop pad", qty: "25", spec: "TPU / silicone O-ring, ~1 mm, under each head; the head bottoms out on plate 9", status: "PROPOSED"),
 	BomPart(n: 15, name: "PCA9685", qty: "2", spec: "16-channel 12-bit PWM ×2 (16 + 9 servos), I2C on GP16 SDA / GP17 SCL, addresses 0x40 and 0x41, 5 V servo power", status: "DECIDED"),
 	BomPart(n: 16, name: "74HCT245", qty: "1 (+4)", spec: "3.3 V → 5 V level shifter for six LED data lines (5 rows + bar), each through 330 Ω", status: "DECIDED"),
@@ -546,7 +546,7 @@ func dpOpen(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 		"Horn: trimmed to one arm; pin hole at R = 7.76 mm drilled or the pin pressed into a printed collar.",
 		"Homing: none needed, servo angles are absolute; calibrate two end angles per tile in the app.",
 		"Wire loom: module power + data and servo lead per tile with a service loop for 15 mm of travel; routing through the floor plate hole is not drawn.",
-		"New stand for a ≈ 2.1 kg, 235 × 250 board (24), back plate cut file, M3 rod spacers (13).",
+		"New stand for a ≈ 2.1 kg, 235 × 250 board (24), back plate cut file, M3 bolt spacers (13).",
 	]
 	for s in items { y = paragraph("• " + s, px + 18, y, width: pw - 36, size: 11) + 5 }
 }
