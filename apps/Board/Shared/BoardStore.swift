@@ -22,7 +22,15 @@ final class BoardStore {
 		didSet { if artwork != oldValue { link.send(.artwork(artwork ?? Artwork(id: 0, side: 0, pixels: []))) } }
 	}
 
-	let geometry = BoardGeometry.standard
+	/// The board's layout (tiles per side, LEDs per tile side). It's a local choice for now, so the preview and the
+	/// numbers can be explored before the hardware is fixed; the board's firmware has to be built to match.
+	var geometry: BoardGeometry {
+		didSet {
+			guard oldValue != geometry else { return }
+			UserDefaults.standard.set(geometry.tilesPerSide, forKey: Self.tilesKey)
+			UserDefaults.standard.set(geometry.ledsPerTileSide, forKey: Self.ledsKey)
+		}
+	}
 	let link = BoardLink()
 	let presets = PresetStore()
 	let connection = ConnectionSettings()
@@ -34,6 +42,8 @@ final class BoardStore {
 	@ObservationIgnored private var applyingRemote = false
 	@ObservationIgnored private var applyTask: Task<Void, Never>?
 
+	private static let tilesKey = "geometryTilesPerSide"
+	private static let ledsKey = "geometryLEDsPerTileSide"
 	private static let key = "boardState"
 	private static let originKey = "boardOrigin"
 
@@ -47,6 +57,10 @@ final class BoardStore {
 			if UserDefaults.standard.string(forKey: "debugMode") != nil, let mode = BoardMode(rawValue: UInt8(UserDefaults.standard.integer(forKey: "debugMode"))) { initial.mode = mode }
 		#endif
 		state = initial
+		let defaults = UserDefaults.standard
+		let savedTiles = defaults.integer(forKey: Self.tilesKey), savedLEDs = defaults.integer(forKey: Self.ledsKey)
+		geometry = savedTiles > 0 && savedLEDs > 0
+			? BoardGeometry(tilesPerSide: savedTiles, ledsPerTileSide: savedLEDs) : .standard
 
 		// Each install has its own id, so two devices never stamp a change identically.
 		var origin = UInt8(UserDefaults.standard.integer(forKey: Self.originKey))

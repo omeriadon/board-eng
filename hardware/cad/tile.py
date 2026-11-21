@@ -9,8 +9,11 @@ Change the PARAMETERS block, then run:
 
 Outputs go to cad/out/ (STL + PDF only). All units are millimetres.
 
-Status: ROUGH rev 1. The slider/motor interface is a placeholder until the
-real 8 mm micro slider stepper is measured.
+Status: rev 22 (2026-11-21). 4 x 4 tiles, one premade 5 x 5 WS2812B module (39 mm,
+7.8 mm LED pitch) per tile, one micro servo per tile driving the stem through a
+scotch yoke (pin on the servo horn riding in a slot in a printed yoke on the
+stem tail). `assembly()` checks the whole stroke for collisions. Servo outline
+numbers are from memory of the SG90 / MG90S datasheets: measure the real servo.
 """
 from pathlib import Path
 import math
@@ -22,16 +25,18 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 
 # ------------------------------------------------------------------ PARAMETERS
-N = 5                 # tiles per side
-K = 4                 # LEDs per tile side
-PITCH = 40.0          # tile centre-to-centre spacing
-GAP = 1.2             # gap between neighbouring tile heads (0.6 per side)
-HEAD = PITCH - GAP    # tile head outer width
+N = 4                 # tiles per side
+K = 5                 # LEDs per tile side (one 5 x 5 module)
+LED_PITCH = 7.8       # module LED pitch = grid cell pitch
+MODULE = K * LED_PITCH  # 39.0 mm module (Electropeak lists "3.9" = cm)
+PITCH = 43.0          # tile centre-to-centre spacing
+GAP = 1.0             # gap between neighbouring tile heads
+HEAD = PITCH - GAP    # tile head outer width (42.0)
 
 RIM_WALL = 1.2        # outer wall of the head
 GRID_WALL = 1.0       # light-grid wall thickness
 GRID_H = 8.0          # light-grid cell depth (taller = crisper squares)
-DIFFUSER_T = 2.0      # smoked acrylic thickness
+DIFFUSER_T = 0.8      # printed translucent diffuser sheet (was smoked acrylic)
 PCB_T = 1.6           # tile PCB thickness
 FLOOR_T = 2.0         # stem floor plate thickness
 FIT = 0.15            # press-fit clearance per side (diffuser / PCB / floor in rim)
@@ -44,7 +49,23 @@ STEM_CLEAR = 0.25     # stem <-> guide hole clearance per side
 STROKE = 15.0         # tile travel
 LEVELS = 10           # detent levels (notch pitch = STROKE / LEVELS)
 NOTCH_D = 0.5         # detent notch depth
-M2_HOLE = 2.2         # slider screw clearance hole
+M2_HOLE = 2.2         # M2 clearance hole
+M2_PILOT = 1.8        # M2 self-tapping pilot in PLA
+
+# ---- servo + scotch yoke (rev 22). Frame: x, y centred on the stem axis; z from the head front face.
+TOTAL_ROT = 150.0     # degrees of servo swing used (+-75), of the ~180 available
+R_CRANK = (STROKE / 2) / math.sin(math.radians(TOTAL_ROT / 2))   # 7.76 mm
+PIN_D = 2.0           # steel pin / M2 screw shank
+SLOT_W = PIN_D + 0.3
+SERVO_L, SERVO_W, SERVO_H = 22.8, 12.4, 22.8   # body: along y, along z, along shaft (x)  [MG90S ~22.8x12.2x28.5]
+SERVO_SHAFT_FROM_END = 6.0
+EAR_SPAN, EAR_T, EAR_BELOW_TOP = 32.5, 2.5, 3.0 + 2.5          # ears: tip to tip; plane 5.5 below the top face [E]
+SERVO_XF = -5.0       # x of the servo's top face (horn side), relative to the stem axis
+SPLINE_H, HORN_T = 4.5, 2.0
+PIN_LEN = 4.0
+BLADE_X0, BLADE_T = -16.5, 3.0                 # yoke blade outer face and thickness (x)
+WALL_T, FOOT_T = 2.5, 2.5                      # servo bracket thicknesses
+SERVO_W0 = 12.0       # shaft position along the stem axis, measured back from the stem end cap (w)
 
 MARGIN = 10.0         # black border around the grid
 PLATE_T = 3.0         # acrylic plate thickness (for reference only)
@@ -56,8 +77,10 @@ OUT.mkdir(exist_ok=True)
 
 RIM_INNER = HEAD - 2 * RIM_WALL
 HEAD_H = GRID_H + PCB_T + FLOOR_T          # printed part (diffuser is glued on the front)
-DIFFUSER = HEAD - 0.2                        # smoked acrylic square, glued flush on the front face
-CELL = RIM_INNER / K
+DIFFUSER = HEAD - 0.2                        # printed sheet, glued flush on the front face
+CELL = LED_PITCH
+GRID_OFF = (RIM_INNER - K * CELL) / 2        # module is centred in the rim (0.3 mm a side)
+TAIL_Z = HEAD_H + STEM_LEN                   # stem end cap back face when retracted (51.6)
 
 
 def box(x, y, z, cx=True):
@@ -88,7 +111,7 @@ def tile_head() -> Manifold:
     # light grid (K-1 walls each way) between the diffuser and the PCB
     z0 = 0.0
     for i in range(1, K):
-        off = -RIM_INNER / 2 + i * CELL
+        off = -K * CELL / 2 + i * CELL
         body += box(GRID_WALL, RIM_INNER, GRID_H).translate([off, 0, z0])
         body += box(RIM_INNER, GRID_WALL, GRID_H).translate([0, off, z0])
     return body
@@ -98,23 +121,151 @@ def tile_head() -> Manifold:
 def tile_stem() -> Manifold:
     """Printed UPRIGHT: z=0 is the floor plate that presses into the head."""
     plate = box(RIM_INNER - 2 * FIT, RIM_INNER - 2 * FIT, FLOOR_T)
-    # wire pass-through from PCB back into the stem
+    # wire pass-through from the LED module back into the stem
     plate -= box(10, 6, FLOOR_T + 2).translate([0, 0, -1])
     tube = box(STEM, STEM, STEM_LEN).translate([0, 0, FLOOR_T])
     tube -= box(STEM - 2 * STEM_WALL, STEM - 2 * STEM_WALL, STEM_LEN - 2).translate([0, 0, FLOOR_T - 0.01])
     stem = plate + tube
-    # bottom cap M2 hole for the slider nut
-    stem -= Manifold.cylinder(10, M2_HOLE / 2, circular_segments=32).translate([0, 0, FLOOR_T + STEM_LEN - 5])
+    # two M2 pilot holes in the end cap for the yoke (self-tapping, 6 mm screws)
+    for sy in (-5.5, 5.5):
+        stem -= Manifold.cylinder(4, M2_PILOT / 2, circular_segments=24).translate([-6.0, sy, FLOOR_T + STEM_LEN - 3])
     # wire exit slot near the bottom on +X face
     stem -= box(4, 8, 8).translate([STEM / 2, 0, FLOOR_T + STEM_LEN - 12])
-    # detent V-notches on -Y face, one per level
-    notch_pitch = STROKE / LEVELS
-    s = NOTCH_D * math.sqrt(2)
-    for i in range(LEVELS + 1):
-        z = FLOOR_T + 8 + i * notch_pitch
-        v = box(STEM - 4, s, s).translate([0, 0, -s / 2]).rotate([45, 0, 0]).translate([0, -STEM / 2, z])
-        stem -= v
     return stem
+
+
+
+# ------------------------------------------------- servo + scotch yoke (rev 22)
+SIN_MAX = math.sin(math.radians(TOTAL_ROT / 2))
+Y_S = -R_CRANK * (1 + math.cos(math.radians(TOTAL_ROT / 2))) / 2          # servo shaft y so the pin range is centred on the stem
+SLOT_LEN = R_CRANK * (1 - math.cos(math.radians(TOTAL_ROT / 2))) + PIN_D + 1.0
+BODY_Y0 = Y_S - SERVO_SHAFT_FROM_END
+ZC = TAIL_Z + SERVO_W0                                                     # shaft z when the stem is retracted
+GUIDE_Z = [(HEAD_H + 1.0, PLATE_T), (HEAD_H + 18.4, PLATE_T)]              # front plate (behind the pad), rear plate
+
+
+def bx(x0, x1, y0, y1, z0, z1):
+    return Manifold.cube([x1 - x0, y1 - y0, z1 - z0]).translate([x0, y0, z0])
+
+
+def cylx(x0, x1, y, z, d):
+    """Cylinder along x from x0 to x1."""
+    return Manifold.cylinder(x1 - x0, d / 2, circular_segments=40).rotate([0, 90, 0]).translate([x0, y, z])
+
+
+def tile_yoke() -> Manifold:
+    """Printed lying on its side. Flange screws to the stem end cap (2 x M2); the blade carries the slot the
+    servo's pin rides in. Frame here = world frame, retracted; flange back face of the cap at z = TAIL_Z."""
+    fl = bx(BLADE_X0, 1.0, -8, 8, TAIL_Z, TAIL_Z + 2)
+    blade = bx(BLADE_X0, BLADE_X0 + BLADE_T, -7.6, 7.6, TAIL_Z, TAIL_Z + SERVO_W0 + SIN_MAX * R_CRANK + SLOT_W / 2 + 2.0)
+    y = fl + blade
+    zs = TAIL_Z + SERVO_W0 + SIN_MAX * R_CRANK
+    y -= bx(BLADE_X0 - 1, BLADE_X0 + BLADE_T + 1, -SLOT_LEN / 2, SLOT_LEN / 2, zs - SLOT_W / 2, zs + SLOT_W / 2)
+    for sy in (-5.5, 5.5):
+        y -= Manifold.cylinder(6, M2_HOLE / 2, circular_segments=24).translate([-6.0, sy, TAIL_Z - 1])
+    return y
+
+
+def servo_bracket() -> Manifold:
+    """Holds the servo by its ears: a wall with a cutout (ears rest on its front face) and a foot that screws to the
+    back plate with 2 x M3. Print with the wall flat on the bed."""
+    xw0 = SERVO_XF + EAR_BELOW_TOP
+    wall = bx(xw0, xw0 + WALL_T, -17.5, 18.5, TAIL_Z + 3, TAIL_Z + 21)
+    yc = BODY_Y0 + SERVO_L / 2
+    wall -= bx(xw0 - 1, xw0 + WALL_T + 1, BODY_Y0 - 0.25, BODY_Y0 + SERVO_L + 0.25, ZC - SERVO_W / 2 - 0.25, ZC + SERVO_W / 2 + 0.25)
+    for dy in (-13.9, 13.9):
+        wall -= cylx(xw0 - 1, xw0 + WALL_T + 1, yc + dy, ZC, 1.6)
+    foot = bx(xw0, 20.0, -17.5, 18.5, TAIL_Z + 21, TAIL_Z + 21 + FOOT_T)
+    for hy in (-13.0, 14.0):
+        foot -= Manifold.cylinder(FOOT_T + 2, M3_HOLE / 2, circular_segments=24).translate([14.5, hy, TAIL_Z + 20])
+    return wall + foot
+
+
+def servo_body() -> Manifold:
+    """Dummy servo outline (SG90 / MG90S class): case, ears, boss and spline. Measure the real servo."""
+    body = bx(SERVO_XF, SERVO_XF + SERVO_H, BODY_Y0, BODY_Y0 + SERVO_L, ZC - SERVO_W / 2, ZC + SERVO_W / 2)
+    ear_y = (EAR_SPAN - SERVO_L) / 2
+    ears = bx(SERVO_XF + EAR_BELOW_TOP - EAR_T, SERVO_XF + EAR_BELOW_TOP, BODY_Y0 - ear_y, BODY_Y0 + SERVO_L + ear_y,
+              ZC - SERVO_W / 2, ZC + SERVO_W / 2)
+    boss = cylx(SERVO_XF - 1.5, SERVO_XF, Y_S, ZC, 11.5) + cylx(SERVO_XF - SPLINE_H, SERVO_XF - 1.5, Y_S, ZC, 4.8)
+    return body + ears + boss
+
+
+def horn_and_pin(theta_deg: float) -> Manifold:
+    """Single horn trimmed to 11 mm with an M2 / 2 mm steel pin at R_CRANK, at servo angle theta (0 = pin level with
+    the shaft, +theta = pin further back)."""
+    hx0, hx1 = SERVO_XF - SPLINE_H - HORN_T, SERVO_XF - SPLINE_H
+    hub = cylx(hx0, hx1, Y_S, ZC, 7.0)
+    arm = bx(hx0, hx1, 0, R_CRANK + 3.0, -2.5, 2.5).rotate([theta_deg, 0, 0]).translate([0, Y_S, ZC])
+    th = math.radians(theta_deg)
+    pin = cylx(hx0 - PIN_LEN, hx0, Y_S + R_CRANK * math.cos(th), ZC + R_CRANK * math.sin(th), PIN_D)
+    return hub + arm, pin
+
+
+def guide_plates() -> Manifold:
+    hole = STEM + 2 * STEM_CLEAR
+    out = None
+    for z0, t in GUIDE_Z:
+        p = bx(-PITCH / 2, PITCH / 2, -PITCH / 2, PITCH / 2, z0, z0 + t) - bx(-hole / 2, hole / 2, -hole / 2, hole / 2, z0 - 1, z0 + t + 1)
+        out = p if out is None else out + p
+    return out
+
+
+def back_plate() -> Manifold:
+    """3 mm acrylic back plate (one cell's worth), against the bracket foot."""
+    z0 = TAIL_Z + 21 + FOOT_T
+    return bx(-PITCH / 2, PITCH / 2, -PITCH / 2, PITCH / 2, z0, z0 + PLATE_T)
+
+
+def stem_world() -> Manifold:
+    """The stem in world frame (retracted): plate at the back of the head, tube behind it."""
+    return tile_stem().translate([0, 0, GRID_H + PCB_T])
+
+
+def diffuser_sheet() -> Manifold:
+    return box(DIFFUSER, DIFFUSER, DIFFUSER_T)
+
+
+def vol(m: Manifold) -> float:
+    return m.volume() if hasattr(m, "volume") else m.get_properties().volume
+
+
+def assembly():
+    """Sweeps the stroke and reports any overlap between the moving set (head + stem + yoke) and the fixed set
+    (servo, horn, pin, bracket, guide plates). Writes assembly STLs for viewing."""
+    head = tile_head()
+    stem = stem_world()
+    yoke = tile_yoke()
+    moving = head + stem + yoke
+    servo = servo_body()
+    bracket = servo_bracket()
+    guides = guide_plates() + back_plate()
+    print(f"  crank R {R_CRANK:.2f} mm, swing +-{TOTAL_ROT/2:.0f} deg of ~90, slot {SLOT_LEN:.2f} x {SLOT_W:.1f}, servo shaft y {Y_S:.2f}")
+    worst = 0.0
+    for k in range(9):
+        p = STROKE * k / 8
+        sin_t = (SIN_MAX * R_CRANK - p) / R_CRANK
+        theta = math.degrees(math.asin(sin_t))
+        horn, pin = horn_and_pin(theta)
+        fixed = servo + bracket + guides + horn
+        mv = moving.translate([0, 0, -p])
+        ov = vol(mv ^ fixed) + vol(pin ^ mv)
+        slot_margin = SLOT_LEN / 2 - (abs(Y_S + R_CRANK * math.cos(math.radians(theta))) + PIN_D / 2)
+        worst = max(worst, ov)
+        print(f"  p {p:5.2f} mm  theta {theta:+6.1f} deg  pin y {Y_S + R_CRANK*math.cos(math.radians(theta)):+5.2f}"
+              f"  slot end margin {slot_margin:4.2f}  overlap {ov:.4f} mm3")
+    assert worst < 1e-3, "COLLISION in stroke sweep"
+    xs = [servo.bounding_box(), bracket.bounding_box(), yoke.bounding_box()]
+    print(f"  fixed parts x range {min(b[0] for b in xs):.1f} .. {max(b[3] for b in xs):.1f} (cell edge at +-{PITCH/2:.1f})")
+    depth_back = TAIL_Z + SERVO_W0 + SERVO_W / 2
+    foot_back = TAIL_Z + 21 + FOOT_T
+    print(f"  depth to bracket foot {foot_back:.1f} mm + back plate {PLATE_T:g} = {foot_back + PLATE_T:.1f} mm retracted "
+          f"(+ {DIFFUSER_T:g} diffuser); tile out: {STROKE + DIFFUSER_T:.1f} mm beyond the rest face")
+    for name, p in (("assembly_retracted.stl", 0.0), ("assembly_extended.stl", STROKE)):
+        theta = math.degrees(math.asin((SIN_MAX * R_CRANK - p) / R_CRANK))
+        horn, pin = horn_and_pin(theta)
+        a = (moving + diffuser_sheet().translate([0, 0, -DIFFUSER_T])).translate([0, 0, -p]) + servo + bracket + guides + horn + pin
+        save_stl(a, name)
 
 
 # ------------------------------------------------------- clearance test coupon
@@ -146,7 +297,7 @@ def svg(name, w, h, body, pad=3.0):
     to_pdf(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.2f}mm" height="{H:.2f}mm" '
         f'viewBox="0 0 {W:.2f} {H:.2f}">\n'
-        f'<!-- red hairline = cut. units: mm. Dither Board, rough rev 1 -->\n'
+        f'<!-- red hairline = cut. units: mm. Dither Board, rev 22 -->\n'
         f'<g fill="none" stroke="#ff0000" stroke-width="0.1" transform="translate({pad},{pad})">\n{body}</g>\n</svg>\n', name)
     print(f"  {name:28s} {w:6.1f} x {h:6.1f} mm")
 
@@ -160,14 +311,6 @@ def circ(x, y, d):
 
 
 def laser_parts():
-    # diffusers: N*N squares, 3 mm apart
-    d = DIFFUSER
-    sp = 3.0
-    cols = N
-    rows = math.ceil(N * N / cols)
-    body = "".join(rect(sp + (i % cols) * (d + sp), sp + (i // cols) * (d + sp), d, d) for i in range(N * N))
-    svg("laser_diffusers_smoked.pdf", sp + cols * (d + sp), sp + rows * (d + sp), body)
-
     outer = N * PITCH + 2 * MARGIN
     corners = [(MARGIN / 2, MARGIN / 2), (outer - MARGIN / 2, MARGIN / 2),
                (MARGIN / 2, outer - MARGIN / 2), (outer - MARGIN / 2, outer - MARGIN / 2)]
@@ -216,7 +359,7 @@ def blueprint():
     DV(ay, ay + HEAD * S, ax - 12, f"{HEAD:.1f}")
     DH(ax + RIM_WALL * S, ax + (RIM_WALL + CELL) * S, ay + HEAD * S + 16, f"cell {CELL:.2f}")
     T(ax - 20, ay + HEAD * S + 40, f"rim {RIM_WALL} · grid walls {GRID_WALL}", "start", "n")
-    T(ax - 20, ay + HEAD * S + 56, f"{K}×{K} square WS2812B-5050 LEDs (5×5)", "start", "n")
+    T(ax - 20, ay + HEAD * S + 56, f"{K}×{K} WS2812B-5050 LEDs, {LED_PITCH} mm pitch (premade module)", "start", "n")
 
     # B: section of head + stem (side)
     bx, by = 300, 60
@@ -237,15 +380,15 @@ def blueprint():
     DV(sy, sy + STEM_LEN * S, bx - 10, f"{STEM_LEN:g}")
     DH(sx, sx + STEM * S, sy + STEM_LEN * S + 16, f"stem {STEM:g} sq")
     lx = bx + HEAD * S + 30
-    for ty, py, txt in [(by - 2, by + DIFFUSER_T * S / 2, "smoked acrylic, glued on"),
+    for ty, py, txt in [(by - 2, by + DIFFUSER_T * S / 2, "printed diffuser sheet, glued on"),
                         (by + 18, y + GRID_H * S / 2, "black PLA head + light grid (face-down)"),
-                        (by + 38, y + (GRID_H + PCB_T / 2) * S, "tile PCB (LEDs face front)"),
+                        (by + 38, y + (GRID_H + PCB_T / 2) * S, "5x5 LED module (LEDs face front)"),
                         (by + 58, y + (GRID_H + PCB_T + FLOOR_T / 2) * S, "stem floor plate (press fit)")]:
         o.append(f'<polyline points="{bx + HEAD*S + 2:.1f},{py:.1f} {lx - 4:.1f},{ty - 4:.1f}" class="dim" fill="none" opacity=".5"/>')
         T(lx, ty, txt, "start", "n")
     T(bx + HEAD * S + 8, sy + 60, "hollow stem: wires", "start", "n")
-    T(bx + HEAD * S + 8, sy + 74, f"detents every {STROKE/LEVELS:g}", "start", "n")
-    T(bx + HEAD * S + 8, sy + (STEM_LEN - 1) * S, f"M2 → slider nut", "start", "n")
+    T(bx + HEAD * S + 8, sy + 74, f"servo yoke on the tail", "start", "n")
+    T(bx + HEAD * S + 8, sy + (STEM_LEN - 1) * S, f"M2 → yoke", "start", "n")
 
     # C: guide plate detail (2x2 corner)
     cx0, cy0 = 40, 420
@@ -262,7 +405,7 @@ def blueprint():
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 48, f"border {MARGIN:g} · M3 corner holes", "start", "n")
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 66, f"overall {N*PITCH+2*MARGIN:g} × {N*PITCH+2*MARGIN:g} for {N}×{N} tiles", "start", "n")
     T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 84, f"head gap {GAP} between tiles · stroke {STROKE:g}", "start", "n")
-    T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 112, "ROUGH REV 2 · units mm · motor interface TBD", "start", "w")
+    T(cx0 + (MARGIN + 2 * PITCH) * s2 + 16, cy0 + 112, "REV 22 · units mm · servo scotch yoke, see assembly()", "start", "w")
 
     W, H = 720, 680
     css = """.part{fill:#2b2b30;stroke:#9aa0aa;stroke-width:1}.hole{fill:#0e1a2b;stroke:#9aa0aa;stroke-width:1}
@@ -279,10 +422,14 @@ def blueprint():
 
 
 if __name__ == "__main__":
-    print(f"Grid {N}x{N} tiles, {K}x{K} LEDs each = {N*K}x{N*K} pixels, pitch {PITCH} mm")
-    print(f"Head {HEAD:.1f} mm, cell {CELL:.2f} mm, head height {HEAD_H:.1f} mm")
+    print(f"Grid {N}x{N} tiles, {K}x{K} LEDs each = {N*K}x{N*K} pixels, pitch {PITCH} mm, board {N*PITCH+2*MARGIN:g} mm")
+    print(f"Head {HEAD:.1f} mm, cell {CELL:.2f} mm (opening {CELL-GRID_WALL:.2f} for a 5.0 mm LED), head height {HEAD_H:.1f} mm")
     save_stl(tile_head(), "tile_head.stl")
     save_stl(tile_stem(), "tile_stem.stl")
+    save_stl(diffuser_sheet(), "diffuser_sheet.stl")
+    save_stl(tile_yoke(), "yoke.stl")
+    save_stl(servo_bracket(), "servo_bracket.stl")
     save_stl(clearance_coupon(), "test_clearance_coupon.stl")
+    assembly()
     laser_parts()
     blueprint()

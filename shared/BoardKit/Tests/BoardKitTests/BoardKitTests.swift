@@ -3,13 +3,23 @@ import Testing
 import Foundation
 
 @Suite struct BoardKitTests {
-	@Test func standardBoardIs4x4TilesOf4x4LEDs() {
+	@Test func standardBoardIs4x4TilesOf5x5LEDs() {
 		let g = BoardGeometry.standard
 		#expect(g.tilesPerSide == 4)
-		#expect(g.pixelsPerSide == 16)
-		#expect(g.pixelCount == 256)
+		#expect(g.pixelsPerSide == 20)
+		#expect(g.pixelCount == 400)
 		#expect(g.tileCount == 16)
-		#expect(g.tile(forPixelColumn: 7, row: 15) == (1, 3))
+		#expect(g.tile(forPixelColumn: 7, row: 19) == (1, 3))
+	}
+
+	@Test func layoutIsAdjustable() {
+		let g = BoardGeometry(tilesPerSide: 6, ledsPerTileSide: 5)
+		#expect(g.pixelsPerSide == 30)
+		#expect(g.totalLEDCount == 930)
+		#expect(g.fullScreenNits(atLimitAmps: 5) < BoardGeometry.standard.fullScreenNits(atLimitAmps: 5))
+		let frame = DitherField().render(DitherSettings(), geometry: g, offset: (0.3, 0.7))
+		#expect(frame.pixels.count == 900)
+		#expect(frame.tileLevels.count == 36)
 	}
 
 	@Test func frameHasRightShape() {

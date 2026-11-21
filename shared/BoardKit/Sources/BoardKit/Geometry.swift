@@ -5,7 +5,7 @@ public struct BoardGeometry: Hashable, Sendable {
 	/// Number of discrete heights a tile can sit at (0 = fully retracted).
 	public var heightLevels: Int
 
-	public init(tilesPerSide: Int = 4, ledsPerTileSide: Int = 6, heightLevels: Int = 10) {
+	public init(tilesPerSide: Int = 4, ledsPerTileSide: Int = 5, heightLevels: Int = 10) {
 		self.tilesPerSide = max(1, tilesPerSide)
 		self.ledsPerTileSide = max(1, ledsPerTileSide)
 		self.heightLevels = max(2, heightLevels)
@@ -26,7 +26,21 @@ public struct BoardGeometry: Hashable, Sendable {
 		(column / ledsPerTileSide, row / ledsPerTileSide)
 	}
 
+	/// The planned build: 4 × 4 tiles of 5 × 5 LEDs (one premade 5 × 5 module per tile) = 20 × 20 pixels.
 	public static let standard = BoardGeometry()
+
+	/// The limits the layout steppers allow in the apps.
+	public static let tileRange = 2 ... 8
+	public static let ledRange = 2 ... 8
+
+	/// Amps with every LED full white (WS2812B, about 60 mA each), grid and status bar.
+	public var fullWhiteAmps: Double { Double(totalLEDCount) * 0.06 }
+
+	/// Rough full-screen white brightness at a current limit, from the 5 × 5 module's 7.8 mm pitch (estimate, untested
+	/// diffuser): about 8,800 nits at 100 % duty, scaled by how much of the full current the limit allows.
+	public func fullScreenNits(atLimitAmps limit: Double) -> Int {
+		Int((8800 * min(1, limit / fullWhiteAmps)).rounded())
+	}
 }
 
 #if !hasFeature(Embedded)

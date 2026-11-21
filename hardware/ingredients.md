@@ -1,8 +1,8 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 22). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 23). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
-**Build (rev 22):** 4 × 4 tiles, 5 × 5 LEDs per tile (premade Electropeak modules) = 20 × 20 = 400 + a 20-LED status bar = **420 LEDs**, 16 MG90S servos with scotch-yoke drive, Pico W. Power is the builder's own chargers (20 V and 16 V through 5 V bucks; the 12 V one is spare) plus bucks. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
+**Build (rev 22):** 4 × 4 tiles, 5 × 5 LEDs per tile (premade Electropeak modules) = 20 × 20 = 400 + a 20-LED status bar = **420 LEDs**, 16 SG90 servos (provided) with scotch-yoke drive, Pico W. Power is the builder's own chargers (20 V and 16 V through 5 V bucks; the 12 V one is spare) plus bucks. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
 Confidence tags: **[P]** page opened and read, **[C]** search-result card only, **[E]** my estimate, nothing checked.
 
@@ -14,17 +14,17 @@ Electropeak page prices are shown in AUD; the page's own metadata holds the USD 
 
 | # | Item | Qty | Model / spec | Where | Price (AUD) | Conf. |
 |---|---|---|---|---|---|---|
-| A1 | **Micro servo, metal gear** | 18 (16 + 2) | TowerPro **MG90S** 9 g, 4.8-6 V, 1.8 kg·cm at 4.8 V / 2.2 at 6 V, 0.1 s per 60°, ~180°, 22.5 × 12 × 22.5 mm (body). Page says gears "metal and plastic (optional)": check on arrival. **Cheaper fallback: SG90** (A$1.0368 each, plastic, 1.2 kg·cm listed) | electropeak.com/towerpro-mg90s-9g-metal-gear-servo | 18 × 1.80 = **32.40** (SG90: 18.66) | [P] |
+| A1 | **Micro servo** | 16 | **SG90, provided by the builder (no cost).** If the plastic gears prove too weak or wear, fallback is TowerPro MG90S, A$1.80 each (18 × = 32.40, electropeak.com/towerpro-mg90s-9g-metal-gear-servo). The yoke design needs ≈ 0.047 kg·cm against 1.2 kg·cm listed | provided | **0** | [P] |
 | A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 (1 + spare) | Drives all 16 servos from 2 Pico pins (GP16 SDA, GP17 SCL) | electropeak.com/16-channel-12-bit-pwm-servo-driver | 2 × 4.032 = **8.06** | [P] |
-| A3 | **WS2812B 5 × 5 RGB LED square module** (25 LEDs, 5050, 4-7 V) | 18 (16 + 2) | ELC-02-099. Page says "3.9x3.9mm": almost certainly **39 mm**, since 25 5050 LEDs cannot fit in 3.9 mm. Pad layout and pitch are NOT on the page: ask the seller / check on arrival | electropeak.com/16-bit-square-ws2812-5050-rgb-led (URL says 16-bit; the product shown is the 25-bit one) | 18 × 1.80 = **32.40** | [P] price, [E] size |
-| A4 | **Status bar, 20 LEDs** | 4 (3 + 1 spare) | "WS2812 8-Bit RGB LED Straight Module" ELC-02-097: 8 × 5050, 5 V, 96 % of 11 reviews; page says "5.4x1" (= 54 × 10 mm if cm, like the 5 × 5 module's "3.9"); pads not on the page. 3 sticks = 24 LEDs, 162 mm, use 20 | electropeak.com/8-bit-straight-line-ws2812-5050-rgb-led | 4 × 0.3888 = **1.56** | [P] |
+| A3 | **WS2812B 5 × 5 RGB LED square module** (25 LEDs, 5050, 4-7 V) | 16 in the builder's cart (2 spares advised, +3.60) | ELC-02-099. Page says "3.9x3.9mm": almost certainly **39 mm**, since 25 5050 LEDs cannot fit in 3.9 mm. Pad layout and pitch are NOT on the page: ask the seller / check on arrival | electropeak.com/16-bit-square-ws2812-5050-rgb-led (URL says 16-bit; the product shown is the 25-bit one) | 16 × 1.80 = **28.80** (18: 32.40) | [P] price, [E] size |
+| A4 | **Status bar, 20 LEDs** | 4 (3 + 1 spare) | "WS2812 8-Bit RGB LED Straight Module" ELC-02-097: 8 × 5050, 5 V, 96 % of 11 reviews; page says "5.4x1" (= 54 × 10 mm if cm, like the 5 × 5 module's "3.9"); pads not on the page. 3 sticks = 24 LEDs, 162 mm, use 20 | electropeak.com/8-bit-straight-line-ws2812-5050-rgb-led | 3 × 0.3888 = **1.17** in the cart (4: 1.56) | [P] |
 | A5 | **74HCT245, DIP-20** (level shifter for the LED data lines) | 5 | Must be HCT | AliExpress / eBay | **4.00** | [E] |
 | A6 | **Buck module XL4016-class 8 A** | 3 (2 + 1 spare) | 5 V for LEDs (from the 20 V charger, cap ~5 A) and 5 V for servos + Pico (from the 16 V charger) | AliExpress / eBay | **18.00** | [E] |
 | A7 | **JST-XH 3-pin sets** (module power + data) and a few Dupont leads | ~40 | | AliExpress | **8.00** | [E] |
-| | Shipping (Electropeak). Page: DHL base "$35" (5-7 days), tracked economy 12-15 days, free over "$100" and under 2 kg. The shop shows A$ = US$ × 1.44, so these are probably US$: DHL ≈ A$50, free threshold ≈ A$144, which this order (~A$76 from Electropeak) does not reach. Economy price is only shown at checkout. | | | | **25-50** [E] | [E] |
-| | **Subtotal, ex-GST** | | | | **≈ 130** (≈ 155 with DHL) | |
-| | **+10 % GST on imports (rough)** | | | | **≈ 13** (≈ 15) | |
-| | **Total to buy** | | | | **≈ AU$143, worst case ≈ 170** (was ≈ 223 on rev 17) | |
+| | **Electropeak order as in the builder's checkout (2026-11-21):** subtotal A$29.9664 (16 modules + 3 sticks) + **Tracked Economy shipping A$21.528** (12-15 days, **customs included**) = **A$51.4944** (charged US$35.76 via PayPal). DHL base is "$35", not needed. No PCA9685 in the cart yet (A2). | | | | **51.49** | [P] |
+| | **Subtotal** (checkout 51.49 + A2 4.03 + A5 4 + A6 18 + A7 8) | | | | **≈ 86** | |
+| | GST | | | | **included in the Electropeak total; ≈ 3 on the AliExpress parts** | |
+| | **Total to buy** | | | | **≈ AU$89** (≈ 100 with 2 spare modules, a spare stick and a second PCA9685); was ≈ 223 on rev 17 | |
 
 Removed in rev 21: stepper motors, M2 nuts, MX1508 drivers, all eight 74HC595, tile PCBs, bare WS2815 LEDs and capacitors, the 12 V LED plan.
 
@@ -189,3 +189,15 @@ Builder: servo route accepted ("if it's the same price and gives these benefits,
 **Scotch yoke in print:** the slot is a feature of the stem tail (slot width = pin + 0.3 mm, length = stroke + pin + 0.4 mm, vertical walls), the crank is the servo horn with an M2 screw or 2 mm steel pin at 7.5 mm radius (or a small printed disc), plus a printed servo cradle. Easier than a printed screw (no thread fidelity). Risks: slot wear (steel pin, a dab of grease), 0.3 mm slop. Idle tip: stop the PCA9685 pulse after a move to remove hold hum; the gearbox holds the 27 g tile.
 
 **Pixel count:** 4 × 4 tiles × 5 = **20 × 20 = 400** + 20 bar = 420 (apps' `pixelsPerSide` 24 → 20, bar 20). 6 × 6 tiles (the builder's "6 tiles at 5 = 30 × 30") = 900 + bar: 36 servos + 36 modules, 3 PCA9685, board ≈ 258 mm, ≈ +A$76 ex-GST (total ≈ AU$225), 54 A at full white so 5 A is only ≈ 800 nits full-screen. Not chosen.
+
+### J5. Rev 23 (2026-11-21): checkout, servos provided, CAD model, blueprint redrawn
+
+**Checkout:** Electropeak total A$51.49 (A$29.97 goods + A$21.53 tracked economy shipping with customs included); the buy list above totals ≈ AU$89 with SG90 servos provided. Cart has 16 modules and 3 sticks, no spares. Advised additions: 2 modules (+A$3.60), 1 stick (+0.39), 1 PCA9685 (+4.03) unless one is available free.
+
+**Mechanism model (`hardware/cad/tile.py`, run with `/tmp/cadvenv/bin/python tile.py`, deps manifold3d numpy trimesh svglib reportlab):** crank R = 7.76 mm, swing ±75° of the servo's ±90° (stroke 15.0 = 2 R sin 75°), pin 2.0 mm, slot 8.75 × 2.3. Parts: `yoke.stl` (flange screwed to the end cap with 2 × M2, 3 mm blade), `servo_bracket.stl` (wall with cutout + foot, 2 × M3 to the back plate), `tile_stem.stl` (detents and M2 nut hole removed, 2 yoke pilots added), `tile_head.stl` (5 × 5 grid at 7.8 mm), `diffuser_sheet.stl` (printed 0.8 mm), `assembly_retracted.stl` / `assembly_extended.stl`. `assembly()` sweeps 9 stroke positions and checks the moving set against servo, horn, pin, bracket, guide plates and back plate: 0.000 mm³ overlap (positive controls detect 36-65 mm³ when parts are shifted). Pin end margin in the slot 0.5 mm. Depth 78.1 mm retracted (+0.8 diffuser), 94 mm with a tile out (was 89.8 / 105): the earlier estimate of +15-25 mm depth was wrong, the servo is shorter than the stepper. Servo outline (22.8 × 12.4 case, ears 5.5 below the top, hole spacing 27.8) is from memory: measure the real SG90 before printing 16 brackets.
+
+**Torque:** ≈ 0.6 N (tile ≈ 30 g [E] + 0.3 N friction [E]) × 7.76 mm = 0.047 kg·cm against 1.2 kg·cm listed: ≈ 25×. Servo torque is the same at every angle, so using 150° of 180° costs nothing. Holding unpowered: yoke lever R cos θ gives ≤ 0.02 kg·cm at the horn from the tile's weight.
+
+**Blueprint:** `schematics/dither-board-design-blueprint.pdf` redrawn for rev 22/23 (servo yoke, 5 × 5 module, 43 mm pitch, new BOM, power plan). `dither-board-blueprint.pdf` (wiring) and `dither-board-schematics.pdf` still show the old stepper / 595 / MX1508 wiring.
+
+**App:** Device tab, section "Board Layout": steppers for tiles per side (2-8) and LEDs per tile side (2-8), presets, and live counts (pixels, motors, LEDs, full-white amps, full-screen nits at 5 A). Stored in UserDefaults; `BoardGeometry.standard` is now 4 × 4 × 5 (20 × 20).
