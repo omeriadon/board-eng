@@ -57,12 +57,12 @@ struct DeviceView: View {
 				LabeledContent("Tiles (Motors)", value: "\(store.geometry.tileCount)")
 				LabeledContent("LEDs with Status Bar", value: "\(store.geometry.totalLEDCount)")
 				LabeledContent("Full-White Current", value: String(format: "%.0f A", store.geometry.fullWhiteAmps))
-				LabeledContent("Full-Screen Brightness at 5 A", value: "≈ \(store.geometry.fullScreenNits(atLimitAmps: 5)) nits")
+				LabeledContent("Full-Screen Brightness at \(Int(BoardGeometry.ledLimitAmps)) A", value: "≈ \(store.geometry.fullScreenNits(atLimitAmps: BoardGeometry.ledLimitAmps)) nits")
 				LayoutPresets()
 			} header: {
 				Text("Board Layout")
 			} footer: {
-				Text("For planning: change these to see how the board would look and what it would draw. The board's own hardware has to be built to match. Brightness is an estimate for the 5 × 5 LED module with a printed diffuser.")
+				Text("For planning: change these to see how the board would look and what it would draw. The board's own hardware has to be built to match. Brightness is an estimate for the 5 × 5 LED module with a printed diffuser, at the planned 10 A LED limit (two 5 A bucks).")
 			}
 
 			Section("Board") {
@@ -118,9 +118,9 @@ private struct LayoutPresets: View {
 	@Environment(BoardStore.self) private var store
 
 	private static let presets: [(String, Int, Int)] = [
-		("Planned: 4 × 4 tiles, 5 LEDs", 4, 5),
+		("Planned: 5 × 5 tiles, 5 LEDs", 5, 5),
+		("4 × 4 tiles, 5 LEDs", 4, 5),
 		("4 × 4 tiles, 6 LEDs", 4, 6),
-		("5 × 5 tiles, 5 LEDs", 5, 5),
 		("6 × 6 tiles, 5 LEDs", 6, 5),
 	]
 

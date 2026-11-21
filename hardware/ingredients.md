@@ -1,48 +1,45 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-21 (rev 24). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 25). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
-**Build (rev 22):** 4 × 4 tiles, 5 × 5 LEDs per tile (premade Electropeak modules) = 20 × 20 = 400 + a 20-LED status bar = **420 LEDs**, 16 SG90 servos (provided) with scotch-yoke drive, Pico W. Power is the builder's own chargers (20 V and 16 V through 5 V bucks; the 12 V one is spare) plus bucks. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
+**Build (rev 25, DECIDED by the builder):** **5 × 5 tiles**, 5 × 5 LEDs per tile (premade 5 × 5 modules) = **25 × 25 = 625 pixels** + a 25-LED status bar = **650 LEDs**, 25 SG90 servos with scotch-yoke drive, Pico W. Board 235 × 250 mm, depth 78.9 mm retracted. Power is the builder's own 20 V and 16 V chargers through 5 V bucks (12 V charger spare). A new stand is needed (board ≈ 2.1 kg [E]). Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/) (still the old stepper plan).
 
 Confidence tags: **[P]** page opened and read, **[C]** search-result card only, **[E]** my estimate, nothing checked.
 
 ---
 
-## A. BUY LIST (rev 21: servo actuators + premade 5 × 5 LED modules; supersedes the stepper / bare-LED list in rev 16-20)
+## A. BUY LIST (rev 25: 5 × 5 tiles, servos + premade 5 × 5 LED modules; supersedes every earlier list)
 
-Electropeak page prices are shown in AUD; the page's own metadata holds the USD list price and the shop multiplies by 1.44. Shipping is "FOB Shenzhen" (no customs), DHL base cost "$35", free over "$100" (currency not labelled), tracked economy 12-15 days. All A1-A3 can come from one Electropeak order.
+Source: **Alibaba.com** for the modules (A$1.08 each, free shipping capped at A$30, delivery 30 Nov - 22 Dec, all prices AUD per the builder). The Electropeak cart (A$51.49 for 16 modules + 3 sticks, A$21.53 shipping) is **not needed**: cancel it. Prices marked [E] are not looked up yet; ask the same Alibaba supplier or search the item there (the builder can screenshot the page).
 
 | # | Item | Qty | Model / spec | Where | Price (AUD) | Conf. |
 |---|---|---|---|---|---|---|
-| A1 | **Micro servo** | 16 | **SG90, provided by the builder (no cost).** If the plastic gears prove too weak or wear, fallback is TowerPro MG90S, A$1.80 each (18 × = 32.40, electropeak.com/towerpro-mg90s-9g-metal-gear-servo). The yoke design needs ≈ 0.047 kg·cm against 1.2 kg·cm listed | provided | **0** | [P] |
-| A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 (1 + spare) | Drives all 16 servos from 2 Pico pins (GP16 SDA, GP17 SCL) | electropeak.com/16-channel-12-bit-pwm-servo-driver | 2 × 4.032 = **8.06** | [P] |
-| A3 | **WS2812B 5 × 5 RGB LED square module** (25 LEDs, 5050, 4-7 V) | 16 in the builder's cart (2 spares advised, +3.60) | ELC-02-099. Page says "3.9x3.9mm": almost certainly **39 mm**, since 25 5050 LEDs cannot fit in 3.9 mm. Pad layout and pitch are NOT on the page: ask the seller / check on arrival | electropeak.com/16-bit-square-ws2812-5050-rgb-led (URL says 16-bit; the product shown is the 25-bit one) | 16 × 1.80 = **28.80** (18: 32.40) | [P] price, [E] size |
-| A4 | **Status bar, 20 LEDs** | 4 (3 + 1 spare) | "WS2812 8-Bit RGB LED Straight Module" ELC-02-097: 8 × 5050, 5 V, 96 % of 11 reviews; page says "5.4x1" (= 54 × 10 mm if cm, like the 5 × 5 module's "3.9"); pads not on the page. 3 sticks = 24 LEDs, 162 mm, use 20 | electropeak.com/8-bit-straight-line-ws2812-5050-rgb-led | 3 × 0.3888 = **1.17** in the cart (4: 1.56) | [P] |
-| A5 | **74HCT245, DIP-20** (level shifter for the LED data lines) | 5 | Must be HCT | AliExpress / eBay | **4.00** | [E] |
-| A6 | **Buck module XL4016-class 8 A** | 3 (2 + 1 spare) | 5 V for LEDs (from the 20 V charger, cap ~5 A) and 5 V for servos + Pico (from the 16 V charger) | AliExpress / eBay | **18.00** | [E] |
-| A7 | **JST-XH 3-pin sets** (module power + data) and a few Dupont leads | ~40 | | AliExpress | **8.00** | [E] |
-| | **Electropeak order as in the builder's checkout (2026-11-21):** subtotal A$29.9664 (16 modules + 3 sticks) + **Tracked Economy shipping A$21.528** (12-15 days, **customs included**) = **A$51.4944** (charged US$35.76 via PayPal). DHL base is "$35", not needed. No PCA9685 in the cart yet (A2). | | | | **51.49** | [P] |
-| | **Subtotal** (checkout 51.49 + A2 4.03 + A5 4 + A6 18 + A7 8) | | | | **≈ 86** | |
-| | GST | | | | **included in the Electropeak total; ≈ 3 on the AliExpress parts** | |
-| | **Total to buy** | | | | **≈ AU$89** (≈ 100 with 2 spare modules, a spare stick and a second PCA9685); was ≈ 223 on rev 17 | |
+| A1 | **Micro servo SG90** | 25 (5 provided, **20 to buy**) | 9 g, 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V (spec the builder sent), 1-2 ms = ±90°. Electropeak lists SG90 at A$1.0368 each; Alibaba likely about the same [E]. Builder: surely not more than A$3 each | Alibaba / Electropeak | 20 × 1.0-1.5 = **20-30** (worst case 60) | [E] |
+| A2 | **PCA9685 16-channel PWM driver** (I2C) | 2 | 25 servos need 2 boards (16 + 9); addresses 0x40 / 0x41; GP16 SDA, GP17 SCL. Electropeak price A$4.032 each | Alibaba / Electropeak | 2 × 4 = **8.06** | [P] |
+| A3 | **WS2812B 5 × 5 RGB LED module** (25 LEDs, 5050, 4-7 V, 38.9 mm) | 26 (25 + 1 spare) | Alibaba "WS2812B 5*5 Digit 5050 RGB LED Full-color Driver 25 Bit Color Light Development Board", Shenzhen Jingmaoyuan, 5.0 (2 reviews), 60 sold. A$1.08 each at 2-99 pcs. Pads unconfirmed: ask the seller | Alibaba | 26 × 1.08 = **28.08** | [P] |
+| A4 | **Status bar sticks** (8 × WS2812B each, 54 × 10 mm) | 5 (4 + 1 spare) | 4 sticks = 32 LEDs, 216 mm, 25 used. Electropeak ELC-02-097 is A$0.3888 each; shipping makes that pointless, so find it on Alibaba | Alibaba | **≈ 2.5** | [E] |
+| A5 | **74HCT245, DIP-20** (level shifter, 6 LED data lines) | 5 | Must be HCT | AliExpress / eBay | **4.00** | [E] |
+| A6 | **Buck module XL4016-class 8 A** | 4 (3 + 1 spare) | Two 20 V → 5 V for the LEDs (5 A each, one per half of the board, 10 A total), one 16 V → 5 V for servos + Pico. Builder: "just 8 dollars" each, so budget 6-8 | AliExpress / eBay | **24-32** | [E] |
+| A7 | **JST-XH 3/4-pin sets + Dupont leads** | ~75 | Module power + data and servo leads for 25 tiles | AliExpress | **12.00** | [E] |
+| | **Total to buy** | | | | **≈ AU$104** (range ≈ 99-125 with servo and buck prices at the high end; GST may add 10 % on some parts) | |
 
-Removed in rev 21: stepper motors, M2 nuts, MX1508 drivers, all eight 74HC595, tile PCBs, bare WS2815 LEDs and capacitors, the 12 V LED plan.
+Free: the 5 servos, PLA, acrylic, chargers, passives, breadboards (section B). Removed earlier: stepper motors, M2 nuts, MX1508 drivers, 74HC595s, tile PCBs, bare WS2815 LEDs, the 12 V LED plan, the Electropeak order.
 
-**Consequences to resolve before printing:** the 39 mm module needs a tile inner width of ~39.6 mm (head ≈ 42, pitch ≈ 43, board ≈ 192 mm square, vs 38.8 / 40 / 180 now); pixel count becomes 20 × 20 + bar (apps' `pixelsPerSide` 24 → 20); mechanism changes from screw/nut to a servo scotch-yoke or crank (the stem, guide plates and soft pad stay). Servo supply: six moving at once ≈ 2 A at 5 V.
+**Consequences:** tile head 42, pitch 43, board 235 × 250 mm (`tile.py` N = 5, laser files regenerated: bezel and guide plates 235 × 250 with a bar slot); pixels 25 × 25 + bar 25 (apps' default geometry is now 5 × 5 tiles); LED power 650 LEDs = 39 A at full white, limited to 10 A by two 5 A bucks; servo supply (16 V charger → buck) ≈ 2-3 A with a few moving at once; a new stand.
 
 ### Brightness limit (all LEDs full white at the limit; estimates)
 
-**Rule (rev 22):** the limit is on total current, not per pixel. Full-screen nits ≈ 350 × amps. Lit fraction × pixel nits must stay ≤ the full-screen figure, so at 5 A a patch of 3,000 nits may cover up to ~58 % of the screen (1,750 / 3,000), and a dark-heavy frame can run hotter pixels, up to the LED's own ceiling (~8,800 nits at 100 % through the diffuser, [E]). Needs a firmware limiter (sum of RGB × 20 mA / 255 per frame, scale down if over) and a per-module cap of ~1 A (a 5 × 5 module at full white is 1.5 A through thin board copper).
+**Rule:** the limit is on total current, not per pixel. Full-screen nits ≈ 225 × amps (650 LEDs). Lit fraction × pixel nits must stay ≤ the full-screen figure, so at 10 A a patch of 3,000 nits may cover up to ~75 % of the screen (2,250 / 3,000). Needs a firmware limiter (sum of RGB × 20 mA / 255 per frame) and a per-module cap of ~1 A (a 5 × 5 module at full white is 1.5 A through thin board copper). Power wires must not run through the breadboard rails.
 
-WS2812B: ~60 mA per LED at full white; white ≈ 2.15 cd per LED (datasheet typical R 600 + G 1250 + B 300 mcd, recalled, not re-read). 400 + 20 = 420 LEDs → 25 A at 100 %. Pixel pitch 7.8 mm → 6.1e-5 m² → ~35,000 nits at 100 % before the diffuser; assume 25 % through the grid and a thin printed diffuser (untested, range 0.6-1.6x).
+WS2812B: ~60 mA per LED at full white; white ≈ 2.15 cd per LED (recalled datasheet values). 625 + 25 = 650 LEDs → 39 A at 100 %. Pixel pitch 7.8 mm → ~35,000 nits at 100 % before the diffuser; assume 25 % through the grid and a printed diffuser (untested, range 0.6-1.6×).
 
 | Current limit | Duty | Full-screen white |
 |---|---|---|
-| 3 A | 12 % | ≈ 1,000 nits |
-| **5 A** | **20 %** | **≈ 1,750 nits** |
-| 8 A | 32 % | ≈ 2,800 nits |
+| 3 A | 8 % | ≈ 680 nits |
+| 5 A (one buck) | 13 % | ≈ 1,130 nits |
+| **10 A (two bucks, planned)** | **26 %** | **≈ 2,260 nits** |
 
-For reference: a laptop 300-500 nits, a phone maximum 1,000-2,000 nits. Normal room use (100-300 nits) needs only ~1 A.
+For reference: a laptop 300-500 nits, a phone maximum 1,000-2,000 nits. Normal room use (100-300 nits) needs only 1-2 A.
 
 ## B. PROVIDED FREE (confirmed by the builder, 2026-11-20)
 
@@ -226,3 +223,7 @@ Builder: servo route accepted ("if it's the same price and gives these benefits,
 | Centre pixel / tile | none | yes (symmetric patterns, ripples) |
 
 Money is not the issue (roughly +A$14); print time, mass and the stand are.
+
+### J7. Rev 25 (2026-11-21): 5 × 5 tiles decided
+
+The builder chose **5 × 5 tiles** (25 tiles, 625 pixels): board size is fine, 1,130 nits at 5 A is "still really bright", printing time is not a concern, a new stand is fine, one more buck converter is wanted (so two 5 A LED bucks = 10 A, ≈ 2,260 nits), and servo cost is fine "even if we only get 5 provided" (≤ A$3 each). `tile.py` N = 5 (sweep still 0.000 mm³; laser bezel / plates 235 × 250 with the bar slot), app default geometry 5 × 5 tiles with 10 A as the nits limit, design blueprint redrawn (front view, BOM quantities, system diagram with two LED bucks and two PCA9685). Wiring PDFs (`dither-board-blueprint.pdf`, `dither-board-schematics.pdf`) still show the old stepper plan. The stand is not designed.

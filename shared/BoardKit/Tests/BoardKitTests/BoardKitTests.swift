@@ -3,12 +3,12 @@ import Testing
 import Foundation
 
 @Suite struct BoardKitTests {
-	@Test func standardBoardIs4x4TilesOf5x5LEDs() {
+	@Test func standardBoardIs5x5TilesOf5x5LEDs() {
 		let g = BoardGeometry.standard
-		#expect(g.tilesPerSide == 4)
-		#expect(g.pixelsPerSide == 20)
-		#expect(g.pixelCount == 400)
-		#expect(g.tileCount == 16)
+		#expect(g.tilesPerSide == 5)
+		#expect(g.pixelsPerSide == 25)
+		#expect(g.pixelCount == 625)
+		#expect(g.tileCount == 25)
 		#expect(g.tile(forPixelColumn: 7, row: 19) == (1, 3))
 	}
 

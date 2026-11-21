@@ -9,7 +9,7 @@ Change the PARAMETERS block, then run:
 
 Outputs go to cad/out/ (STL + PDF only). All units are millimetres.
 
-Status: rev 22 (2026-11-21). 4 x 4 tiles, one premade 5 x 5 WS2812B module (39 mm,
+Status: rev 25 (2026-11-21). 5 x 5 tiles, one premade 5 x 5 WS2812B module (39 mm,
 7.8 mm LED pitch) per tile, one micro servo per tile driving the stem through a
 scotch yoke (pin on the servo horn riding in a slot in a printed yoke on the
 stem tail). `assembly()` checks the whole stroke for collisions. Servo outline
@@ -25,7 +25,7 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 
 # ------------------------------------------------------------------ PARAMETERS
-N = 4                 # tiles per side
+N = 5                 # tiles per side (decided rev 25: 25 tiles, 25 x 25 pixels)
 K = 5                 # LEDs per tile side (one 5 x 5 module)
 LED_PITCH = 7.8       # module LED pitch = grid cell pitch
 MODULE = K * LED_PITCH  # 39.0 mm module (Electropeak lists "3.9" = cm)
@@ -314,21 +314,24 @@ def circ(x, y, d):
 
 def laser_parts():
     outer = N * PITCH + 2 * MARGIN
+    bar_zone = 15.0                      # 5 mm gap + 10 mm status-bar window under the grid
+    tall = outer + bar_zone
     corners = [(MARGIN / 2, MARGIN / 2), (outer - MARGIN / 2, MARGIN / 2),
-               (MARGIN / 2, outer - MARGIN / 2), (outer - MARGIN / 2, outer - MARGIN / 2)]
+               (MARGIN / 2, tall - MARGIN / 2), (outer - MARGIN / 2, tall - MARGIN / 2)]
     mount = "".join(circ(x, y, M3_HOLE) for x, y in corners)
 
-    # front bezel: opening = full grid (each tile already has GAP/2 each side)
-    body = rect(0, 0, outer, outer) + rect(MARGIN, MARGIN, N * PITCH, N * PITCH) + mount
-    svg("laser_front_bezel_black.pdf", outer, outer, body)
+    # front bezel: opening = full grid (each tile already has GAP/2 each side) + a slot for the 4 x 8-LED sticks (216 mm)
+    bar = rect((outer - 216) / 2, MARGIN + N * PITCH + 5, 216, 10)
+    body = rect(0, 0, outer, tall) + rect(MARGIN, MARGIN, N * PITCH, N * PITCH) + bar + mount
+    svg("laser_front_bezel_black.pdf", outer, tall, body)
 
     # guide plates (front + rear identical): square holes for the stems
     hole = STEM + 2 * STEM_CLEAR
     holes = "".join(
         rect(MARGIN + c * PITCH + (PITCH - hole) / 2, MARGIN + r * PITCH + (PITCH - hole) / 2, hole, hole)
         for r in range(N) for c in range(N))
-    body = rect(0, 0, outer, outer) + holes + mount
-    svg("laser_guide_plate_x2.pdf", outer, outer, body)
+    body = rect(0, 0, outer, tall) + holes + mount
+    svg("laser_guide_plate_x2.pdf", outer, tall, body)
 
 
 # --------------------------------------------------------- blueprint drawing

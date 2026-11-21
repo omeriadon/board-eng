@@ -9,7 +9,7 @@ import Foundation
 let MW: CGFloat = 2800, MH: CGFloat = 1700
 
 // MARK: Design numbers (mm)
-let dN = 4, dK = 5
+let dN = 5, dK = 5
 let dPitch: CGFloat = 43, dHead: CGFloat = 42, dRim: CGFloat = 1.2, dWall: CGFloat = 1.0
 let dGridH: CGFloat = 8, dPCB: CGFloat = 1.6, dFloor: CGFloat = 2, dHeadH: CGFloat = 11.6, dDiff: CGFloat = 0.8
 let dInner: CGFloat = dHead - 2 * dRim              // 39.6
@@ -104,31 +104,31 @@ func zigzag(_ x1: CGFloat, _ x2: CGFloat, _ y: CGFloat) {
 
 struct BomPart { let n: Int; let name: String; let qty: String; let spec: String; let status: String }
 let bom: [BomPart] = [
-	BomPart(n: 1, name: "Diffuser sheet", qty: "16", spec: "3D-printed translucent sheet, ~0.8 mm (thickness not tested), 41.8 square, glued flush on the head face", status: "PROPOSED"),
-	BomPart(n: 2, name: "Tile head + light grid", qty: "16", spec: "Black PLA, 42 × 42 × 11.6; rim 1.2, grid walls 1.0 × 8 deep, 5 × 5 cells at 7.8 mm; printed face-down", status: "DECIDED"),
-	BomPart(n: 3, name: "LED module 5 × 5", qty: "16 (+2)", spec: "Electropeak ELC-02-099, 25 × WS2812B-5050, 39 mm (listed '3.9' = cm), 7.8 mm pitch, 5 V, A$1.80. Pads/thickness not on the page", status: "DECIDED"),
-	BomPart(n: 4, name: "Stem (floor plate + tube + cap)", qty: "16", spec: "Black PLA; 20 × 20 tube, 1.6 wall, 40 long; floor plate 2 presses into the head; end cap with 2 × M2 pilots", status: "DECIDED"),
-	BomPart(n: 5, name: "Yoke", qty: "16", spec: "Printed PLA: flange screwed to the end cap + 3 mm blade with an 8.75 × 2.3 slot (pin 2.0); printed on its side", status: "DECIDED"),
-	BomPart(n: 6, name: "Crank pin + horn", qty: "16", spec: "Servo horn trimmed to one 11 mm arm; M2 screw or 2 mm steel pin at R = 7.76 mm riding in the slot", status: "DECIDED"),
-	BomPart(n: 7, name: "Micro servo", qty: "16", spec: "SG90 (provided; plastic gears; 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V per the spec sheet, 1.2 on another listing); MG90S fallback A$1.80. Swing ±75°, ~0.25 s", status: "DECIDED"),
-	BomPart(n: 8, name: "Servo bracket", qty: "16", spec: "Printed: wall with a 23.3 × 12.9 cutout (ears rest on it) + foot, 2 × M3 to the back plate. Ear plane and hole spacing from memory [E]", status: "PROPOSED"),
-	BomPart(n: 9, name: "Front guide plate", qty: "1", spec: "3 mm clear acrylic, laser-cut; 20.5 mm square holes, 43 pitch; head rests on it via the pad", status: "DECIDED"),
+	BomPart(n: 1, name: "Diffuser sheet", qty: "25", spec: "3D-printed translucent sheet, ~0.8 mm (thickness not tested), 41.8 square, glued flush on the head face", status: "PROPOSED"),
+	BomPart(n: 2, name: "Tile head + light grid", qty: "25", spec: "Black PLA, 42 × 42 × 11.6; rim 1.2, grid walls 1.0 × 8 deep, 5 × 5 cells at 7.8 mm; printed face-down", status: "DECIDED"),
+	BomPart(n: 3, name: "LED module 5 × 5", qty: "25 (+1)", spec: "Alibaba WS2812B 5*5 25-bit board (Shenzhen Jingmaoyuan), 25 × WS2812B-5050, 38.9 mm, 7.8 mm pitch, 5 V, A$1.08. Pads/thickness unconfirmed", status: "DECIDED"),
+	BomPart(n: 4, name: "Stem (floor plate + tube + cap)", qty: "25", spec: "Black PLA; 20 × 20 tube, 1.6 wall, 40 long; floor plate 2 presses into the head; end cap with 2 × M2 pilots", status: "DECIDED"),
+	BomPart(n: 5, name: "Yoke", qty: "25", spec: "Printed PLA: flange screwed to the end cap + 3 mm blade with an 8.75 × 2.3 slot (pin 2.0); printed on its side", status: "DECIDED"),
+	BomPart(n: 6, name: "Crank pin + horn", qty: "25", spec: "Servo horn trimmed to one 11 mm arm; M2 screw or 2 mm steel pin at R = 7.76 mm riding in the slot", status: "DECIDED"),
+	BomPart(n: 7, name: "Micro servo", qty: "25", spec: "SG90 (5 provided, 20 to buy; plastic gears; 22.2 × 11.8 × 31, 1.8 kgf·cm at 4.8 V per the spec sheet, 1.2 on another listing). Swing ±75°, ~0.25 s", status: "DECIDED"),
+	BomPart(n: 8, name: "Servo bracket", qty: "25", spec: "Printed: wall with a 23.3 × 12.9 cutout (ears rest on it) + foot, 2 × M3 to the back plate. Ear plane and hole spacing from memory [E]", status: "PROPOSED"),
+	BomPart(n: 9, name: "Front guide plate", qty: "1", spec: "3 mm clear acrylic, laser-cut, 235 × 250; 20.5 mm square holes, 43 pitch; head rests on it via the pad", status: "DECIDED"),
 	BomPart(n: 10, name: "Rear guide plate", qty: "1", spec: "3 mm clear acrylic; same holes, 17.4 mm behind plate 9 (centre to centre)", status: "DECIDED"),
 	BomPart(n: 11, name: "Back plate", qty: "1", spec: "3 mm clear acrylic; bracket foot holes, cable slots, ball-head mount at centre; Pico antenna at the top edge", status: "DECIDED"),
-	BomPart(n: 12, name: "Front bezel", qty: "1", spec: "3 mm black acrylic, 192 × ~206, one window; holds LDR + sensor holes in the top border", status: "DECIDED"),
+	BomPart(n: 12, name: "Front bezel", qty: "1", spec: "3 mm black acrylic, 235 × 250, grid window + bar slot; LDR + sensor holes in the top border", status: "DECIDED"),
 	BomPart(n: 13, name: "M3 rods + spacers", qty: "4", spec: "~150 mm threaded rod through the corner holes; printed spacers set every gap", status: "DECIDED"),
-	BomPart(n: 14, name: "Soft end-stop pad", qty: "16", spec: "TPU / silicone O-ring, ~1 mm, under each head; the head bottoms out on plate 9", status: "PROPOSED"),
-	BomPart(n: 15, name: "PCA9685", qty: "1", spec: "16-channel 12-bit PWM, I2C on GP16 SDA / GP17 SCL, 5 V servo power; A$4.03", status: "DECIDED"),
-	BomPart(n: 16, name: "74HCT245", qty: "1 (+4)", spec: "3.3 V → 5 V level shifter for five LED data lines, each through 330 Ω", status: "DECIDED"),
+	BomPart(n: 14, name: "Soft end-stop pad", qty: "25", spec: "TPU / silicone O-ring, ~1 mm, under each head; the head bottoms out on plate 9", status: "PROPOSED"),
+	BomPart(n: 15, name: "PCA9685", qty: "2", spec: "16-channel 12-bit PWM ×2 (16 + 9 servos), I2C on GP16 SDA / GP17 SCL, addresses 0x40 and 0x41, 5 V servo power", status: "DECIDED"),
+	BomPart(n: 16, name: "74HCT245", qty: "1 (+4)", spec: "3.3 V → 5 V level shifter for six LED data lines (5 rows + bar), each through 330 Ω", status: "DECIDED"),
 	BomPart(n: 17, name: "Raspberry Pi Pico W", qty: "1", spec: "Wi-Fi + BLE; provided by the school", status: "DECIDED"),
-	BomPart(n: 18, name: "Status bar", qty: "3 (+1)", spec: "Electropeak 8-LED straight modules ELC-02-097 (54 × 10 mm if cm), A$0.39 each; 24 LEDs, 20 used, fixed", status: "DECIDED"),
-	BomPart(n: 19, name: "Buck modules", qty: "2 (+1)", spec: "XL4016-class 8 A: 20 V → 5 V (LEDs, cap ~5 A) and 16 V → 5 V (servos, Pico), aluminium heatsinks", status: "DECIDED"),
+	BomPart(n: 18, name: "Status bar", qty: "4 (+1)", spec: "8-LED straight WS2812B sticks (Electropeak ELC-02-097 is A$0.39; source on Alibaba), 54 × 10 mm; 32 LEDs, 25 used, fixed", status: "DECIDED"),
+	BomPart(n: 19, name: "Buck modules", qty: "3 (+1)", spec: "XL4016-class 8 A: two 20 V → 5 V for the LEDs (5 A each, one per half of the board) and one 16 V → 5 V for servos + Pico; heatsinks", status: "DECIDED"),
 	BomPart(n: 20, name: "Chargers", qty: "3", spec: "20 V 3.33 A and 16 V 3.75 A used; 12 V 4 A spare (own, provided)", status: "DECIDED"),
 	BomPart(n: 21, name: "Power board", qty: "1", spec: "Rocker switch, DC sockets, resettable PTC fuses, star ground", status: "DECIDED"),
-	BomPart(n: 22, name: "Breadboards", qty: "2", spec: "Pico, level shifter, PCA9685 and sensors (prototype wiring); LED power goes on thick wire, not the rails", status: "DECIDED"),
+	BomPart(n: 22, name: "Breadboards", qty: "2", spec: "Pico, level shifter, 2 × PCA9685 and sensors (prototype wiring); LED power goes on thick wire, not the rails", status: "DECIDED"),
 	BomPart(n: 23, name: "Sensors", qty: "3", spec: "LDR GP26, NTC 10 kΩ GP27 (inside, near the bucks), red status LED on the back", status: "DECIDED"),
-	BomPart(n: 24, name: "Stand + ball head", qty: "1", spec: "Mini camera ball head 1/4\"-20 on a printed base; desk and wall use; ~1–1.5 kg", status: "NOT DESIGNED"),
-	BomPart(n: 25, name: "Harness", qty: "~50", spec: "JST-XH 3/4-pin pairs; module power + data per tile, servo leads with a service loop for 15 mm of travel", status: "DECIDED"),
+	BomPart(n: 24, name: "Stand + ball head", qty: "1", spec: "NEW stand needed (board ≈ 2.1 kg [E], 235 × 250); desk and wall use; replaces the mini ball head", status: "NOT DESIGNED"),
+	BomPart(n: 25, name: "Harness", qty: "~75", spec: "JST-XH 3/4-pin pairs; module power + data per tile, servo leads with a service loop for 15 mm of travel", status: "DECIDED"),
 ]
 
 func statusColor(_ s: String) -> CGColor {
@@ -148,14 +148,14 @@ func drawDesignBlueprint(_ path: String) {
 	blueprintGrid(MW, MH)
 
 	text("Dither Board: design blueprint", 40, 62, size: 44, bold: true)
-	text("Mechanism, structure, parts and system on one sheet. 4 × 4 tiles · 5 × 5 LEDs per tile (premade modules) + 20-LED bar = 420 LEDs · 16 servo scotch yokes · Pico W · units mm unless stated · vector, zoom in", 40, 92, size: 15, color: cGray)
+	text("Mechanism, structure, parts and system on one sheet. 5 × 5 tiles · 5 × 5 LEDs per tile (premade modules) = 25 × 25 pixels + 25-LED bar = 650 LEDs · 25 servo scotch yokes · Pico W · units mm unless stated · vector, zoom in", 40, 92, size: 15, color: cGray)
 	text("Solid line = decided.   Dashed light blue = proposed, not designed.   Amber = risk or open.   Numbered circles match the parts list (panel I).   Figures marked [E] are my estimates; servo outline numbers are from memory of the SG90 datasheet.", 40, 114, size: 13, color: cGray)
 	// title block
 	rect(2150, 30, 610, 88, fill: nil, stroke: cBlack, lw: 1.4)
 	line(2150, 62, 2760, 62, 1, cBlack); line(2150, 90, 2760, 90, 1, cBlack); line(2420, 62, 2420, 118, 1, cBlack)
 	text("DITHER BOARD · DESIGN BLUEPRINT", 2165, 52, size: 16, bold: true)
-	text("Rev 22 · 2026-11-21", 2165, 82, size: 12); text("Sheet 1 / 1 · A0-style, vector", 2435, 82, size: 12)
-	text("Drawn from tile.py rev 22 (K = 5, N = 4)", 2165, 108, size: 12); text("Prototype: nothing tested on hardware", 2435, 108, size: 12, color: cOrange)
+	text("Rev 25 · 2026-11-21", 2165, 82, size: 12); text("Sheet 1 / 1 · A0-style, vector", 2435, 82, size: 12)
+	text("Drawn from tile.py rev 25 (K = 5, N = 5)", 2165, 108, size: 12); text("Prototype: nothing tested on hardware", 2435, 108, size: 12, color: cOrange)
 	line(40, 126, MW - 40, 126, 1.2, cGray)
 
 	dpFront(40, 140, 640, 620)
@@ -176,15 +176,16 @@ func drawDesignBlueprint(_ path: String) {
 // MARK: A. Front elevation
 
 func dpFront(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
-	panel(px, py, pw, ph, "A", "Front elevation", "what you see: bezel, 4 × 4 tiles, status bar")
-	let S: CGFloat = 2.2
-	let boardW: CGFloat = 192, boardH: CGFloat = 206
-	let ox = px + 90, oy = py + 92
+	panel(px, py, pw, ph, "A", "Front elevation", "what you see: bezel, 5 × 5 tiles, status bar")
+	let S: CGFloat = 1.9
+	let boardW: CGFloat = 235, boardH: CGFloat = 250
+	let gridW = CGFloat(dN) * dPitch                      // 215
+	let ox = px + 70, oy = py + 92
 	func X(_ mm: CGFloat) -> CGFloat { ox + mm * S }
 	func Y(_ mm: CGFloat) -> CGFloat { oy + mm * S }
 	rect(X(0), Y(0), boardW * S, boardH * S, fill: rgb(0.02, 0.14, 0.36), stroke: cBlack, lw: 1.6)
-	rect(X(10), Y(10), 172 * S, 172 * S, fill: nil, stroke: cBlack, lw: 0.8, dash: [3, 2])
-	for r in 0..<4 { for c in 0..<4 {
+	rect(X(10), Y(10), gridW * S, gridW * S, fill: nil, stroke: cBlack, lw: 0.8, dash: [3, 2])
+	for r in 0..<dN { for c in 0..<dN {
 		let tx = 10 + CGFloat(c) * dPitch + (dPitch - dHead) / 2, ty = 10 + CGFloat(r) * dPitch + (dPitch - dHead) / 2
 		rect(X(tx), Y(ty), dHead * S, dHead * S, fill: cLight, stroke: cBlack, lw: 1)
 		if r == 1 && c == 1 {
@@ -200,30 +201,31 @@ func dpFront(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 			}
 		}
 	}}
-	// status bar: three 8-LED sticks (24 LEDs, 162 mm), 20 used
-	rect(X(15), Y(187), 162 * S, 10 * S, fill: nil, stroke: cBlue, lw: 1, dash: [4, 3])
-	for i in 0..<24 {
-		let cx = X(15 + (CGFloat(i) + 0.5) * 6.75), used = i < 20
-		dot(cx, Y(192), 1.6, fill: used ? rgb(1, 0.95, 0.6) : nil, stroke: used ? nil : cGray, lw: 0.6)
+	// status bar: four 8-LED sticks (32 LEDs, 216 mm), 25 used
+	let barY = 10 + gridW + 5
+	rect(X((boardW - 216) / 2), Y(barY), 216 * S, 10 * S, fill: nil, stroke: cBlue, lw: 1, dash: [4, 3])
+	for i in 0..<32 {
+		let cx = X((boardW - 216) / 2 + (CGFloat(i) + 0.5) * 6.75), used = i < 25
+		dot(cx, Y(barY + 5), 1.4, fill: used ? rgb(1, 0.95, 0.6) : nil, stroke: used ? nil : cGray, lw: 0.6)
 	}
-	dot(X(96), Y(5), 3, fill: nil, stroke: cBlack, lw: 1.2)
-	dot(X(84), Y(5), 2, fill: nil, stroke: cBlack, lw: 1.2)
-	for (cx, cy) in [(5, 5), (187, 5), (5, 201), (187, 201)] { dot(X(CGFloat(cx)), Y(CGFloat(cy)), 3.2 * S / 2, fill: cWhite, stroke: cBlack, lw: 1) }
+	dot(X(boardW / 2 + 6), Y(5), 2.6, fill: nil, stroke: cBlack, lw: 1.2)
+	dot(X(boardW / 2 - 6), Y(5), 1.8, fill: nil, stroke: cBlack, lw: 1.2)
+	for (cx, cy) in [(5, 5), (230, 5), (5, 245), (230, 245)] { dot(X(CGFloat(cx)), Y(CGFloat(cy)), 3.2 * S / 2, fill: cWhite, stroke: cBlack, lw: 1) }
 	let ax = X(10 + dPitch + dPitch / 2)
-	line(ax, Y(-12), ax, Y(boardH + 12), 1, cOrange, dash: [10, 3, 2, 3])
-	text("B", ax - 16, Y(-12) + 4, size: 13, bold: true, color: cOrange); text("B", ax - 16, Y(boardH + 12) + 4, size: 13, bold: true, color: cOrange)
-	arrow(ax, Y(-12), ax + 14, Y(-12), cOrange); arrow(ax, Y(boardH + 12), ax + 14, Y(boardH + 12), cOrange)
-	dimH(X(0), X(boardW), py + 62, "192")
+	line(ax, Y(-12), ax, Y(boardH + 10), 1, cOrange, dash: [10, 3, 2, 3])
+	text("B", ax - 16, Y(-12) + 4, size: 13, bold: true, color: cOrange); text("B", ax - 16, Y(boardH + 10) + 4, size: 13, bold: true, color: cOrange)
+	arrow(ax, Y(-12), ax + 14, Y(-12), cOrange); arrow(ax, Y(boardH + 10), ax + 14, Y(boardH + 10), cOrange)
+	dimH(X(0), X(boardW), py + 62, "235")
 	dimH(X(10), X(10 + dPitch), py + 78, "pitch 43")
-	dimV(X(boardW) + 22, Y(0), Y(boardH), "≈ 206 [E]", labelLeft: false)
-	dimV(X(0) - 20, Y(10), Y(182), "172 grid", labelLeft: true)
-	balloon(12, px + pw - 50, Y(20), X(boardW - 5), Y(20))
-	balloon(2, px + pw - 50, Y(60), X(10 + 2 * dPitch + 20), Y(10 + dPitch + 20))
-	balloon(18, px + pw - 50, Y(192), X(168), Y(192))
-	balloon(23, px + pw - 50, Y(2), X(96), Y(5))
-	balloon(13, px + 44, Y(boardH - 12), X(5), Y(201))
+	dimV(X(boardW) + 12, Y(0), Y(boardH), "250", labelLeft: false)
+	dimV(X(0) - 14, Y(10), Y(10 + gridW), "215 grid", labelLeft: true)
+	balloon(12, px + pw - 22, Y(20), X(boardW - 5), Y(20))
+	balloon(2, px + pw - 22, Y(70), X(10 + 3 * dPitch + 20), Y(10 + 2 * dPitch + 20))
+	balloon(18, px + pw - 22, Y(barY + 5), X(boardW - 40), Y(barY + 5))
+	balloon(23, px + pw - 22, Y(2), X(boardW / 2 + 6), Y(5))
+	balloon(13, px + 36, Y(boardH - 12), X(5), Y(245))
 	text("One tile is drawn with its 25 LEDs; the others show the 5 × 5 cell grid only.", px + 24, py + ph - 22, size: 10, color: cGray)
-	text("Tile head 42, gap 1. Status bar: 3 sticks of 8, 20 used, fixed; its position under the grid is [E].", px + 24, py + ph - 8, size: 10, color: cGray)
+	text("Tile head 42, gap 1. Status bar: 4 sticks of 8, 25 used, fixed; its position under the grid is [E].", px + 24, py + ph - 8, size: 10, color: cGray)
 }
 
 // MARK: B. Section through one tile column
@@ -540,11 +542,11 @@ func dpOpen(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 		"Servo bracket (8): ear plane and hole spacing are from memory; print the cutout wall once and fit the real servo before printing 16.",
 		"LED module (3): pad layout, board thickness and the 39 mm size (listed '3.9') are not on the page; ask the seller or check on arrival. Chains of 25 need power and data wires per module.",
 		"Yoke slot wear: PLA slot, steel pin; a dab of grease. Check after 10,000 cycles.",
-		"Diffuser (1): a printed translucent sheet, thickness and evenness untested; brightness figures (≈ 1,750 nits full-screen at 5 A) assume 25 % transmission.",
+		"Diffuser (1): a printed translucent sheet, thickness and evenness untested; brightness figures (≈ 2,250 nits full-screen at 10 A, ≈ 1,130 at 5 A) assume 25 % transmission.",
 		"Horn: trimmed to one arm; pin hole at R = 7.76 mm drilled or the pin pressed into a printed collar.",
 		"Homing: none needed, servo angles are absolute; calibrate two end angles per tile in the app.",
 		"Wire loom: module power + data and servo lead per tile with a service loop for 15 mm of travel; routing through the floor plate hole is not drawn.",
-		"Stand and ball-head mount (24), back plate cut file, M3 rod spacers (13).",
+		"New stand for a ≈ 2.1 kg, 235 × 250 board (24), back plate cut file, M3 rod spacers (13). Wiring PDFs not yet redrawn for 25 tiles.",
 	]
 	for s in items { y = paragraph("• " + s, px + 18, y, width: pw - 36, size: 11) + 5 }
 }
@@ -562,36 +564,40 @@ func dpSystem(_ px: CGFloat, _ py: CGFloat, _ pw: CGFloat, _ ph: CGFloat) {
 	func a(_ x1: CGFloat, _ y1: CGFloat, _ x2: CGFloat, _ y2: CGFloat, _ c: CGColor) { arrow(px + x1, py + y1, px + x2, py + y2, c, w: 1.6) }
 	func l(_ x1: CGFloat, _ y1: CGFloat, _ x2: CGFloat, _ y2: CGFloat, _ c: CGColor) { line(px + x1, py + y1, px + x2, py + y2, 1.6, c) }
 	b(20, 70, 120, 40, "Charger C", "20 V 3.33 A", num: 20)
-	b(20, 180, 120, 40, "Charger B", "16 V 3.75 A", num: 20)
-	b(20, 290, 120, 40, "Charger A", "12 V 4 A, spare", num: 20, dashed: true)
-	b(190, 110, 110, 130, "Power board", "switch · fuses", num: 21)
-	b(350, 90, 110, 60, "BUCK 20→5 V", "LEDs, cap ~5 A", num: 19)
-	b(350, 200, 110, 60, "BUCK 16→5 V", "servos + logic", num: 19)
-	l(140, 90, 190, 135, cRed); l(140, 200, 190, 215, cOrange)
-	a(300, 120, 350, 120, cRed); a(300, 230, 350, 230, cOrange)
-	b(520, 90, 130, 50, "5 V LED rail", "thick wire, not the breadboard", fill: rgb(1, 0.95, 0.9))
-	b(520, 200, 130, 50, "5 V servo + logic rail", "servos ≈ 2 A, Pico, 245", fill: rgb(1, 0.95, 0.9))
-	a(460, 120, 520, 115, cRed); a(460, 230, 520, 225, cOrange)
-	b(720, 270, 120, 56, "Pico W", "Wi-Fi + BLE", fill: rgb(0.88, 0.96, 0.9), num: 17)
-	l(585, 250, 585, 298, cOrange); a(585, 298, 720, 298, cOrange)
-	b(720, 380, 120, 40, "Phone / Mac app", "BLE or Wi-Fi")
-	arrow(px + 780, py + 380, px + 780, py + 326, cBlue, w: 1.4); arrow(px + 770, py + 326, px + 770, py + 380, cBlue, w: 1.4)
-	b(720, 190, 120, 44, "LDR + NTC", "ADC GP26 / GP27", num: 23)
-	arrow(px + 780, py + 234, px + 780, py + 270, cBlue, w: 1.4)
+	b(20, 200, 120, 40, "Charger B", "16 V 3.75 A", num: 20)
+	b(20, 320, 120, 40, "Charger A", "12 V 4 A, spare", num: 20, dashed: true)
+	b(190, 70, 110, 190, "Power board", "switch · fuses", num: 21)
+	b(350, 62, 110, 52, "BUCK 20→5 V", "LED half A, 5 A", num: 19)
+	b(350, 134, 110, 52, "BUCK 20→5 V", "LED half B, 5 A", num: 19)
+	b(350, 214, 110, 52, "BUCK 16→5 V", "servos + logic", num: 19)
+	l(140, 90, 190, 100, cRed); l(140, 220, 190, 232, cOrange)
+	a(300, 88, 350, 88, cRed); a(300, 160, 350, 160, cRed); a(300, 240, 350, 240, cOrange)
+	b(520, 62, 130, 52, "5 V LED rail A", "rows 1–3 · thick wire", fill: rgb(1, 0.95, 0.9))
+	b(520, 134, 130, 52, "5 V LED rail B", "rows 4–5 + bar", fill: rgb(1, 0.95, 0.9))
+	b(520, 214, 130, 52, "5 V servo + logic rail", "servos ≈ 2–3 A, Pico, 245", fill: rgb(1, 0.95, 0.9))
+	a(460, 88, 520, 88, cRed); a(460, 160, 520, 160, cRed); a(460, 240, 520, 240, cOrange)
+	b(720, 290, 120, 56, "Pico W", "Wi-Fi + BLE", fill: rgb(0.88, 0.96, 0.9), num: 17)
+	l(585, 266, 585, 318, cOrange); a(585, 318, 720, 318, cOrange)
+	b(720, 392, 120, 40, "Phone / Mac app", "BLE or Wi-Fi")
+	arrow(px + 780, py + 392, px + 780, py + 346, cBlue, w: 1.4); arrow(px + 770, py + 346, px + 770, py + 392, cBlue, w: 1.4)
+	b(720, 210, 120, 44, "LDR + NTC", "ADC GP26 / GP27", num: 23)
+	arrow(px + 780, py + 254, px + 780, py + 290, cBlue, w: 1.4)
 	// LED path
-	b(920, 120, 120, 44, "74HCT245", "3V3 → 5 V · 5 lines", num: 16)
-	b(1090, 100, 250, 84, "LED modules + bar", "16 × 25 + 20 = 420 WS2812B, 4 rows + bar", num: 3)
-	a(840, 285, 920, 150, cBlue); a(1040, 142, 1090, 142, cGreen)
-	a(650, 115, 1090, 112, cRed)
+	b(920, 130, 120, 44, "74HCT245", "3V3 → 5 V · 6 lines", num: 16)
+	b(1090, 62, 250, 124, "LED modules + bar", "25 × 25 + 25 = 650 WS2812B", num: 3)
+	text("5 rows of 5 modules + the bar,", px + 1215, py + 130, size: 9, align: 1)
+	text("one data line each", px + 1215, py + 143, size: 9, align: 1)
+	a(840, 305, 920, 160, cBlue); a(1040, 152, 1090, 152, cGreen)
+	a(650, 88, 1090, 88, cRed); a(650, 160, 1090, 120, cRed)
 	// servo path
-	b(920, 270, 110, 56, "PCA9685", "I2C GP16 / GP17", num: 15)
-	b(1075, 270, 110, 56, "Servo ×16", "SG90, PWM", num: 7)
-	b(1230, 270, 110, 56, "Scotch yoke", "R 7.76, ±75°", num: 6)
-	a(840, 298, 920, 298, cBlue); a(1030, 298, 1075, 298, cBlue); a(1185, 298, 1230, 298, cBlue)
-	line(px + 585, py + 352, px + 1130, py + 352, 1.6, cOrange); line(px + 585, py + 298, px + 585, py + 352, 1.6, cOrange); arrow(px + 1130, py + 352, px + 1130, py + 326, cOrange, w: 1.6)
-	b(1230, 380, 110, 40, "Stem → tile", "15 mm stroke", fill: cLight)
-	a(1285, 326, 1285, 380, cBlack)
-	text("Line colours: red = 5 V LED power, orange = 5 V servo / logic, blue = logic, green = LED data. Charger A (12 V) is not used.", px + 20, py + ph - 14, size: 10, color: cGray)
+	b(920, 290, 110, 56, "PCA9685 ×2", "I2C 0x40 / 0x41", num: 15)
+	b(1075, 290, 110, 56, "Servo ×25", "SG90, PWM", num: 7)
+	b(1230, 290, 110, 56, "Scotch yoke", "R 7.76, ±75°", num: 6)
+	a(840, 318, 920, 318, cBlue); a(1030, 318, 1075, 318, cBlue); a(1185, 318, 1230, 318, cBlue)
+	line(px + 585, py + 372, px + 1130, py + 372, 1.6, cOrange); line(px + 585, py + 318, px + 585, py + 372, 1.6, cOrange); arrow(px + 1130, py + 372, px + 1130, py + 346, cOrange, w: 1.6)
+	b(1230, 392, 110, 40, "Stem → tile", "15 mm stroke", fill: cLight)
+	a(1285, 346, 1285, 392, cBlack)
+	text("Line colours: red = 5 V LED power, orange = 5 V servo / logic, blue = logic, green = LED data. Charger A (12 V) is not used. Two 5 A bucks cap the LEDs at 10 A.", px + 20, py + ph - 14, size: 10, color: cGray)
 }
 
 // MARK: I. Parts list

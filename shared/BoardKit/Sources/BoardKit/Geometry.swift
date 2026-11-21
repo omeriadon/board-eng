@@ -5,7 +5,7 @@ public struct BoardGeometry: Hashable, Sendable {
 	/// Number of discrete heights a tile can sit at (0 = fully retracted).
 	public var heightLevels: Int
 
-	public init(tilesPerSide: Int = 4, ledsPerTileSide: Int = 5, heightLevels: Int = 10) {
+	public init(tilesPerSide: Int = 5, ledsPerTileSide: Int = 5, heightLevels: Int = 10) {
 		self.tilesPerSide = max(1, tilesPerSide)
 		self.ledsPerTileSide = max(1, ledsPerTileSide)
 		self.heightLevels = max(2, heightLevels)
@@ -26,8 +26,11 @@ public struct BoardGeometry: Hashable, Sendable {
 		(column / ledsPerTileSide, row / ledsPerTileSide)
 	}
 
-	/// The planned build: 4 × 4 tiles of 5 × 5 LEDs (one premade 5 × 5 module per tile) = 20 × 20 pixels.
+	/// The planned build: 5 × 5 tiles of 5 × 5 LEDs (one premade 5 × 5 module per tile) = 25 × 25 pixels.
 	public static let standard = BoardGeometry()
+
+	/// The planned LED current limit: two 5 A buck converters, one for each half of the LED area.
+	public static let ledLimitAmps: Double = 10
 
 	/// The limits the layout steppers allow in the apps.
 	public static let tileRange = 2 ... 8
