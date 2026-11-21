@@ -1,6 +1,6 @@
 # Dither Board: Ingredients List
 
-_Last updated: 2026-11-20 (rev 16). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
+_Last updated: 2026-11-21 (rev 17). One consolidated list. Prices are **AUD**, ex-GST, from the research in [`components.md`](components.md) (USD figures converted at 0.69 USD per AUD) plus a few fresh lookups. The builder said: ignore the budget, get the cheapest reasonable parts._
 
 **Build:** 4 × 4 tiles, 6 × 6 LEDs per tile (576) + a 24-LED status bar = **600 LEDs**, 16 stepper motors, Pico W. Power is the builder's own three chargers (12 V 4 A, 20 V 3.33 A, 16 V 3.75 A) plus two buck modules. Wiring: [`circuit.md`](circuit.md) and [`schematics/`](schematics/).
 
@@ -15,18 +15,18 @@ Confidence tags: **[P]** page opened and read, **[C]** search-result card only, 
 | A1 | **Stepper motor, 8 mm, 2-phase 4-wire, bare lead screw** | 18 (16 + 2 spare). **Order 3 first** as a pilot. | SINONING "Mini 8 mm precision stepper motor 2-phase 4-wire, long linear screw shaft" (2 mm screw, 28 mm, no nut) | sinoning.com (links in `components.md` §1.1) | 18 × 1.58 = **28.40** + postage ~8 | [P] price, [E] postage |
 | A2 | **M2 brass nuts** | 100 | Pitch unverified (probably M2 × 0.4); test one on a pilot motor | AliExpress | **2.20** | [E] |
 | A3 | **Motor driver module MX1508** (dual H-bridge, 2–10 V, 1.5 A per channel, MOSFET) | 18 (2 packs of 10) | One per motor; 4 inputs IN1–IN4 | AliExpress "MX1508 10 pcs" | **13.80** | [C] |
-| A4 | **WS2815 RGB LED, 5050 SMD, 12 V, addressable** | 660 (600 + 10 % spare) | Worldsemi **WS2815B-V1**, LCSC C5446699 (datasheet lists data-high ≥ 2.7 V, so even a 3.3 V line would read; we feed 5 V from the 74HCT245 anyway) | LCSC (5+ price ~US$0.0925 each; snapshots range 0.0915–0.1021) | 660 × US$0.0925 = US$61 = **88.40** + shipping ~25 | [C] price, [E] shipping |
-| A5 | **100 nF capacitor, 0805** (one per LED) | 700 | Decoupling | AliExpress / LCSC | **7.00** | [E] |
+| A4 | **WS2815-family RGB LED, 5050 SMD, 12 V, addressable** | 630 (600 + 5 % spare) | **Worldsemi WS2815F**, LCSC **C22371533** (SMD5050-6P, 12 V, 800 kbit/s; stock 12,130). Price tiers (USD): 100+ 0.056, **300+ 0.0489**, 1000+ 0.0435. **Fallback: WS2815B-V1, C5446699** (stock 406k; 150+ 0.0738, 1000+ 0.0658). **Check the F datasheet pinout vs the B before drawing the PCB** (pin order may differ; I could not open the F datasheet) | LCSC (full reel is 1000, but partial quantities are sold at the 300+ tier) | 630 × US$0.0489 = US$30.8 = **44.60** + shipping ~25 | [P] price tiers read from LCSC's product API on 2026-11-21, [E] shipping, [C] F pinout |
+| A5 | **100 nF capacitor, 0805** (one per LED) | 650 | Decoupling. YAGEO CC0805KRX7R9BB104, LCSC C49678 (US$0.007 at 600+, in the same order as the LEDs) | LCSC | 650 × US$0.007 = US$4.55 = **6.60** | [P] |
 | A6 | **Tile PCBs**, 2 layers, **black** solder mask: 16 tile boards (36 LEDs each at ~6.5 mm pitch, 4 pads: +12 V, GND, DIN, DOUT) + the 24-LED bar board | 5 panels of 2 × 2 tiles (20 tiles) + 5 bar boards (need 2) | **Not designed yet.** Two designs, each "from US$2 for 5 pcs" (≤ 100 × 100 mm) | JLCPCB | **~40.00** incl. shipping | [E] |
 | A7 | **74HC595N, DIP-16** | 10 (8 + 2 spare), one pack | Powered from 3.3 V, so plain HC is fine | AliExpress 10-pack (AU$1–3) | **2.00** | [C] |
 | A8 | **74HCT245, DIP-20** (level shifter for the five LED data lines) | 5 (1 + spares) | Must be **HCT**, not HC or LS (needs 5 V logic with a 3.3 V input threshold) | AliExpress / eBay "SN74HCT245N" | **4.00** | [E] |
 | A9 | **Buck module XL4016-class, 8 A, adjustable** ("XH-M404" style) | 3 (2 + 1 spare) | Used at ≤ 5 A with your aluminium heatsink: **12.0 V** from 20 V, **5.0 V** from 16 V | AliExpress / eBay (one eBay sale AU$5.78 + postage) | **18.00** | [E] |
 | A10 | **JST-XH 4-pin connector sets** (housing + header) | ~50 pairs | Tile ↔ harness for the LED chain and the motor | AliExpress | **10.00** | [E] |
-| | **Subtotal, ex-GST** | | | | **≈ 246** | |
-| | **+10 % GST on imports (rough)** | | | | **≈ 25** | |
-| | **Total to buy** | | | | **≈ AU$270** | |
+| | **Subtotal, ex-GST** | | | | **≈ 203** | |
+| | **+10 % GST on imports (rough)** | | | | **≈ 20** | |
+| | **Total to buy** | | | | **≈ AU$223** | |
 
-The LEDs (A4) are about 45 % of it. They are priced for the 12 V part because the power plan is 12 V; the 5 V WS2812B would be ~AU$44 for the same count but cannot be powered by this plan (90 W of LEDs at 5 V is ~18 A).
+The LEDs (A4) are now about 22 % of it (rev 17: cheaper part, correct price tier; the earlier AU$88 used a stale 5-piece price). The 12 V part costs the same as the 5 V WS2812B at LCSC (150+ tier: WS2815B 0.0738, WS2812B 0.0741), so the voltage is not a cost lever. The only 5 V part that is meaningfully cheaper is the XINGLIGHT XL-5050RGBC-2812B (C2843785, 300+ 0.0411, 630 = ~AU$37.50), saving only ~AU$7 and forcing a 5 V LED supply (90 W of LEDs at 5 V is ~18 A), so **not recommended**. Each 100 LEDs fewer saves only ~AU$8, so cutting to 5 × 5 per tile would save ~AU$20 and is not worth it.
 
 ---
 
@@ -61,7 +61,7 @@ The LEDs (A4) are about 45 % of it. They are priced for the 12 V part because th
 ## D. What is not verified
 
 - Nothing has been tested on hardware.
-- LED price and stock at LCSC: search snapshots disagree (part C965559 showed "not available" while C5446699 showed 100k+ in stock). Check the live page, and an AliExpress "WS2815 5050 chip 100 pcs" listing as a possible cheaper source (not found by the search tool). The only other price found: a bare-chip pack at US$14.98 per 100 (SuperLightingLED), i.e. ~AU$150 for 660, so LCSC is cheaper if it ships.
+- LED prices were read from LCSC's product API on 2026-11-21 (tiers and stock are exact for that day). **WS2815F pinout and logic threshold are not verified** (datasheet would not load). Untried cheaper source: unbranded clones on AliExpress (chip packs); not found by the search tool. LCSC shipping to Australia is an estimate; JLCPCB can ship parts in the same box as the tile PCBs.
 - Motor coil resistance and real current (the bare listing has no tested specs), the M2 thread pitch, the XL4016 module revision and rating, MX1508 availability in packs of 10.
 
 ---
